@@ -13,19 +13,42 @@
 - config_dev.yml конфигурационный файл используемый при развертывании тестовой инфраструктуры максимально приближенной к продуктовой;
 - config_prod.yml конфигурационный файл применяемый в продуктовом режиме.
 
-Основная переменная окружения для данного приложения - GO_PHDOC-BASEDB_MAIN. На основании значения этой переменной принимается решение какой из конфигурационных файлов config_test.yml, config_dev.yml или config_prod.yml использовать. При GO_PHDOC-BASEDB_MAIN=development будет использоваться config_dev.yml, при GO_PHDOC-BASEDB_MAIN=test будет использоваться config_test.yml, во всех остальных случаях, в том числе и при отсутствии переменной окружения GO_PHDOC-BASEDB_MAIN будет использоваться конфигурационный файл config_prod.yml. Перечень переменных окружения которые можно использовать для настройки приложения:
+Основная переменная окружения для данного приложения - GO_PHDOCBASEDB_MAIN. На основании значения этой переменной принимается решение какой из конфигурационных файлов config_test.yml, config_dev.yml или config_prod.yml использовать. При GO_PHDOCBASEDB_MAIN=development будет использоваться config_dev.yml, при GO_PHDOCBASEDB_MAIN=test будет использоваться config_test.yml, во всех остальных случаях, в том числе и при отсутствии переменной окружения GO_PHDOCBASEDB_MAIN будет использоваться конфигурационный файл config_prod.yml. Перечень переменных окружения которые можно использовать для настройки приложения:
 
 #### Переменная окружения отвечающая за тип запуска приложения "test", "development" или "production"
 
-- GO_PHDOC-BASEDB_MAIN
+- GO_PHDOCBASEDB_MAIN
 
 #### Переменные окружения отвечающие за подключение к NATS
 
-- GO_PHDOC-BASEDB_NHOST - ip или доменное имя
-- GO_PHDOC-BASEDB_NPORT - сетевой порт
-- GO_PHDOC-BASEDB_NCACHETTL - данный параметр должен содержать время жизни записи
+- GO_PHDOCBASEDB_NHOST - ip или доменное имя
+- GO_PHDOCBASEDB_NPORT - сетевой порт
+- GO_PHDOCBASEDB_NCACHETTL - данный параметр должен содержать время жизни записи
   кэша, по истечение которого запись автоматически удаляется, значение задается
   в секундах в диапазоне от 10 до 86400 секунд
-- GO_PHDOC-BASEDB_NSUBSENDERCASE - канал для отправки в него информации по case
-- GO_PHDOC-BASEDB_NSUBSENDERALERT - канал для отправки в него информации по alert
-- GO_PHDOC-BASEDB_NSUBLISTENERCOMMAND - канал для приема команд которые нужно выполнить в TheHive
+- GO_PHDOCBASEDB_NSUBSENDERCASE - канал для отправки в него информации по case
+- GO_PHDOCBASEDB_NSUBSENDERALERT - канал для отправки в него информации по alert
+- GO_PHDOCBASEDB_NSUBLISTENERCOMMAND - канал для приема команд которые нужно выполнить в TheHive
+
+#### Переменные окружения отвечающие за настройку доступа к БД применяемой для хранения TheHive объектов типа 'alert' и 'case'
+
+- GO_PHDOCBASEDB_DBSTORAGEHOST - доменное имя или ip БД
+- GO_PHDOCBASEDB_DBSTORAGEPORT - порт БД
+- GO_PHDOCBASEDB_DBSTORAGENAME - наименование БД (при необходимости)
+- GO_PHDOCBASEDB_DBSTORAGEUSER - пользователь БД
+- GO_PHDOCBASEDB_DBSTORAGEPASSWD - пароль для доступа к БД
+- GO_PHDOCBASEDB_DBSTORAGENALERT - наименование объекта хранения объектов типа 'alert'
+- GO_PHDOCBASEDB_DBSTORAGENCASE - наименование объекта хранения объектов типа 'case'
+
+#### Переменные окружения отвечающие за настройку доступа к БД применяемой для хранения логов
+
+- GO_PHDOCBASEDB_DBWLOGHOST - доменное имя или ip БД
+- GO_PHDOCBASEDB_DBWLOGPORT - порт БД
+- GO_PHDOCBASEDB_DBWLOGNAME - наименование БД (при необходимости)
+- GO_PHDOCBASEDB_DBWLOGUSER - пользователь БД
+- GO_PHDOCBASEDB_DBWLOGPASSWD - пароль для доступа к БД
+- GO_PHDOCBASEDB_DBWLOGSTORAGENAME - наименование объекта хранения логов (таблица, документ, индекс и т.д. зависит от типа БД)
+
+Настройки логирования данных в БД не являются обязательными и необходимы только если пользователь приложения желает хранить логи в базе данных.
+
+Приоритет значений заданных через переменные окружения выше чем значений полученных из конфигурационных файлов. Таким образом можно осуществлять гибкую временную настройку приложения.

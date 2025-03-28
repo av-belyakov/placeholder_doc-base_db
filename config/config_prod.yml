@@ -1,0 +1,22 @@
+NATS:
+  host: nats.cloud.gcm
+  port: 4222
+  cache_ttl: 3600
+  subscriptions:
+    listener_alert: object.alerttype
+    listener_case: object.casetype
+    sender_command: object.commandstype
+DATABASESTORAGE:
+  host: datahook.cloud.gcm
+  port: 9200
+  user: writer
+  namedb: ""
+  storage_name_db:
+    alert: module_placeholder_alert
+    case: module_placeholder_case
+DATABASEWRITELOG:
+  host: datahook.cloud.gcm
+  port: 9200
+  user: log_writer
+  namedb: ""
+  storage_name_db: placeholder_doc-base-db
