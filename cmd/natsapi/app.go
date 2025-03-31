@@ -80,7 +80,7 @@ func (api *apiNatsModule) Start(ctx context.Context) (chan<- SettingsInputChan, 
 	api.natsConn = nc
 
 	//обработчик подписок
-	go api.subscriptionHandler(ctx)
+	go api.subscriptionHandler()
 
 	//обработчик информации полученной изнутри приложения
 	go api.incomingInformationHandler(ctx)
