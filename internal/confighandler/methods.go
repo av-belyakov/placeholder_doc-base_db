@@ -27,6 +27,11 @@ func (c *ConfigApp) GetListLogs() []*LogSet {
 	return c.Common.Logs
 }
 
+// GetZabbix настройки взаимодействия с Zabbix
+func (c *ConfigApp) GetZabbix() *ZabbixOptions {
+	return &c.Common.Zabbix
+}
+
 // SetNameMessageType наименование тпа логирования
 func (l *LogSet) SetNameMessageType(v string) error {
 	if v == "" {

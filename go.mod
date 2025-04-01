@@ -5,6 +5,7 @@ go 1.24.1
 require (
 	github.com/av-belyakov/placeholder_misp v0.0.0-20250331133404-7a24f91db72d
 	github.com/av-belyakov/simplelogger v0.0.0-20250225125610-1e1723ce15ea
+	github.com/av-belyakov/zabbixapicommunicator v0.0.0-20241225064839-9c19184470aa
 	github.com/elastic/go-elasticsearch/v8 v8.17.1
 	github.com/go-playground/validator/v10 v10.25.0
 	github.com/google/uuid v1.6.0

@@ -2,6 +2,12 @@ package interfaces
 
 import "context"
 
+//**************** счётчик *****************
+
+type Counter interface {
+	SendMessage(string, int)
+}
+
 //************** логирование ***************
 
 type Logger interface {

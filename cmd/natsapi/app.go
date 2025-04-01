@@ -18,7 +18,8 @@ import (
 func New(logger interfaces.Logger, opts ...NatsApiOptions) (*apiNatsModule, error) {
 	api := &apiNatsModule{
 		cachettl: 10,
-		logger:   logger,
+		//для логирования
+		logger: logger,
 		//прием запросов в NATS
 		chFromModule: make(chan SettingsOutputChan),
 		//передача запросов из NATS

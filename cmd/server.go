@@ -5,19 +5,24 @@ import (
 	"log"
 	"os"
 
+	"github.com/av-belyakov/placeholder_doc-base_db/cmd/elasticsearchapi"
+	"github.com/av-belyakov/placeholder_doc-base_db/cmd/natsapi"
+	"github.com/av-belyakov/placeholder_doc-base_db/cmd/wrappers"
 	"github.com/av-belyakov/placeholder_doc-base_db/constants"
+	"github.com/av-belyakov/placeholder_doc-base_db/interfaces"
 	"github.com/av-belyakov/placeholder_doc-base_db/internal/appversion"
 	"github.com/av-belyakov/placeholder_doc-base_db/internal/confighandler"
+	"github.com/av-belyakov/placeholder_doc-base_db/internal/countermessage"
+	"github.com/av-belyakov/placeholder_doc-base_db/internal/logginghandler"
 	"github.com/av-belyakov/placeholder_doc-base_db/internal/supportingfunctions"
-	"github.com/av-belyakov/placeholder_misp/cmd/elasticsearchapi"
 	"github.com/av-belyakov/simplelogger"
 )
 
 func server(ctx context.Context) {
 	var nameRegionalObject string
-	if os.Getenv("GO_PHMISP_MAIN") == "development" {
+	if os.Getenv("GO_PHDOCBASEDB_MAIN") == "development" {
 		nameRegionalObject = "gcm-dev"
-	} else if os.Getenv("GO_PHMISP_MAIN") == "test" {
+	} else if os.Getenv("GO_PHDOCBASEDB_MAIN") == "test" {
 		nameRegionalObject = "gcm-test"
 	} else {
 		nameRegionalObject = "gcm"
@@ -68,5 +73,71 @@ func server(ctx context.Context) {
 		//подключение логирования в БД
 		simpleLogger.SetDataBaseInteraction(esc)
 	}
+
+	// ************************************************************************
+	// ************* инициализация модуля взаимодействия с Zabbix *************
+	chZabbix := make(chan interfaces.Messager)
+	confZabbix := conf.GetZabbix()
+	wziSettings := wrappers.WrappersZabbixInteractionSettings{
+		NetworkPort: confZabbix.NetworkPort,
+		NetworkHost: confZabbix.NetworkHost,
+		ZabbixHost:  confZabbix.ZabbixHost,
+	}
+	eventTypes := []wrappers.EventType(nil)
+	for _, v := range confZabbix.EventTypes {
+		eventTypes = append(eventTypes, wrappers.EventType{
+			IsTransmit: v.IsTransmit,
+			EventType:  v.EventType,
+			ZabbixKey:  v.ZabbixKey,
+			Handshake: wrappers.Handshake{
+				TimeInterval: v.Handshake.TimeInterval,
+				Message:      v.Handshake.Message,
+			},
+		})
+	}
+	wziSettings.EventTypes = eventTypes
+	wrappers.WrappersZabbixInteraction(ctx, wziSettings, simpleLogger, chZabbix)
+
+	//***************************************************************************
+	//************** инициализация обработчика логирования данных ***************
+	//фактически это мост между simpleLogger и пакетом соединения с Zabbix
+	logging := logginghandler.New(simpleLogger, chZabbix)
+	logging.Start(ctx)
+
+	// ***************************************************************************
+	// *********** инициализируем модуль счётчика для подсчёта сообщений *********
+	counting := countermessage.New(chZabbix)
+	counting.Start(ctx)
+
+	// ***********************************************************************
+	// ************** инициализация модуля взаимодействия с NATS *************
+	confNats := conf.NATS
+	apiNats, err := natsapi.New(
+		logging,
+		natsapi.WithHost(confNats.Host),
+		natsapi.WithPort(confNats.Port),
+		natsapi.WithCacheTTL(confNats.CacheTTL),
+		natsapi.WithSubSenderAlert(confNats.Subscriptions.ListenerAlert),
+		natsapi.WithSubSenderCase(confNats.Subscriptions.ListenerCase),
+		natsapi.WithSubListenerCommand(confNats.Subscriptions.SenderCommand))
+	if err != nil {
+		_ = simpleLogger.Write("error", supportingfunctions.CustomError(err).Error())
+
+		log.Fatal(err)
+	}
+	if chInNats, chOutNats, err = apiNats.Start(ctx); err != nil {
+		_ = simpleLogger.Write("error", supportingfunctions.CustomError(err).Error())
+
+		log.Fatal(err)
+	}
+
+	// *********************************************************************
+	// ************** инициализация модуля взаимодействия с БД *************
+
+	// *************************************************************************
+	// ************** инициализация модуля обработки JSON объектов *************
+
+	// ***********************************************************************
+	// ******************** инициализация маршрутизатора *********************
 
 }
