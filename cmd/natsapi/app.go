@@ -22,9 +22,9 @@ func New(logger interfaces.Logger, opts ...NatsApiOptions) (*apiNatsModule, erro
 		},
 		//для логирования
 		logger: logger,
-		//прием запросов в NATS
+		//запросы в модуль
 		chFromModule: make(chan SettingsChanOutput),
-		//передача запросов из NATS
+		//события из модуля
 		chToModule: make(chan SettingsChanInput),
 	}
 
