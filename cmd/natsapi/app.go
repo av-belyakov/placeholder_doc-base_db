@@ -23,9 +23,9 @@ func New(logger interfaces.Logger, opts ...NatsApiOptions) (*apiNatsModule, erro
 		//для логирования
 		logger: logger,
 		//прием запросов в NATS
-		chFromModule: make(chan SettingsOutputChan),
+		chFromModule: make(chan SettingsChanOutput),
 		//передача запросов из NATS
-		chToModule: make(chan SettingsInputChan),
+		chToModule: make(chan SettingsChanInput),
 	}
 
 	for _, opt := range opts {
@@ -40,9 +40,9 @@ func New(logger interfaces.Logger, opts ...NatsApiOptions) (*apiNatsModule, erro
 // Start инициализирует новый модуль взаимодействия с API NATS
 // при инициализации возращается канал для взаимодействия с модулем, все
 // запросы к модулю выполняются через данный канал
-func (api *apiNatsModule) Start(ctx context.Context) (chan<- SettingsInputChan, <-chan SettingsOutputChan, error) {
+func (api *apiNatsModule) Start(ctx context.Context) error {
 	if ctx.Err() != nil {
-		return api.chToModule, api.chFromModule, ctx.Err()
+		return ctx.Err()
 	}
 
 	nc, err := nats.Connect(
@@ -75,7 +75,7 @@ func (api *apiNatsModule) Start(ctx context.Context) (chan<- SettingsInputChan, 
 			}
 		}))
 	if err != nil {
-		return api.chToModule, api.chFromModule, supportingfunctions.CustomError(err)
+		return supportingfunctions.CustomError(err)
 	}
 
 	log.Printf("%vconnect to NATS with address %v%s:%d%v\n", constants.Ansi_Bright_Green, constants.Ansi_Dark_Gray, api.settings.host, api.settings.port, constants.Ansi_Reset)
@@ -93,5 +93,5 @@ func (api *apiNatsModule) Start(ctx context.Context) (chan<- SettingsInputChan, 
 		nc.Drain()
 	}(ctx, nc)
 
-	return api.chToModule, api.chFromModule, nil
+	return nil
 }

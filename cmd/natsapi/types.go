@@ -12,8 +12,8 @@ type apiNatsModule struct {
 	logger        interfaces.Logger
 	subscriptions map[string]string
 	settings      apiNatsSettings
-	chFromModule  chan SettingsOutputChan
-	chToModule    chan SettingsInputChan
+	chFromModule  chan SettingsChanOutput
+	chToModule    chan SettingsChanInput
 }
 
 type apiNatsSettings struct {
@@ -27,15 +27,15 @@ type apiNatsSettings struct {
 // NatsApiOptions функциональные опции
 type NatsApiOptions func(*apiNatsModule) error
 
-// SettingsOutputChan канал вывода данных из модуля
-type SettingsOutputChan struct {
+// SettingsChanOutput канал вывода данных из модуля
+type SettingsChanOutput struct {
 	Data        []byte
 	TaskId      string
 	SubjectType string
 }
 
-// SettingsInputChan канал для приема данных в модуль
-type SettingsInputChan struct {
+// SettingsChanInput канал для приема данных в модуль
+type SettingsChanInput struct {
 	Command string
 	TaskId  string
 	CaseId  string

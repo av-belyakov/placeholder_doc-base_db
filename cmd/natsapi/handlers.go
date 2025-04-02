@@ -14,7 +14,7 @@ import (
 func (api *apiNatsModule) subscriptionHandler() {
 	for _, v := range api.subscriptions {
 		_, err := api.natsConn.Subscribe(v, func(m *nats.Msg) {
-			api.chFromModule <- SettingsOutputChan{
+			api.chFromModule <- SettingsChanOutput{
 				TaskId:      uuid.NewString(),
 				SubjectType: v,
 				Data:        m.Data,

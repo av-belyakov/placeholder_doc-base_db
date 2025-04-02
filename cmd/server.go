@@ -126,7 +126,7 @@ func server(ctx context.Context) {
 		log.Fatal(err)
 	}
 	//--- старт модуля
-	if chInNats, chOutNats, err = apiNats.Start(ctx); err != nil {
+	if err = apiNats.Start(ctx); err != nil {
 		_ = simpleLogger.Write("error", supportingfunctions.CustomError(err).Error())
 
 		log.Fatal(err)
@@ -135,7 +135,7 @@ func server(ctx context.Context) {
 	// *********************************************************************
 	// ************** инициализация модуля взаимодействия с БД *************
 	confStorageDB := conf.GetStorageDB()
-	dbapi, err := databasestorageapi.New(
+	apiDBS, err := databasestorageapi.New(
 		logging,
 		databasestorageapi.WithHost(confStorageDB.Host),
 		databasestorageapi.WithPort(confStorageDB.Port),
@@ -149,7 +149,7 @@ func server(ctx context.Context) {
 		log.Fatal(err)
 	}
 	//--- старт модуля
-	if err := dbapi.Start(ctx); err != nil {
+	if err := apiDBS.Start(ctx); err != nil {
 		_ = simpleLogger.Write("error", supportingfunctions.CustomError(err).Error())
 
 		log.Fatal(err)
@@ -160,4 +160,9 @@ func server(ctx context.Context) {
 	// ***********************************************************************
 	// ******************** инициализация маршрутизатора *********************
 
+	//apiNats.GetChanDataToModule()
+	//apiNats.GetChanDataFromModule()
+
+	//apiDBS.GetChanDataToModule()
+	//apiDBS.GetChanDataFromModule()
 }

@@ -2,6 +2,16 @@ package natsapi
 
 import "errors"
 
+// GetChanDataToModule канал для передачи данных в модуль
+func (api *apiNatsModule) GetChanDataToModule() chan SettingsChanInput {
+	return api.chToModule
+}
+
+// GetChanDataFromModule канал для приёма данных из модуля
+func (api *apiNatsModule) GetChanDataFromModule() chan SettingsChanOutput {
+	return api.chFromModule
+}
+
 //******************* функции настройки опций natsapi ***********************
 
 // WithHost имя или ip адрес хоста API
