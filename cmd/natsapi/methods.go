@@ -4,91 +4,75 @@ import "errors"
 
 //******************* функции настройки опций natsapi ***********************
 
-// WithHost метод устанавливает имя или ip адрес хоста API
+// WithHost имя или ip адрес хоста API
 func WithHost(v string) NatsApiOptions {
 	return func(n *apiNatsModule) error {
 		if v == "" {
 			return errors.New("the value of 'host' cannot be empty")
 		}
 
-		n.host = v
+		n.settings.host = v
 
 		return nil
 	}
 }
 
-// WithPort метод устанавливает порт API
+// WithPort порт API
 func WithPort(v int) NatsApiOptions {
 	return func(n *apiNatsModule) error {
 		if v <= 0 || v > 65535 {
 			return errors.New("an incorrect network port value was received")
 		}
 
-		n.port = v
+		n.settings.port = v
 
 		return nil
 	}
 }
 
-// WithCacheTTL устанавливает время жизни для кэша хранящего функции-обработчики
-// запросов к модулю
+// WithCacheTTL время жизни для кэша хранящего функции-обработчики запросов к модулю
 func WithCacheTTL(v int) NatsApiOptions {
 	return func(th *apiNatsModule) error {
 		if v <= 10 || v > 86400 {
 			return errors.New("the lifetime of a cache entry should be between 10 and 86400 seconds")
 		}
 
-		th.cachettl = v
+		th.settings.cachettl = v
 
 		return nil
 	}
 }
 
-// WithSubSenderCase устанавливает канал в который будут отправлятся объекты типа 'case'
-func WithSubSenderCase(v string) NatsApiOptions {
-	return func(n *apiNatsModule) error {
-		if v == "" {
-			return errors.New("the value of 'sender_case' cannot be empty")
-		}
-
-		n.subscriptions.listenerCase = v
-
-		return nil
-	}
-}
-
-// WithSubSenderAlert устанавливает канал в который будут отправлятся объекты типа 'alert'
-func WithSubSenderAlert(v string) NatsApiOptions {
-	return func(n *apiNatsModule) error {
-		if v == "" {
-			return errors.New("the value of 'sender_alert' cannot be empty")
-		}
-
-		n.subscriptions.listenerAlert = v
-
-		return nil
-	}
-}
-
-// WithSubListenerCommand устанавливает канал через которые будут приходить команды для
-// выполнения определенных действий в TheHive
-func WithSubListenerCommand(v string) NatsApiOptions {
-	return func(n *apiNatsModule) error {
-		if v == "" {
-			return errors.New("the value of 'listener_command' cannot be empty")
-		}
-
-		n.subscriptions.senderCommand = v
-
-		return nil
-	}
-}
-
-// WithNameRegionalObject устанавливает наименование которое будет отображатся в
-// статистике подключенных клиентов NATS
+// WithNameRegionalObject наименование которое будет отображатся в статистике подключений NATS
 func WithNameRegionalObject(v string) NatsApiOptions {
 	return func(n *apiNatsModule) error {
-		n.nameRegionalObject = v
+		n.settings.nameRegionalObject = v
+
+		return nil
+	}
+}
+
+// WithSubscriptions 'слушатель' разных типов сообщений
+func WithSubscriptions(v map[string]string) NatsApiOptions {
+	return func(n *apiNatsModule) error {
+		if len(v) == 0 {
+			return errors.New("the value of 'subscriptions' cannot be empty")
+		}
+
+		n.subscriptions = v
+
+		return nil
+	}
+}
+
+// WithSendCommand команду отправляемая в NATS
+func WithSendCommand(v string) NatsApiOptions {
+	return func(n *apiNatsModule) error {
+		if v == "" {
+			return errors.New("the value of 'command' cannot be empty")
+		}
+
+		n.settings.command = v
 
 		return nil
 	}

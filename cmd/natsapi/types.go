@@ -8,21 +8,20 @@ import (
 
 // apiNatsSettings настройки для API NATS
 type apiNatsModule struct {
-	natsConn           *nats.Conn
-	logger             interfaces.Logger
-	host               string
-	nameRegionalObject string
-	subscriptions      subscription
-	chFromModule       chan SettingsOutputChan
-	chToModule         chan SettingsInputChan
-	cachettl           int
-	port               int
+	natsConn      *nats.Conn
+	logger        interfaces.Logger
+	subscriptions map[string]string
+	settings      apiNatsSettings
+	chFromModule  chan SettingsOutputChan
+	chToModule    chan SettingsInputChan
 }
 
-type subscription struct {
-	listenerCase  string
-	listenerAlert string
-	senderCommand string
+type apiNatsSettings struct {
+	nameRegionalObject string
+	command            string
+	host               string
+	cachettl           int
+	port               int
 }
 
 // NatsApiOptions функциональные опции

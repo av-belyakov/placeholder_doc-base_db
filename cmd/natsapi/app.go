@@ -17,7 +17,9 @@ import (
 // New настраивает новый модуль взаимодействия с API NATS
 func New(logger interfaces.Logger, opts ...NatsApiOptions) (*apiNatsModule, error) {
 	api := &apiNatsModule{
-		cachettl: 10,
+		settings: apiNatsSettings{
+			cachettl: 10,
+		},
 		//для логирования
 		logger: logger,
 		//прием запросов в NATS
@@ -44,9 +46,9 @@ func (api *apiNatsModule) Start(ctx context.Context) (chan<- SettingsInputChan, 
 	}
 
 	nc, err := nats.Connect(
-		fmt.Sprintf("%s:%d", api.host, api.port),
+		fmt.Sprintf("%s:%d", api.settings.host, api.settings.port),
 		//имя клиента
-		nats.Name(fmt.Sprintf("placeholder_docbase_db.%s", api.nameRegionalObject)),
+		nats.Name(fmt.Sprintf("placeholder_docbase_db.%s", api.settings.nameRegionalObject)),
 		//неограниченное количество попыток переподключения
 		nats.MaxReconnects(-1),
 		//время ожидания до следующей попытки переподключения (по умолчанию 2 сек.)
@@ -76,7 +78,7 @@ func (api *apiNatsModule) Start(ctx context.Context) (chan<- SettingsInputChan, 
 		return api.chToModule, api.chFromModule, supportingfunctions.CustomError(err)
 	}
 
-	log.Printf("%vconnect to NATS with address %v%s:%d%v\n", constants.Ansi_Bright_Green, constants.Ansi_Dark_Gray, api.host, api.port, constants.Ansi_Reset)
+	log.Printf("%vconnect to NATS with address %v%s:%d%v\n", constants.Ansi_Bright_Green, constants.Ansi_Dark_Gray, api.settings.host, api.settings.port, constants.Ansi_Reset)
 
 	api.natsConn = nc
 

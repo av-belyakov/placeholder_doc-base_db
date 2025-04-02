@@ -12,12 +12,7 @@ import (
 
 // subscriptionHandler обработчик подписок
 func (api *apiNatsModule) subscriptionHandler() {
-	listener := []string{
-		api.subscriptions.listenerAlert,
-		api.subscriptions.listenerCase,
-	}
-
-	for _, v := range listener {
+	for _, v := range api.subscriptions {
 		_, err := api.natsConn.Subscribe(v, func(m *nats.Msg) {
 			api.chFromModule <- SettingsOutputChan{
 				TaskId:      uuid.NewString(),
@@ -40,7 +35,7 @@ func (api *apiNatsModule) incomingInformationHandler(ctx context.Context) {
 
 		case incomingData := <-api.chToModule:
 			//команда на установку тега
-			if err := api.natsConn.Publish(api.subscriptions.senderCommand,
+			if err := api.natsConn.Publish(api.settings.command,
 				fmt.Appendf(nil, `{
 									  "service": "placeholder_docbase_db",
 									  "command": "add_case_tag",
