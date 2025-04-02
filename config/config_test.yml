@@ -3,17 +3,17 @@ NATS:
   port: 4222
   cache_ttl: 3600
   subscriptions:
-    listener_alert: object.alerttype.test
-    listener_case: object.casetype.test
-    sender_command: object.commandstype.test
+    alert: object.alerttype.test
+    case: object.casetype.test
+  command: object.commandstype.test
 DATABASESTORAGE:
   host: datahook.cloud.gcm
   port: 9200
   user: writer
   namedb: ""
   storage_name_db:
-    alert: test.module_placeholder_alert
-    case: test.module_placeholder_case
+    alert: test.module_placeholderdb_alert
+    case: test.module_placeholderdb_case
 DATABASEWRITELOG:
   host: datahook.cloud.gcm
   port: 9200

@@ -3,8 +3,8 @@ package confighandler
 type ConfigApp struct {
 	Common    CfgCommon
 	NATS      CfgNats
-	StorageDB CfgStorageDB
 	LogDB     CfgWriteLogDB
+	StorageDB CfgStorageDB
 }
 
 type CfgCommon struct {
@@ -49,30 +49,20 @@ type Handshake struct {
 }
 
 type CfgNats struct {
-	Subscriptions SubscriptionsNATS `yaml:"subscriptions"`
+	Subscriptions map[string]string `yaml:"subscriptions"`
+	Command       string            `validate:"required" yaml:"command"`
 	Host          string            `validate:"required" yaml:"host"`
 	Port          int               `validate:"gt=0,lte=65535" yaml:"port"`
 	CacheTTL      int               `validate:"gt=10,lte=86400" yaml:"cache_ttl"`
 }
 
-type SubscriptionsNATS struct {
-	ListenerAlert string `validate:"required" yaml:"listener_alert"`
-	ListenerCase  string `validate:"required" yaml:"listener_case"`
-	SenderCommand string `validate:"required" yaml:"sender_command"`
-}
-
 type CfgStorageDB struct {
-	Host    string           `yaml:"host"`
-	User    string           `yaml:"user"`
-	Passwd  string           `yaml:"passwd"`
-	NameDB  string           `yaml:"namedb"`
-	Storage CfgStorageNameDB `yaml:"storage_name_db"`
-	Port    int              `validate:"gt=0,lte=65535" yaml:"port"`
-}
-
-type CfgStorageNameDB struct {
-	Alert string `validate:"required" yaml:"alert"`
-	Case  string `validate:"required" yaml:"case"`
+	Storage map[string]string `yaml:"storage_name_db"`
+	Host    string            `yaml:"host"`
+	User    string            `yaml:"user"`
+	Passwd  string            `yaml:"passwd"`
+	NameDB  string            `yaml:"namedb"`
+	Port    int               `validate:"gt=0,lte=65535" yaml:"port"`
 }
 
 type CfgWriteLogDB struct {

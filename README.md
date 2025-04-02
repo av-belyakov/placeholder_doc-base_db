@@ -21,24 +21,24 @@
 
 #### Переменные окружения отвечающие за подключение к NATS
 
-- GO_PHDOCBASEDB_NHOST - ip или доменное имя
-- GO_PHDOCBASEDB_NPORT - сетевой порт
+- GO_PHDOCBASEDB_NHOST - ip или доменное имя;
+- GO_PHDOCBASEDB_NPORT - сетевой порт;
 - GO_PHDOCBASEDB_NCACHETTL - данный параметр должен содержать время жизни записи
   кэша, по истечение которого запись автоматически удаляется, значение задается
-  в секундах в диапазоне от 10 до 86400 секунд
-- GO_PHDOCBASEDB_NSUBSENDERCASE - канал для отправки в него информации по case
-- GO_PHDOCBASEDB_NSUBSENDERALERT - канал для отправки в него информации по alert
-- GO_PHDOCBASEDB_NSUBLISTENERCOMMAND - канал для приема команд которые нужно выполнить в TheHive
+  в секундах в диапазоне от 10 до 86400 секунд;
+- GO_PHDOCBASEDB_NCOMMAND - публикация команд, которые нужно выполнить в TheHive;
+- GO_PHDOCBASEDB_NSUBLISTENER - подписки для приёма информации (например, такой как alert или case). Для этой переменной можно задавать список параметров типа ключ:значение, параметры между собой разделяются специальным символом ';'.
+  Например, alert:subscriber.alert;case:subscriber.case.
 
 #### Переменные окружения отвечающие за настройку доступа к БД применяемой для хранения TheHive объектов типа 'alert' и 'case'
 
-- GO_PHDOCBASEDB_DBSTORAGEHOST - доменное имя или ip БД
-- GO_PHDOCBASEDB_DBSTORAGEPORT - порт БД
-- GO_PHDOCBASEDB_DBSTORAGENAME - наименование БД (при необходимости)
-- GO_PHDOCBASEDB_DBSTORAGEUSER - пользователь БД
-- GO_PHDOCBASEDB_DBSTORAGEPASSWD - пароль для доступа к БД
-- GO_PHDOCBASEDB_DBSTORAGENALERT - наименование объекта хранения объектов типа 'alert'
-- GO_PHDOCBASEDB_DBSTORAGENCASE - наименование объекта хранения объектов типа 'case'
+- GO_PHDOCBASEDB_DBSTORAGEHOST - доменное имя или ip БД;
+- GO_PHDOCBASEDB_DBSTORAGEPORT - порт БД;
+- GO_PHDOCBASEDB_DBSTORAGENAME - наименование БД (при необходимости);
+- GO_PHDOCBASEDB_DBSTORAGEUSER - пользователь БД;
+- GO_PHDOCBASEDB_DBSTORAGEPASSWD - пароль для доступа к БД;
+- GO_PHDOCBASEDB_DBSTORAGEN - список таблиц БД где хранятся объекты разного типа (например alert и case). Для этой переменной можно задавать список параметров типа ключ:значение, параметры между собой разделяются специальным символом ';'.
+  Например, alert:test.module_placeholderdb_alert;case:test.module_placeholderdb_case.
 
 #### Переменные окружения отвечающие за настройку доступа к БД применяемой для хранения логов
 

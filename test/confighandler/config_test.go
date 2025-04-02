@@ -26,9 +26,8 @@ func TestMain(m *testing.M) {
 	os.Unsetenv("GO_PHDOCBASEDB_NHOST")
 	os.Unsetenv("GO_PHDOCBASEDB_NPORT")
 	os.Unsetenv("GO_PHDOCBASEDB_NCACHETTL")
-	os.Unsetenv("GO_PHDOCBASEDB_NSUBSENDERCASE")
-	os.Unsetenv("GO_PHDOCBASEDB_NSUBSENDERALERT")
-	os.Unsetenv("GO_PHDOCBASEDB_NSUBLISTENERCOMMAND")
+	os.Unsetenv("GO_PHDOCBASEDB_NCOMMAND")
+	os.Unsetenv("GO_PHDOCBASEDB_NSUBLISTENER")
 
 	// Настройки доступа к БД в которую будут записыватся alert и case
 	os.Unsetenv("GO_PHDOCBASEDB_DBSTORAGEHOST")
@@ -36,8 +35,7 @@ func TestMain(m *testing.M) {
 	os.Unsetenv("GO_PHDOCBASEDB_DBSTORAGENAME")
 	os.Unsetenv("GO_PHDOCBASEDB_DBSTORAGEUSER")
 	os.Unsetenv("GO_PHDOCBASEDB_DBSTORAGEPASSWD")
-	os.Unsetenv("GO_PHDOCBASEDB_DBSTORAGENALERT")
-	os.Unsetenv("GO_PHDOCBASEDB_DBSTORAGENCASE")
+	os.Unsetenv("GO_PHDOCBASEDB_DBSTORAGEN")
 
 	//настройки доступа к БД в которую будут записыватся логи
 	os.Unsetenv("GO_PHDOCBASEDB_DBWLOGHOST")
@@ -68,9 +66,17 @@ func TestConfigHandler(t *testing.T) {
 			assert.Equal(t, conf.GetNATS().Host, "192.168.9.208")
 			assert.Equal(t, conf.GetNATS().Port, 4222)
 			assert.Equal(t, conf.GetNATS().CacheTTL, 3600)
-			assert.Equal(t, conf.GetNATS().Subscriptions.ListenerAlert, "object.alerttype.test")
-			assert.Equal(t, conf.GetNATS().Subscriptions.ListenerCase, "object.casetype.test")
-			assert.Equal(t, conf.GetNATS().Subscriptions.SenderCommand, "object.commandstype.test")
+			assert.Equal(t, conf.GetNATS().Command, "object.commandstype.test")
+
+			list := map[string]string{
+				"alert": "object.alerttype.test",
+				"case":  "object.casetype.test",
+			}
+			for k, v := range list {
+				s, ok := conf.GetNATS().Subscriptions[k]
+				assert.True(t, ok)
+				assert.Equal(t, s, v)
+			}
 		})
 
 		t.Run("Тест 2. Проверка настройки DATABASESTORAGE из файла config_test.yml", func(t *testing.T) {
@@ -79,11 +85,19 @@ func TestConfigHandler(t *testing.T) {
 			assert.Equal(t, conf.GetStorageDB().User, "writer")
 			assert.Equal(t, conf.GetStorageDB().Passwd, os.Getenv("GO_PHDOCBASEDB_DBSTORAGEPASSWD"))
 			assert.Equal(t, conf.GetStorageDB().NameDB, "")
-			assert.Equal(t, conf.GetStorageDB().Storage.Alert, "test.module_placeholder_alert")
-			assert.Equal(t, conf.GetStorageDB().Storage.Case, "test.module_placeholder_case")
+
+			list := map[string]string{
+				"alert": "test.module_placeholderdb_alert",
+				"case":  "test.module_placeholderdb_case",
+			}
+			for k, v := range list {
+				s, ok := conf.GetStorageDB().Storage[k]
+				assert.True(t, ok)
+				assert.Equal(t, s, v)
+			}
 		})
 
-		t.Run("Тест 3. Проверка настройки DATABASESTORAGE из файла config_test.yml", func(t *testing.T) {
+		t.Run("Тест 3. Проверка настройки DATABASEWRITELOG из файла config_test.yml", func(t *testing.T) {
 			assert.Equal(t, conf.GetLogDB().Host, "datahook.cloud.gcm")
 			assert.Equal(t, conf.GetLogDB().Port, 9200)
 			assert.Equal(t, conf.GetLogDB().User, "log_writer")
@@ -98,9 +112,8 @@ func TestConfigHandler(t *testing.T) {
 			os.Setenv("GO_PHDOCBASEDB_NHOST", "127.0.0.1")
 			os.Setenv("GO_PHDOCBASEDB_NPORT", "4242")
 			os.Setenv("GO_PHDOCBASEDB_NCACHETTL", "650")
-			os.Setenv("GO_PHDOCBASEDB_NSUBSENDERCASE", "obj.case")
-			os.Setenv("GO_PHDOCBASEDB_NSUBSENDERALERT", "obj.alert")
-			os.Setenv("GO_PHDOCBASEDB_NSUBLISTENERCOMMAND", "obj.command")
+			os.Setenv("GO_PHDOCBASEDB_NCOMMAND", "obj.command")
+			os.Setenv("GO_PHDOCBASEDB_NSUBLISTENER", "alert:object.env.alerttype.test;case:object.env.casetype.test")
 
 			conf, err := confighandler.New(Root_Dir)
 			assert.NoError(t, err)
@@ -108,9 +121,17 @@ func TestConfigHandler(t *testing.T) {
 			assert.Equal(t, conf.GetNATS().Host, "127.0.0.1")
 			assert.Equal(t, conf.GetNATS().Port, 4242)
 			assert.Equal(t, conf.GetNATS().CacheTTL, 650)
-			assert.Equal(t, conf.GetNATS().Subscriptions.ListenerAlert, "obj.alert")
-			assert.Equal(t, conf.GetNATS().Subscriptions.ListenerCase, "obj.case")
-			assert.Equal(t, conf.GetNATS().Subscriptions.SenderCommand, "obj.command")
+			assert.Equal(t, conf.GetNATS().Command, "obj.command")
+
+			list := map[string]string{
+				"alert": "object.env.alerttype.test",
+				"case":  "object.env.casetype.test",
+			}
+			for k, v := range list {
+				s, ok := conf.GetNATS().Subscriptions[k]
+				assert.True(t, ok)
+				assert.Equal(t, s, v)
+			}
 		})
 
 		t.Run("Тест 2. Проверка настройки DATABASESTORAGE", func(t *testing.T) {
@@ -119,8 +140,7 @@ func TestConfigHandler(t *testing.T) {
 			os.Setenv("GO_PHDOCBASEDB_DBSTORAGENAME", "any_name")
 			os.Setenv("GO_PHDOCBASEDB_DBSTORAGEUSER", "any_user")
 			os.Setenv("GO_PHDOCBASEDB_DBSTORAGEPASSWD", "my_new_passwd")
-			os.Setenv("GO_PHDOCBASEDB_DBSTORAGENALERT", "any.base.alert")
-			os.Setenv("GO_PHDOCBASEDB_DBSTORAGENCASE", "any.base.case")
+			os.Setenv("GO_PHDOCBASEDB_DBSTORAGEN", "alert:test.env.module_placeholderdb_alert;case:test.env.module_placeholderdb_case")
 
 			conf, err := confighandler.New(Root_Dir)
 			assert.NoError(t, err)
@@ -130,11 +150,19 @@ func TestConfigHandler(t *testing.T) {
 			assert.Equal(t, conf.GetStorageDB().NameDB, "any_name")
 			assert.Equal(t, conf.GetStorageDB().User, "any_user")
 			assert.Equal(t, conf.GetStorageDB().Passwd, os.Getenv("GO_PHDOCBASEDB_DBSTORAGEPASSWD"))
-			assert.Equal(t, conf.GetStorageDB().Storage.Alert, "any.base.alert")
-			assert.Equal(t, conf.GetStorageDB().Storage.Case, "any.base.case")
+
+			list := map[string]string{
+				"alert": "test.env.module_placeholderdb_alert",
+				"case":  "test.env.module_placeholderdb_case",
+			}
+			for k, v := range list {
+				s, ok := conf.GetStorageDB().Storage[k]
+				assert.True(t, ok)
+				assert.Equal(t, s, v)
+			}
 		})
 
-		t.Run("Тест 3. Проверка настройки DATABASESTORAGE", func(t *testing.T) {
+		t.Run("Тест 3. Проверка настройки DATABASEWRITELOG", func(t *testing.T) {
 			os.Setenv("GO_PHDOCBASEDB_DBWLOGHOST", "domaniname.database.cm")
 			os.Setenv("GO_PHDOCBASEDB_DBWLOGPORT", "8989")
 			os.Setenv("GO_PHDOCBASEDB_DBWLOGUSER", "somebody_user")

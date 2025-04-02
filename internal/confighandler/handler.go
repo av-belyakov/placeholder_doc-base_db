@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/spf13/viper"
@@ -23,12 +24,11 @@ func New(rootDir string) (*ConfigApp, error) {
 			"GO_PHDOCBASEDB_MAIN": "",
 
 			//Подключение к NATS
-			"GO_PHDOCBASEDB_NHOST":               "",
-			"GO_PHDOCBASEDB_NPORT":               "",
-			"GO_PHDOCBASEDB_NCACHETTL":           "",
-			"GO_PHDOCBASEDB_NSUBSENDERCASE":      "",
-			"GO_PHDOCBASEDB_NSUBSENDERALERT":     "",
-			"GO_PHDOCBASEDB_NSUBLISTENERCOMMAND": "",
+			"GO_PHDOCBASEDB_NHOST":        "",
+			"GO_PHDOCBASEDB_NPORT":        "",
+			"GO_PHDOCBASEDB_NCACHETTL":    "",
+			"GO_PHDOCBASEDB_NCOMMAND":     "",
+			"GO_PHDOCBASEDB_NSUBLISTENER": "",
 
 			//Настройки доступа к БД в которую будут записыватся alert и case
 			"GO_PHDOCBASEDB_DBSTORAGEHOST":   "",
@@ -36,8 +36,7 @@ func New(rootDir string) (*ConfigApp, error) {
 			"GO_PHDOCBASEDB_DBSTORAGENAME":   "",
 			"GO_PHDOCBASEDB_DBSTORAGEUSER":   "",
 			"GO_PHDOCBASEDB_DBSTORAGEPASSWD": "",
-			"GO_PHDOCBASEDB_DBSTORAGENALERT": "",
-			"GO_PHDOCBASEDB_DBSTORAGENCASE":  "",
+			"GO_PHDOCBASEDB_DBSTORAGEN":      "",
 
 			//Настройки доступа к БД в которую будут записыватся логи
 			"GO_PHDOCBASEDB_DBWLOGHOST":        "",
@@ -114,14 +113,11 @@ func New(rootDir string) (*ConfigApp, error) {
 		if viper.IsSet("NATS.cache_ttl") {
 			conf.NATS.CacheTTL = viper.GetInt("NATS.cache_ttl")
 		}
-		if viper.IsSet("NATS.subscriptions.listener_alert") {
-			conf.NATS.Subscriptions.ListenerAlert = viper.GetString("NATS.subscriptions.listener_alert")
+		if viper.IsSet("NATS.command") {
+			conf.NATS.Command = viper.GetString("NATS.command")
 		}
-		if viper.IsSet("NATS.subscriptions.listener_case") {
-			conf.NATS.Subscriptions.ListenerCase = viper.GetString("NATS.subscriptions.listener_case")
-		}
-		if viper.IsSet("NATS.subscriptions.sender_command") {
-			conf.NATS.Subscriptions.SenderCommand = viper.GetString("NATS.subscriptions.sender_command")
+		if viper.IsSet("NATS.subscriptions") {
+			conf.NATS.Subscriptions = viper.GetStringMapString("NATS.subscriptions")
 		}
 
 		// Настройки доступа к БД в которую будет записыватся основная информация
@@ -137,11 +133,8 @@ func New(rootDir string) (*ConfigApp, error) {
 		if viper.IsSet("DATABASESTORAGE.namedb") {
 			conf.StorageDB.NameDB = viper.GetString("DATABASESTORAGE.namedb")
 		}
-		if viper.IsSet("DATABASESTORAGE.storage_name_db.alert") {
-			conf.StorageDB.Storage.Alert = viper.GetString("DATABASESTORAGE.storage_name_db.alert")
-		}
-		if viper.IsSet("DATABASESTORAGE.storage_name_db.case") {
-			conf.StorageDB.Storage.Case = viper.GetString("DATABASESTORAGE.storage_name_db.case")
+		if viper.IsSet("DATABASESTORAGE.storage_name_db") {
+			conf.StorageDB.Storage = viper.GetStringMapString("DATABASESTORAGE.storage_name_db")
 		}
 
 		// Настройки доступа к БД в которую будут записыватся логи
@@ -229,14 +222,23 @@ func New(rootDir string) (*ConfigApp, error) {
 			conf.NATS.CacheTTL = ttl
 		}
 	}
-	if envList["GO_PHDOCBASEDB_NSUBSENDERCASE"] != "" {
-		conf.NATS.Subscriptions.ListenerCase = envList["GO_PHDOCBASEDB_NSUBSENDERCASE"]
+
+	if envList["GO_PHDOCBASEDB_NCOMMAND"] != "" {
+		conf.NATS.Command = envList["GO_PHDOCBASEDB_NCOMMAND"]
 	}
-	if envList["GO_PHDOCBASEDB_NSUBSENDERALERT"] != "" {
-		conf.NATS.Subscriptions.ListenerAlert = envList["GO_PHDOCBASEDB_NSUBSENDERALERT"]
-	}
-	if envList["GO_PHDOCBASEDB_NSUBLISTENERCOMMAND"] != "" {
-		conf.NATS.Subscriptions.SenderCommand = envList["GO_PHDOCBASEDB_NSUBLISTENERCOMMAND"]
+	if envList["GO_PHDOCBASEDB_NSUBLISTENER"] != "" {
+		sublistener := envList["GO_PHDOCBASEDB_NSUBLISTENER"]
+		if !strings.Contains(sublistener, ";") {
+			if tmp := strings.Split(sublistener, ":"); len(tmp) == 2 {
+				conf.NATS.Subscriptions[tmp[0]] = tmp[1]
+			}
+		} else {
+			for _, sl := range strings.Split(sublistener, ";") {
+				if tmp := strings.Split(sl, ":"); len(tmp) == 2 {
+					conf.NATS.Subscriptions[tmp[0]] = tmp[1]
+				}
+			}
+		}
 	}
 
 	//Настройки доступа к БД в которую будет добавлятся информация по alert и case
@@ -257,11 +259,19 @@ func New(rootDir string) (*ConfigApp, error) {
 	if envList["GO_PHDOCBASEDB_DBSTORAGEPASSWD"] != "" {
 		conf.StorageDB.Passwd = envList["GO_PHDOCBASEDB_DBSTORAGEPASSWD"]
 	}
-	if envList["GO_PHDOCBASEDB_DBSTORAGENALERT"] != "" {
-		conf.StorageDB.Storage.Alert = envList["GO_PHDOCBASEDB_DBSTORAGENALERT"]
-	}
-	if envList["GO_PHDOCBASEDB_DBSTORAGENCASE"] != "" {
-		conf.StorageDB.Storage.Case = envList["GO_PHDOCBASEDB_DBSTORAGENCASE"]
+	if envList["GO_PHDOCBASEDB_DBSTORAGEN"] != "" {
+		sublistener := envList["GO_PHDOCBASEDB_DBSTORAGEN"]
+		if !strings.Contains(sublistener, ";") {
+			if tmp := strings.Split(sublistener, ":"); len(tmp) == 2 {
+				conf.StorageDB.Storage[tmp[0]] = tmp[1]
+			}
+		} else {
+			for _, sl := range strings.Split(sublistener, ";") {
+				if tmp := strings.Split(sl, ":"); len(tmp) == 2 {
+					conf.StorageDB.Storage[tmp[0]] = tmp[1]
+				}
+			}
+		}
 	}
 
 	//Настройки доступа к БД в которую будут записыватся логи

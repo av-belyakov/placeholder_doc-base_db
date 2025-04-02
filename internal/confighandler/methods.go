@@ -32,7 +32,7 @@ func (c *ConfigApp) GetZabbix() *ZabbixOptions {
 	return &c.Common.Zabbix
 }
 
-// SetNameMessageType наименование тпа логирования
+// SetNameMessageType наименование типа логирования
 func (l *LogSet) SetNameMessageType(v string) error {
 	if v == "" {
 		return errors.New("the value 'MsgTypeName' must not be empty")
