@@ -2,9 +2,19 @@ package databasestorageapi
 
 import "errors"
 
+// GetChanDataToModule канал для передачи данных в модуль
+func (dbs *DatabaseStorage) GetChanDataToModule() chan SettingsChanInput {
+	return dbs.chInput
+}
+
+// GetChanDataFromModule канал для приёма данных из модуля
+func (dbs *DatabaseStorage) GetChanDataFromModule() chan SettingsChanOutput {
+	return dbs.chOutput
+}
+
 //******************* функции настройки опций databasestorageapi ***********************
 
-// WithHost метод устанавливает имя или ip адрес хоста API
+// WithHost имя или ip адрес хоста API
 func WithHost(v string) DatabaseStorageOptions {
 	return func(dbs *DatabaseStorage) error {
 		if v == "" {
@@ -17,7 +27,7 @@ func WithHost(v string) DatabaseStorageOptions {
 	}
 }
 
-// WithPort метод устанавливает порт API
+// WithPort порт API
 func WithPort(v int) DatabaseStorageOptions {
 	return func(dbs *DatabaseStorage) error {
 		if v <= 0 || v > 65535 {
@@ -30,7 +40,7 @@ func WithPort(v int) DatabaseStorageOptions {
 	}
 }
 
-// WithUser метод устанавливает имя пользователя для доступа к БД
+// WithUser имя пользователя для доступа к БД
 func WithUser(v string) DatabaseStorageOptions {
 	return func(dbs *DatabaseStorage) error {
 		if v == "" {
@@ -43,7 +53,7 @@ func WithUser(v string) DatabaseStorageOptions {
 	}
 }
 
-// WithPasswd метод устанавливает пароль для доступа к БД
+// WithPasswd пароль для доступа к БД
 func WithPasswd(v string) DatabaseStorageOptions {
 	return func(dbs *DatabaseStorage) error {
 		if v == "" {
@@ -56,7 +66,7 @@ func WithPasswd(v string) DatabaseStorageOptions {
 	}
 }
 
-// WithNameDB метод устанавливает наименование БД
+// WithNameDB наименование БД
 func WithNameDB(v string) DatabaseStorageOptions {
 	return func(dbs *DatabaseStorage) error {
 		dbs.settings.namedb = v
@@ -65,19 +75,10 @@ func WithNameDB(v string) DatabaseStorageOptions {
 	}
 }
 
-// WithStorageAlert метод устанавливает наименование коллекции или индекса БД
-func WithStorageAlert(v string) DatabaseStorageOptions {
+// WithStorage наименование коллекции или индекса БД
+func WithStorage(v map[string]string) DatabaseStorageOptions {
 	return func(dbs *DatabaseStorage) error {
-		dbs.settings.storageAlert = v
-
-		return nil
-	}
-}
-
-// WithStorageAlert метод устанавливает наименование коллекции или индекса БД
-func WithStorageCase(v string) DatabaseStorageOptions {
-	return func(dbs *DatabaseStorage) error {
-		dbs.settings.storageAlert = v
+		dbs.settings.storages = v
 
 		return nil
 	}

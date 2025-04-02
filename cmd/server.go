@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/av-belyakov/placeholder_doc-base_db/cmd/databasestorageapi"
 	"github.com/av-belyakov/placeholder_doc-base_db/cmd/elasticsearchapi"
 	"github.com/av-belyakov/placeholder_doc-base_db/cmd/natsapi"
 	"github.com/av-belyakov/placeholder_doc-base_db/cmd/wrappers"
@@ -117,14 +118,14 @@ func server(ctx context.Context) {
 		natsapi.WithHost(confNats.Host),
 		natsapi.WithPort(confNats.Port),
 		natsapi.WithCacheTTL(confNats.CacheTTL),
-		natsapi.WithSubSenderAlert(confNats.Subscriptions.ListenerAlert),
-		natsapi.WithSubSenderCase(confNats.Subscriptions.ListenerCase),
-		natsapi.WithSubListenerCommand(confNats.Subscriptions.SenderCommand))
+		natsapi.WithSendCommand(confNats.Command),
+		natsapi.WithSubscriptions(confNats.Subscriptions))
 	if err != nil {
 		_ = simpleLogger.Write("error", supportingfunctions.CustomError(err).Error())
 
 		log.Fatal(err)
 	}
+	//--- старт модуля
 	if chInNats, chOutNats, err = apiNats.Start(ctx); err != nil {
 		_ = simpleLogger.Write("error", supportingfunctions.CustomError(err).Error())
 
@@ -133,7 +134,26 @@ func server(ctx context.Context) {
 
 	// *********************************************************************
 	// ************** инициализация модуля взаимодействия с БД *************
+	confStorageDB := conf.GetStorageDB()
+	dbapi, err := databasestorageapi.New(
+		logging,
+		databasestorageapi.WithHost(confStorageDB.Host),
+		databasestorageapi.WithPort(confStorageDB.Port),
+		databasestorageapi.WithNameDB(confStorageDB.NameDB),
+		databasestorageapi.WithUser(confStorageDB.User),
+		databasestorageapi.WithPasswd(confStorageDB.Passwd),
+		databasestorageapi.WithStorage(confStorageDB.Storage))
+	if err != nil {
+		_ = simpleLogger.Write("error", supportingfunctions.CustomError(err).Error())
 
+		log.Fatal(err)
+	}
+	//--- старт модуля
+	if err := dbapi.Start(ctx); err != nil {
+		_ = simpleLogger.Write("error", supportingfunctions.CustomError(err).Error())
+
+		log.Fatal(err)
+	}
 	// *************************************************************************
 	// ************** инициализация модуля обработки JSON объектов *************
 

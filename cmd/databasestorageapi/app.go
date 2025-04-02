@@ -59,5 +59,7 @@ func (dbs *DatabaseStorage) Start(ctx context.Context) error {
 }
 
 func (dbs *DatabaseStorage) router(ctx context.Context) {
-
+	/*
+	   написать обработчик маршрутов
+	*/
 }
