@@ -154,15 +154,14 @@ func server(ctx context.Context) {
 
 		log.Fatal(err)
 	}
-	// *************************************************************************
-	// ************** инициализация модуля обработки JSON объектов *************
 
-	// ***********************************************************************
-	// ******************** инициализация маршрутизатора *********************
-
-	//apiNats.GetChanDataToModule()
-	//apiNats.GetChanDataFromModule()
-
-	//apiDBS.GetChanDataToModule()
-	//apiDBS.GetChanDataFromModule()
+	// *********************************************************
+	// ************** инициализация маршрутизатора *************
+	r := NewRouter(ApplicationRouterSettings{
+		ChanToNats:   apiNats.GetChanDataToModule(),
+		ChanFromNats: apiNats.GetChanDataFromModule(),
+		ChanToDBS:    apiDBS.GetChanDataToModule(),
+		ChanFromDBS:  apiDBS.GetChanDataFromModule(),
+	})
+	r.Router(ctx)
 }

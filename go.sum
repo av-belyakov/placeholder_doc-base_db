@@ -1,5 +1,5 @@
-github.com/av-belyakov/placeholder_misp v0.0.0-20250331133404-7a24f91db72d h1:N1xMD8ZbAVO0bHTzIGuM3oOxmPkFMDuLv1VazMhbCqM=
-github.com/av-belyakov/placeholder_misp v0.0.0-20250331133404-7a24f91db72d/go.mod h1:xsfDRjNYJ6Q7StExfGHPqvvOTwsQm/KwWkgoUR9XTpM=
+github.com/av-belyakov/objectsthehiveformat v0.0.0-20250404105833-0c89f705e03c h1:7zH8r5BlKfQMCDfeHzsk6tZaRVvW1F+GHthfEdG767I=
+github.com/av-belyakov/objectsthehiveformat v0.0.0-20250404105833-0c89f705e03c/go.mod h1:qqEaOxeyr/Aqq8Tt1zC6JKkbmv5ErexDISoRB/hLcMs=
 github.com/av-belyakov/simplelogger v0.0.0-20250225125610-1e1723ce15ea h1:9W5uTWHkUg+ywlcvQoG0eZwXkpraHk54DK7miel6AtU=
 github.com/av-belyakov/simplelogger v0.0.0-20250225125610-1e1723ce15ea/go.mod h1:yW2ev3nXPP3WY8svBWJpg4PQRl67MTGIaaiXJ0ULRZ8=
 github.com/av-belyakov/zabbixapicommunicator v0.0.0-20241225064839-9c19184470aa h1:ivXQuTb7UxYUy568EOIOvRDExKLU3tDnw634d+WTGto=
