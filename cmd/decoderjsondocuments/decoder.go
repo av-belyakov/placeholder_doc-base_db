@@ -5,12 +5,7 @@ import (
 	"reflect"
 )
 
-func processingReflectAnySimpleType(
-	chanOutMispFormat chan<- ChanInputCreateMispFormat,
-	name interface{},
-	anyType interface{},
-	fieldBranch string) interface{} {
-
+func processingReflectAnySimpleType(chInput chan<- ChanInputSettings, name any, anyType any, fieldBranch string) any {
 	var nameStr string
 	r := reflect.TypeOf(anyType)
 
@@ -27,7 +22,7 @@ func processingReflectAnySimpleType(
 	switch r.Kind() {
 	case reflect.String:
 		result := reflect.ValueOf(anyType).String()
-		chanOutMispFormat <- ChanInputCreateMispFormat{
+		chInput <- ChanInputSettings{
 			FieldName:   nameStr,
 			ValueType:   "string",
 			Value:       result,
@@ -38,7 +33,7 @@ func processingReflectAnySimpleType(
 
 	case reflect.Int, reflect.Int16, reflect.Int32, reflect.Int64:
 		result := reflect.ValueOf(anyType).Int()
-		chanOutMispFormat <- ChanInputCreateMispFormat{
+		chInput <- ChanInputSettings{
 			FieldName:   nameStr,
 			ValueType:   "int",
 			Value:       result,
@@ -49,7 +44,7 @@ func processingReflectAnySimpleType(
 
 	case reflect.Uint, reflect.Uint16, reflect.Uint32, reflect.Uint64:
 		result := reflect.ValueOf(anyType).Uint()
-		chanOutMispFormat <- ChanInputCreateMispFormat{
+		chInput <- ChanInputSettings{
 			FieldName:   nameStr,
 			ValueType:   "uint",
 			Value:       result,
@@ -60,7 +55,7 @@ func processingReflectAnySimpleType(
 
 	case reflect.Float32, reflect.Float64:
 		result := reflect.ValueOf(anyType).Float()
-		chanOutMispFormat <- ChanInputCreateMispFormat{
+		chInput <- ChanInputSettings{
 			FieldName:   nameStr,
 			ValueType:   "float",
 			Value:       result,
@@ -71,7 +66,7 @@ func processingReflectAnySimpleType(
 
 	case reflect.Bool:
 		result := reflect.ValueOf(anyType).Bool()
-		chanOutMispFormat <- ChanInputCreateMispFormat{
+		chInput <- ChanInputSettings{
 			FieldName:   nameStr,
 			ValueType:   "bool",
 			Value:       result,
@@ -84,16 +79,12 @@ func processingReflectAnySimpleType(
 	return anyType
 }
 
-func processingReflectMap(
-	chanOutMispFormat chan<- ChanInputCreateMispFormat,
-	l map[string]interface{},
-	fieldBranch string) map[string]interface{} {
-
+func processingReflectMap(chInput chan<- ChanInputSettings, l map[string]any, fieldBranch string) map[string]any {
 	var (
-		newMap  map[string]interface{}
-		newList []interface{}
+		newMap  map[string]any
+		newList []any
 	)
-	nl := map[string]interface{}{}
+	nl := map[string]any{}
 
 	for k, v := range l {
 		var fbTmp string
@@ -112,35 +103,31 @@ func processingReflectMap(
 
 		switch r.Kind() {
 		case reflect.Map:
-			if v, ok := v.(map[string]interface{}); ok {
-				newMap = processingReflectMap(chanOutMispFormat, v, fbTmp)
+			if v, ok := v.(map[string]any); ok {
+				newMap = processingReflectMap(chInput, v, fbTmp)
 				nl[k] = newMap
 			}
 
 		case reflect.Slice:
-			if v, ok := v.([]interface{}); ok {
-				newList = processingReflectSlice(chanOutMispFormat, v, fbTmp)
+			if v, ok := v.([]any); ok {
+				newList = processingReflectSlice(chInput, v, fbTmp)
 				nl[k] = newList
 			}
 
 		default:
-			nl[k] = processingReflectAnySimpleType(chanOutMispFormat, k, v, fbTmp)
+			nl[k] = processingReflectAnySimpleType(chInput, k, v, fbTmp)
 		}
 	}
 
 	return nl
 }
 
-func processingReflectSlice(
-	chanOutMispFormat chan<- ChanInputCreateMispFormat,
-	l []interface{},
-	fieldBranch string) []interface{} {
-
+func processingReflectSlice(chInput chan<- ChanInputSettings, l []any, fieldBranch string) []any {
 	var (
-		newMap  map[string]interface{}
-		newList []interface{}
+		newMap  map[string]any
+		newList []any
 	)
-	nl := make([]interface{}, 0, len(l))
+	nl := make([]any, 0, len(l))
 
 	for k, v := range l {
 		r := reflect.TypeOf(v)
@@ -151,21 +138,21 @@ func processingReflectSlice(
 
 		switch r.Kind() {
 		case reflect.Map:
-			if v, ok := v.(map[string]interface{}); ok {
-				newMap = processingReflectMap(chanOutMispFormat, v, fieldBranch)
+			if v, ok := v.(map[string]any); ok {
+				newMap = processingReflectMap(chInput, v, fieldBranch)
 
 				nl = append(nl, newMap)
 			}
 
 		case reflect.Slice:
-			if v, ok := v.([]interface{}); ok {
-				newList = processingReflectSlice(chanOutMispFormat, v, fieldBranch)
+			if v, ok := v.([]any); ok {
+				newList = processingReflectSlice(chInput, v, fieldBranch)
 
 				nl = append(nl, newList...)
 			}
 
 		default:
-			nl = append(nl, processingReflectAnySimpleType(chanOutMispFormat, k, v, fieldBranch))
+			nl = append(nl, processingReflectAnySimpleType(chInput, k, v, fieldBranch))
 		}
 	}
 

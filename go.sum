@@ -1,3 +1,5 @@
+github.com/av-belyakov/objectsthehiveformat v0.0.0-20250327122052-bf60d2f1fbca h1:wdL0OWjYwRqgfG2Pm5zyp0UnpICaQU720iTTW7Gtb7A=
+github.com/av-belyakov/objectsthehiveformat v0.0.0-20250327122052-bf60d2f1fbca/go.mod h1:qqEaOxeyr/Aqq8Tt1zC6JKkbmv5ErexDISoRB/hLcMs=
 github.com/av-belyakov/placeholder_misp v0.0.0-20250331133404-7a24f91db72d h1:N1xMD8ZbAVO0bHTzIGuM3oOxmPkFMDuLv1VazMhbCqM=
 github.com/av-belyakov/placeholder_misp v0.0.0-20250331133404-7a24f91db72d/go.mod h1:xsfDRjNYJ6Q7StExfGHPqvvOTwsQm/KwWkgoUR9XTpM=
 github.com/av-belyakov/simplelogger v0.0.0-20250225125610-1e1723ce15ea h1:9W5uTWHkUg+ywlcvQoG0eZwXkpraHk54DK7miel6AtU=

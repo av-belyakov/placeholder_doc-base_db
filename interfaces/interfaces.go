@@ -28,6 +28,27 @@ type WriterLoggingData interface {
 
 //************ каналы *************
 
+type CustomJsonDecoder interface {
+	GetterCustomJsonDecode
+	SetterCustomJsonDecode
+}
+
+type GetterCustomJsonDecode interface {
+	GetValue() any
+	GetUUID() string
+	GetFieldName() string
+	GetValueType() string
+	GetFieldBranch() string
+}
+
+type SetterCustomJsonDecode interface {
+	SetValue(any)
+	SetUUID(string)
+	SetFieldName(string)
+	SetValueType(string)
+	SetFieldBranch(string)
+}
+
 type ChannelResponser interface {
 	RequestIdHandler
 	GetStatusCode() int
