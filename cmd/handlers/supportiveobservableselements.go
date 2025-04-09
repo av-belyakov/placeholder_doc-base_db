@@ -3,6 +3,8 @@ package handlers
 import (
 	"fmt"
 
+	"slices"
+
 	caseobservables "github.com/av-belyakov/objectsthehiveformat/caseobservables"
 	"github.com/av-belyakov/placeholder_doc-base_db/internal/supportingfunctions"
 )
@@ -36,7 +38,7 @@ func (o *SupportiveObservables) GetObservables() map[string][]caseobservables.Ob
 	o.listAcceptedFields = []string(nil)
 
 	if o.currentKey != "" {
-		_, _ = supportingfunctions.PostProcessingUserType[*caseobservables.Observable](&o.observableTmp)
+		_, _ = supportingfunctions.PostProcessingUserType(&o.observableTmp)
 		o.observables[o.currentKey] = append(o.observables[o.currentKey], o.observableTmp)
 	}
 
@@ -60,7 +62,7 @@ func (o *SupportiveObservables) HandlerValue(fieldBranch string, i interface{}, 
 
 		if o.isExistFieldBranch(fieldBranch) {
 			o.listAcceptedFields = []string(nil)
-			_, _ = supportingfunctions.PostProcessingUserType[*caseobservables.Observable](&o.observableTmp)
+			_, _ = supportingfunctions.PostProcessingUserType(&o.observableTmp)
 			o.observables[o.currentKey] = append(o.observables[o.currentKey], o.observableTmp)
 
 			o.observableTmp = *caseobservables.NewObservable()
@@ -77,7 +79,7 @@ func (o *SupportiveObservables) HandlerValue(fieldBranch string, i interface{}, 
 			o.observables[o.currentKey] = []caseobservables.Observable(nil)
 		}
 
-		_, _ = supportingfunctions.PostProcessingUserType[*caseobservables.Observable](&o.observableTmp)
+		_, _ = supportingfunctions.PostProcessingUserType(&o.observableTmp)
 		o.observables[o.currentKey] = append(o.observables[o.currentKey], o.observableTmp)
 
 		o.observableTmp = *caseobservables.NewObservable()
@@ -89,11 +91,5 @@ func (o *SupportiveObservables) HandlerValue(fieldBranch string, i interface{}, 
 }
 
 func (o *SupportiveObservables) isExistFieldBranch(value string) bool {
-	for _, v := range o.listAcceptedFields {
-		if v == value {
-			return true
-		}
-	}
-
-	return false
+	return slices.Contains(o.listAcceptedFields, value)
 }

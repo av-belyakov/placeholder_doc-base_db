@@ -11,7 +11,6 @@ import (
 	"github.com/av-belyakov/placeholder_doc-base_db/cmd/wrappers"
 	"github.com/av-belyakov/placeholder_doc-base_db/constants"
 	"github.com/av-belyakov/placeholder_doc-base_db/interfaces"
-	"github.com/av-belyakov/placeholder_doc-base_db/internal/appversion"
 	"github.com/av-belyakov/placeholder_doc-base_db/internal/confighandler"
 	"github.com/av-belyakov/placeholder_doc-base_db/internal/countermessage"
 	"github.com/av-belyakov/placeholder_doc-base_db/internal/logginghandler"
@@ -27,11 +26,6 @@ func server(ctx context.Context) {
 		nameRegionalObject = "gcm-test"
 	} else {
 		nameRegionalObject = "gcm"
-	}
-
-	version, err := appversion.GetAppVersion()
-	if err != nil {
-		log.Println(err)
 	}
 
 	rootPath, err := supportingfunctions.GetRootPath(constants.Root_Dir)
@@ -157,11 +151,19 @@ func server(ctx context.Context) {
 
 	// *********************************************************
 	// ************** инициализация маршрутизатора *************
-	r := NewRouter(ApplicationRouterSettings{
-		ChanToNats:   apiNats.GetChanDataToModule(),
-		ChanFromNats: apiNats.GetChanDataFromModule(),
-		ChanToDBS:    apiDBS.GetChanDataToModule(),
-		ChanFromDBS:  apiDBS.GetChanDataFromModule(),
-	})
+	r := NewRouter(
+		counting,
+		logging,
+		ApplicationRouterSettings{
+			ChanToNats:   apiNats.GetChanDataToModule(),
+			ChanFromNats: apiNats.GetChanDataFromModule(),
+			ChanToDBS:    apiDBS.GetChanDataToModule(),
+			ChanFromDBS:  apiDBS.GetChanDataFromModule(),
+		})
 	r.Router(ctx)
+
+	//информационное сообщение
+	getInformationMessage()
+
+	<-ctx.Done()
 }

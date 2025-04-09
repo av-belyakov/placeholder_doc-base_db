@@ -2,17 +2,24 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"strings"
 
 	"github.com/av-belyakov/placeholder_doc-base_db/constants"
 	"github.com/av-belyakov/placeholder_doc-base_db/internal/appname"
+	"github.com/av-belyakov/placeholder_doc-base_db/internal/appversion"
 )
 
-func getInformationMessage(version string) string {
+func getInformationMessage() string {
+	version, err := appversion.GetAppVersion()
+	if err != nil {
+		log.Println(err)
+	}
+
 	appStatus := fmt.Sprintf("%vproduction%v", constants.Ansi_Bright_Blue, constants.Ansi_Reset)
-	envValue, ok := os.LookupEnv("GO_PHMISP_MAIN")
-	if ok && envValue == "development" {
+	envValue, ok := os.LookupEnv("GO_PHDOCBASEDB_MAIN")
+	if ok && (envValue == "development" || envValue == "test") {
 		appStatus = fmt.Sprintf("%v%s%v", constants.Ansi_Bright_Red, envValue, constants.Ansi_Reset)
 	}
 
