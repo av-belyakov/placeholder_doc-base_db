@@ -15,8 +15,8 @@ func New(counter *countermessage.CounterMessage, logger interfaces.Logger) *Deco
 }
 
 // Start инициализация обработки
-func (s *DecoderJsonDocuments) Start(b []byte, taskId string) chan ChanInputSettings {
-	chanInput := make(chan ChanInputSettings)
+func (s *DecoderJsonDocuments) Start(b []byte, taskId string) chan interfaces.CustomJsonDecoder {
+	chanInput := make(chan interfaces.CustomJsonDecoder)
 
 	go func() {
 		//для карт

@@ -3,9 +3,11 @@ package decoderjsondocuments
 import (
 	"fmt"
 	"reflect"
+
+	"github.com/av-belyakov/placeholder_doc-base_db/interfaces"
 )
 
-func processingReflectAnySimpleType(chInput chan<- ChanInputSettings, name any, anyType any, fieldBranch string) any {
+func processingReflectAnySimpleType(chInput chan<- interfaces.CustomJsonDecoder, name any, anyType any, fieldBranch string) any {
 	var nameStr string
 	r := reflect.TypeOf(anyType)
 
@@ -22,7 +24,7 @@ func processingReflectAnySimpleType(chInput chan<- ChanInputSettings, name any, 
 	switch r.Kind() {
 	case reflect.String:
 		result := reflect.ValueOf(anyType).String()
-		chInput <- ChanInputSettings{
+		chInput <- &ChanInputSettings{
 			FieldName:   nameStr,
 			ValueType:   "string",
 			Value:       result,
@@ -33,7 +35,7 @@ func processingReflectAnySimpleType(chInput chan<- ChanInputSettings, name any, 
 
 	case reflect.Int, reflect.Int16, reflect.Int32, reflect.Int64:
 		result := reflect.ValueOf(anyType).Int()
-		chInput <- ChanInputSettings{
+		chInput <- &ChanInputSettings{
 			FieldName:   nameStr,
 			ValueType:   "int",
 			Value:       result,
@@ -44,7 +46,7 @@ func processingReflectAnySimpleType(chInput chan<- ChanInputSettings, name any, 
 
 	case reflect.Uint, reflect.Uint16, reflect.Uint32, reflect.Uint64:
 		result := reflect.ValueOf(anyType).Uint()
-		chInput <- ChanInputSettings{
+		chInput <- &ChanInputSettings{
 			FieldName:   nameStr,
 			ValueType:   "uint",
 			Value:       result,
@@ -55,7 +57,7 @@ func processingReflectAnySimpleType(chInput chan<- ChanInputSettings, name any, 
 
 	case reflect.Float32, reflect.Float64:
 		result := reflect.ValueOf(anyType).Float()
-		chInput <- ChanInputSettings{
+		chInput <- &ChanInputSettings{
 			FieldName:   nameStr,
 			ValueType:   "float",
 			Value:       result,
@@ -66,7 +68,7 @@ func processingReflectAnySimpleType(chInput chan<- ChanInputSettings, name any, 
 
 	case reflect.Bool:
 		result := reflect.ValueOf(anyType).Bool()
-		chInput <- ChanInputSettings{
+		chInput <- &ChanInputSettings{
 			FieldName:   nameStr,
 			ValueType:   "bool",
 			Value:       result,
@@ -79,7 +81,7 @@ func processingReflectAnySimpleType(chInput chan<- ChanInputSettings, name any, 
 	return anyType
 }
 
-func processingReflectMap(chInput chan<- ChanInputSettings, l map[string]any, fieldBranch string) map[string]any {
+func processingReflectMap(chInput chan<- interfaces.CustomJsonDecoder, l map[string]any, fieldBranch string) map[string]any {
 	var (
 		newMap  map[string]any
 		newList []any
@@ -122,7 +124,7 @@ func processingReflectMap(chInput chan<- ChanInputSettings, l map[string]any, fi
 	return nl
 }
 
-func processingReflectSlice(chInput chan<- ChanInputSettings, l []any, fieldBranch string) []any {
+func processingReflectSlice(chInput chan<- interfaces.CustomJsonDecoder, l []any, fieldBranch string) []any {
 	var (
 		newMap  map[string]any
 		newList []any
