@@ -30,6 +30,12 @@ func (r *ApplicationRouter) Router(ctx context.Context) {
 			case msg := <-r.chFromNatsApi:
 				switch msg.SubjectType {
 				case "object.alerttype":
+					go func() {
+						decoder := decoderjsondocuments.New(r.counter, r.logger)
+						chDecode := decoder.Start(msg.Data, msg.TaskId)
+
+						rootId, verifyAlert, listRawFields := documentgenerator.AlertGenerator(chDecode)
+					}()
 
 				case "object.casetype":
 					go func() {

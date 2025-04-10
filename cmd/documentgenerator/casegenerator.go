@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"reflect"
 
-	casedetailshf "github.com/av-belyakov/objectsthehiveformat/casedetails"
-	caseobjecthf "github.com/av-belyakov/objectsthehiveformat/caseobject"
+	casedetails "github.com/av-belyakov/objectsthehiveformat/casedetails"
+	caseobjects "github.com/av-belyakov/objectsthehiveformat/caseobject"
 	caseobservables "github.com/av-belyakov/objectsthehiveformat/caseobservables"
 	casettps "github.com/av-belyakov/objectsthehiveformat/casettps"
-	commonhf "github.com/av-belyakov/objectsthehiveformat/common"
-	eventcasehf "github.com/av-belyakov/objectsthehiveformat/eventcase"
+	common "github.com/av-belyakov/objectsthehiveformat/common"
+	eventcase "github.com/av-belyakov/objectsthehiveformat/eventcase"
 
 	"github.com/av-belyakov/placeholder_doc-base_db/cmd/handlers"
 	"github.com/av-belyakov/placeholder_doc-base_db/interfaces"
@@ -17,21 +17,21 @@ import (
 
 // CaseGenerator генерирует верифицированный объект типа 'case'. Вернет первым элементом основной ID,
 // вторым проверенный объект типа 'case', третьим список полей которые не были обработаны
-func CaseGenerator(chInput <-chan interfaces.CustomJsonDecoder) (string, VerifiedCase, map[string]string) {
+func CaseGenerator(chInput <-chan interfaces.CustomJsonDecoder) (string, *VerifiedCase, map[string]string) {
 	var (
 		rootId string
 		// список не обработанных полей
 		listRawFields map[string]string = make(map[string]string)
 
 		//Финальный объект
-		verifiedCase VerifiedCase = *NewVerifiedCase()
+		verifiedCase *VerifiedCase = NewVerifiedCase()
 
-		event        *eventcasehf.TypeEventForCase   = eventcasehf.NewTypeEventForCase()
-		eventObjects *caseobjecthf.EventCaseObject   = caseobjecthf.NewEventCaseObject()
-		eventDetails *casedetailshf.EventCaseDetails = casedetailshf.NewEventCaseDetails()
+		event        *eventcase.TypeEventForCase   = eventcase.NewTypeEventForCase()
+		eventObjects *caseobjects.EventCaseObject  = caseobjects.NewEventCaseObject()
+		eventDetails *casedetails.EventCaseDetails = casedetails.NewEventCaseDetails()
 
-		eventObjectCustomFields  commonhf.CustomFields = commonhf.CustomFields{}
-		eventDetailsCustomFields commonhf.CustomFields = commonhf.CustomFields{}
+		eventObjectCustomFields  common.CustomFields = common.CustomFields{}
+		eventDetailsCustomFields common.CustomFields = common.CustomFields{}
 	)
 
 	//******************* Основные обработчики для Event **********************

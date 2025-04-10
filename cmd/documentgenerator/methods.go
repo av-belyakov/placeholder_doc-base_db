@@ -3,12 +3,97 @@ package documentgenerator
 import (
 	"fmt"
 	"strings"
+	"time"
 
+	alertobject "github.com/av-belyakov/objectsthehiveformat/alertobject"
 	caseobservables "github.com/av-belyakov/objectsthehiveformat/caseobservables"
 	casettps "github.com/av-belyakov/objectsthehiveformat/casettps"
+	eventalert "github.com/av-belyakov/objectsthehiveformat/eventalert"
 	objectsthehiveformat "github.com/av-belyakov/objectsthehiveformat/eventcase"
+
 	"github.com/av-belyakov/placeholder_doc-base_db/internal/supportingfunctions"
 )
+
+//********** VerifiedAlert ************
+
+// NewVerifiedAlert новый элемент содержащий проверенный объект типа 'case'
+func NewVerifiedAlert() *VerifiedAlert {
+	return &VerifiedAlert{
+		Alert:           *alertobject.NewEventAlertObject(),
+		Event:           *eventalert.NewTypeEventForAlert(),
+		CreateTimestamp: supportingfunctions.GetDateTimeFormatRFC3339(time.Now().UnixMilli()),
+	}
+}
+
+func (a *VerifiedAlert) Get() *VerifiedAlert {
+	return a
+}
+
+// GetID уникальный идентификатор
+func (va *VerifiedAlert) GetID() string {
+	return va.ID
+}
+
+// SetID уникальный идентификатор
+func (va *VerifiedAlert) SetID(id string) {
+	va.ID = id
+}
+
+// GetCreateTimestamp время создания объекта в формате RFC3339
+func (va *VerifiedAlert) GetCreateTimestamp() string {
+	return va.CreateTimestamp
+}
+
+// SetCreateTimestamp время создания объекта в формате RFC3339
+func (va *VerifiedAlert) SetCreateTimestamp(time string) {
+	va.CreateTimestamp = time
+}
+
+// GetSource наименование источника
+func (va *VerifiedAlert) GetSource() string {
+	return va.Source
+}
+
+// SetSource наименование источника
+func (va *VerifiedAlert) SetSource(source string) {
+	va.Source = source
+}
+
+// GetEvent объект типа 'event'
+func (va *VerifiedAlert) GetEvent() *eventalert.TypeEventForAlert {
+	return &va.Event
+}
+
+// SetEvent объект типа 'event'
+func (va *VerifiedAlert) SetEvent(event eventalert.TypeEventForAlert) {
+	va.Event = event
+}
+
+// GetAlert объект типа 'alert'
+func (va *VerifiedAlert) GetAlert() *alertobject.EventAlertObject {
+	return &va.Alert
+}
+
+// SetAlert объект типа 'alert'
+func (va *VerifiedAlert) SetAlert(alert alertobject.EventAlertObject) {
+	va.Alert = alert
+}
+
+func (va *VerifiedAlert) ToStringBeautiful(num int) string {
+	ws := supportingfunctions.GetWhitespace(num)
+
+	strB := strings.Builder{}
+	strB.WriteString(fmt.Sprintf("%s'createTimestatmp': '%s'\n", ws, va.CreateTimestamp))
+	strB.WriteString(fmt.Sprintf("%s'source': '%s'\n", ws, va.Source))
+	strB.WriteString(fmt.Sprintf("%s'event':\n", ws))
+	strB.WriteString(va.Event.ToStringBeautiful(num + 1))
+	strB.WriteString(fmt.Sprintf("%s'alert':\n", ws))
+	strB.WriteString(va.Alert.ToStringBeautiful(num + 1))
+
+	return strB.String()
+}
+
+//********** VerifiedCase ***********
 
 // NewVerifiedCase новый элемент содержащий проверенный объект типа 'case'
 func NewVerifiedCase() *VerifiedCase {

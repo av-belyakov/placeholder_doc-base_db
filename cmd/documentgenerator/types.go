@@ -1,30 +1,32 @@
 package documentgenerator
 
 import (
+	alertobject "github.com/av-belyakov/objectsthehiveformat/alertobject"
 	caseobservables "github.com/av-belyakov/objectsthehiveformat/caseobservables"
 	casettps "github.com/av-belyakov/objectsthehiveformat/casettps"
+	eventalert "github.com/av-belyakov/objectsthehiveformat/eventalert"
 	eventcase "github.com/av-belyakov/objectsthehiveformat/eventcase"
-
-	"github.com/av-belyakov/placeholder_doc-base_db/interfaces"
-	"github.com/av-belyakov/placeholder_doc-base_db/internal/countermessage"
 )
 
-type DocumentGenerator struct {
-	logger  interfaces.Logger
-	counter *countermessage.CounterMessage
-	chInput <-chan interfaces.CustomJsonDecoder
+// VerifiedAlert объект представляет собой верифицированный тип 'alert'
+type VerifiedAlert struct {
+	Event           eventalert.TypeEventForAlert `json:"event" bson:"event"`
+	Alert           alertobject.EventAlertObject `json:"alert,omitempty" bson:"alert"`
+	ID              string                       `json:"@id" bson:"@id"`
+	CreateTimestamp string                       `json:"@timestamp" bson:"@timestamp"`
+	Source          string                       `json:"source" bson:"source"`
 }
 
-// VerifiedCase объект представляет собой верифицированный 'case'
+// VerifiedCase объект представляет собой верифицированный тип 'case'
 type VerifiedCase struct {
-	ID              string                     `json:"@id" bson:"@id"`
-	ElasticsearchID string                     `json:"@es_id" bson:"@es_id"`
-	CreateTimestamp string                     `json:"@timestamp" bson:"@timestamp"`
-	Source          string                     `json:"source" bson:"source"`
-	Event           eventcase.TypeEventForCase `json:"event" bson:"event"`
+	Event eventcase.TypeEventForCase `json:"event" bson:"event"`
 	caseobservables.Observables
 	casettps.Ttps
 	AdditionalInformation
+	ID              string `json:"@id" bson:"@id"`
+	ElasticsearchID string `json:"@es_id" bson:"@es_id"`
+	CreateTimestamp string `json:"@timestamp" bson:"@timestamp"`
+	Source          string `json:"source" bson:"source"`
 }
 
 // AdditionalInformation дополнительная информация добавляемая к информации по кейсам

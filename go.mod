@@ -3,7 +3,7 @@ module github.com/av-belyakov/placeholder_doc-base_db
 go 1.24.1
 
 require (
-	github.com/av-belyakov/objectsthehiveformat v0.0.0-20250409195720-4186ff6eab46
+	github.com/av-belyakov/objectsthehiveformat v0.0.0-20250410193548-986ee3f45df4
 	github.com/av-belyakov/simplelogger v0.0.0-20250225125610-1e1723ce15ea
 	github.com/av-belyakov/zabbixapicommunicator v0.0.0-20241225064839-9c19184470aa
 	github.com/elastic/go-elasticsearch/v8 v8.17.1
