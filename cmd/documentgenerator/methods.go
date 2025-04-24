@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	alertobject "github.com/av-belyakov/objectsthehiveformat/alertobject"
+	alert "github.com/av-belyakov/objectsthehiveformat/alert"
 	caseobservables "github.com/av-belyakov/objectsthehiveformat/caseobservables"
 	casettps "github.com/av-belyakov/objectsthehiveformat/casettps"
 	eventalert "github.com/av-belyakov/objectsthehiveformat/eventalert"
@@ -19,7 +19,7 @@ import (
 // NewVerifiedAlert новый элемент содержащий проверенный объект типа 'case'
 func NewVerifiedAlert() *VerifiedAlert {
 	return &VerifiedAlert{
-		Alert:           *alertobject.NewEventAlertObject(),
+		Alert:           *alert.NewTypeAlert(),
 		Event:           *eventalert.NewTypeEventForAlert(),
 		CreateTimestamp: supportingfunctions.GetDateTimeFormatRFC3339(time.Now().UnixMilli()),
 	}
@@ -70,12 +70,12 @@ func (va *VerifiedAlert) SetEvent(event eventalert.TypeEventForAlert) {
 }
 
 // GetAlert объект типа 'alert'
-func (va *VerifiedAlert) GetAlert() *alertobject.EventAlertObject {
+func (va *VerifiedAlert) GetAlert() *alert.TypeAlert {
 	return &va.Alert
 }
 
 // SetAlert объект типа 'alert'
-func (va *VerifiedAlert) SetAlert(alert alertobject.EventAlertObject) {
+func (va *VerifiedAlert) SetAlert(alert alert.TypeAlert) {
 	va.Alert = alert
 }
 

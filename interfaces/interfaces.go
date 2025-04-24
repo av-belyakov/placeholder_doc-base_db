@@ -103,3 +103,13 @@ type CommandHandler interface {
 	GetCommand() string
 	SetCommand(string)
 }
+
+type UserTypeGetter interface {
+	GetData() string
+	GetDataType() string
+	SetValueData(string)
+	SetValueSensorId(string)
+	SetValueSnortSid(string)
+	SetAnySnortSidNumber(any)
+	SetValueSnortSidNumber(int)
+}

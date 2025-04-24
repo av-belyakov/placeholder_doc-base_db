@@ -2,7 +2,7 @@ package handlers
 
 import eventcasehf "github.com/av-belyakov/objectsthehiveformat/eventcase"
 
-// NewListHandlerEventCase обработчик событий типа 'case' для 'event'
+// NewListHandlerEventCase обработчик событий типа 'event.*' для объекта 'case'
 func NewListHandlerEventCase(event *eventcasehf.TypeEventForCase) map[string][]func(interface{}) {
 	return map[string][]func(any){
 		"event.rootId":         {event.SetAnyRootId},

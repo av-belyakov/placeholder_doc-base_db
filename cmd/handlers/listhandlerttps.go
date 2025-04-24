@@ -1,6 +1,6 @@
 package handlers
 
-// NewListHandlerTtp обработчик событий типа 'case' для 'ttps'
+// NewListHandlerTtp обработчик событий типа 'ttps.*' для объекта 'case'
 func NewListHandlerTtp(sttp *SupportiveTtp) map[string][]func(any) {
 	return map[string][]func(any){
 		//--- occurDate ---

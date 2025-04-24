@@ -2,7 +2,7 @@ package handlers
 
 import "strings"
 
-// NewListHandlerObservables обработчик событий типа 'case' для 'observables'
+// NewListHandlerObservables обработчик событий типа 'observables.*' для объекта 'case'
 func NewListHandlerObservables(so *SupportiveObservables) map[string][]func(any) {
 	return map[string][]func(any){
 		//--- ioc ---

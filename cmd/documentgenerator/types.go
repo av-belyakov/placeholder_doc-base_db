@@ -1,7 +1,7 @@
 package documentgenerator
 
 import (
-	alertobject "github.com/av-belyakov/objectsthehiveformat/alertobject"
+	alert "github.com/av-belyakov/objectsthehiveformat/alert"
 	caseobservables "github.com/av-belyakov/objectsthehiveformat/caseobservables"
 	casettps "github.com/av-belyakov/objectsthehiveformat/casettps"
 	eventalert "github.com/av-belyakov/objectsthehiveformat/eventalert"
@@ -11,7 +11,7 @@ import (
 // VerifiedAlert объект представляет собой верифицированный тип 'alert'
 type VerifiedAlert struct {
 	Event           eventalert.TypeEventForAlert `json:"event" bson:"event"`
-	Alert           alertobject.EventAlertObject `json:"alert,omitempty" bson:"alert"`
+	Alert           alert.TypeAlert              `json:"alert,omitempty" bson:"alert"`
 	ID              string                       `json:"@id" bson:"@id"`
 	CreateTimestamp string                       `json:"@timestamp" bson:"@timestamp"`
 	Source          string                       `json:"source" bson:"source"`

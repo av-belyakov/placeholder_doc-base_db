@@ -4,8 +4,8 @@ import (
 	caseobjecthf "github.com/av-belyakov/objectsthehiveformat/caseobject"
 )
 
-// NewListHandlerEventCaseObject обработчик событий типа 'case' для 'event.object'
-func NewListHandlerEventCaseObject(object *caseobjecthf.EventCaseObject) map[string][]func(interface{}) {
+// NewListHandlerEventCaseObject обработчик событий типа 'event.object.*' для объекта 'case'
+func NewListHandlerEventCaseObject(object *caseobjecthf.EventCaseObject) map[string][]func(any) {
 	return map[string][]func(any){
 		"event.object.flag":             {object.SetAnyFlag},
 		"event.object.caseId":           {object.SetAnyCaseId},

@@ -2,8 +2,8 @@ package handlers
 
 import casedetailshf "github.com/av-belyakov/objectsthehiveformat/casedetails"
 
-// NewListHandlerEventCaseDetails обработчик событий типа 'case' для 'event.details'
-func NewListHandlerEventCaseDetails(details *casedetailshf.EventCaseDetails) map[string][]func(interface{}) {
+// NewListHandlerEventCaseDetails обработчик событий типа 'event.details.*' для объекта 'case'
+func NewListHandlerEventCaseDetails(details *casedetailshf.EventCaseDetails) map[string][]func(any) {
 	return map[string][]func(any){
 		"event.details.endDate":          {details.SetAnyEndDate},
 		"event.details.resolutionStatus": {details.SetAnyResolutionStatus},
