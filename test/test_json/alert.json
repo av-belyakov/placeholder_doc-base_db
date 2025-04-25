@@ -1,0 +1,62 @@
+{
+    "source": "gcm-test",
+    "event": {
+        "operation": "update",
+        "rootId": "~91686760480",
+        "startDate": 1745568135456,
+        "base": true,
+        "details": {
+            "description": "__Сенсор:__ 8030148 (Рязань Гранит)  __Время:__ 2025-04-25 05:35:24+03:00 = 1745548524  __Теги:__ Sensor:id=\"8030148\", ATm:f_type=\"zip\", ATm:archive=\"zip\"  __TCP__ &#9830; **192.168.0.122** : 58259 &#9830; ⟶ **193.0.214.202** : 110  __POP3__ &#9830;  &#9830; ⟶   __Вложение:__  - FSS_tax_tax.6204100149_9f0459c7923d467c9e30ac6a4c07b052_7_1.zip  - zip  - /opt/zaslon/mail_filter/files/1745559900_2025_04_25____08_45_00_346253/ed8782b5727dd35199fd369a6f66a762.zip_  - MD5: ed8782b5727dd35199fd369a6f66a762  - SHA1: 00a75c7f5600070fc14374fcd6b5a3b27c2cd921Расширения файлов в архиве:    - pdf: 1  - '': 4 Ссылка на eml-файл:__ ftp://ftp.cloud.gcm/mail/8030148/1c87b9c06ec211244199516a1206ca5a.eml  __Доп. ссылка:__ [http://ftp.cloud.gcm/mail/8030148/1c87b9c06ec211244199516a1206ca5a.eml](http://ftp.cloud.gcm/mail/8030148/1c87b9c06ec211244199516a1206ca5a.eml)  **Файл из вложения был загружен в KMR и PT Sandbox**Результат работы **PT Sandbox:** ([Ссылка](https://pt-sandbox.cloud.gcm/tasks/818af168-21a8-11f0-83aa-5fbc50edd27b)) - В рамках работы **PT Sandbox** был выполнен **поведенческий анализ**- Результат поведенческого анализа **PT Sandbox:CLEAN** Результат работы **KMR:**- Рассмотрены файлы из архива packageDescription.xml([Ссылка](https://kmr2.portal.alpha.ru/main/samples/detail/698161?tab=avscan)); 27646e7a8f64455da352913bc4c85337.bin([Ссылка](https://kmr2.portal.alpha.ru/main/samples/detail/698160?tab=avscan)); 3cfcef6ce2444de1b4b84d01edde3383.bin([Ссылка](https://kmr2.portal.alpha.ru/main/samples/detail/698159?tab=avscan));  всего 3 файлов- В результате анализа файлов из архива антивирусами в **KMR** опасных файлов не найдено- ioc, выявленные **KMR** в результате **поведенческого анализа** добавлены (За исключением ioc из белого списка)"
+        },
+        "object": {
+            "_id": "~91686760480",
+            "_type": "alert",
+            "description": "__Сенсор:__ 8030148 (Рязань Гранит)  __Время:__ 2025-04-25 05:35:24+03:00 = 1745548524  __Теги:__ Sensor:id=\"8030148\", ATm:f_type=\"zip\", ATm:archive=\"zip\"  __TCP__ &#9830; **192.168.0.122** : 58259 &#9830; ⟶ **193.0.214.202** : 110  __POP3__ &#9830;  &#9830; ⟶   __Вложение:__  - FSS_tax_tax.6204100149_9f0459c7923d467c9e30ac6a4c07b052_7_1.zip  - zip  - /opt/zaslon/mail_filter/files/1745559900_2025_04_25____08_45_00_346253/ed8782b5727dd35199fd369a6f66a762.zip_  - MD5: ed8782b5727dd35199fd369a6f66a762  - SHA1: 00a75c7f5600070fc14374fcd6b5a3b27c2cd921Расширения файлов в архиве:    - pdf: 1  - '': 4Время обновления:__ 2025-04-25 05:29:22+03:00 = 1745548162  __TCP__ &#9830; **192.168.0.122** : 58025 &#9830; ⟶ **193.0.214.202** : 110  __POP3__ &#9830;  &#9830; ⟶   __Ссылка на eml-файл:__ ftp://ftp.cloud.gcm/mail/8030148/0e37c18769307fb19353f76ab1dd710c.eml  __Доп. ссылка:__ [http://ftp.cloud.gcm/mail/8030148/0e37c18769307fb19353f76ab1dd710c.eml](http://ftp.cloud.gcm/mail/8030148/0e37c18769307fb19353f76ab1dd710c.eml)    __Время обновления:__ 2025-04-25 05:29:22+03:00 = 1745548162  __TCP__ &#9830; **192.168.0.122** : 58025 &#9830; ⟶ **193.0.214.202** : 110  __POP3__ &#9830;  &#9830; ⟶   __Ссылка на eml-файл:__ ftp://ftp.cloud.gcm/mail/8030148/ee8b7dcc87ca6de747f1a7886173c3ee.eml  __Доп. ссылка:__ [http://ftp.cloud.gcm/mail/8030148/ee8b7dcc87ca6de747f1a7886173c3ee.eml](http://ftp.cloud.gcm/mail/8030148/ee8b7dcc87ca6de747f1a7886173c3ee.eml)    __Время обновления:__ 2025-04-25 05:29:22+03:00 = 1745548162  __TCP__ &#9830; **192.168.0.122** : 58025 &#9830; ⟶ **193.0.214.202** : 110  __POP3__ &#9830;  &#9830; ⟶   __Ссылка на eml-файл:__ ftp://ftp.cloud.gcm/mail/8030148/11d2d1f793353e03f9e41086f261ced0.eml  __Доп. ссылка:__ [http://ftp.cloud.gcm/mail/8030148/11d2d1f793353e03f9e41086f261ced0.eml](http://ftp.cloud.gcm/mail/8030148/11d2d1f793353e03f9e41086f261ced0.eml)    __Время обновления:__ 2025-04-25 05:29:22+03:00 = 1745548162  __TCP__ &#9830; **192.168.0.122** : 58025 &#9830; ⟶ **193.0.214.202** : 110  __POP3__ &#9830;  &#9830; ⟶   __Ссылка на eml-файл:__ ftp://ftp.cloud.gcm/mail/8030148/d0e45d1cdb63fc8b179a6c1678c51d90.eml  __Доп. ссылка:__ [http://ftp.cloud.gcm/mail/8030148/d0e45d1cdb63fc8b179a6c1678c51d90.eml](http://ftp.cloud.gcm/mail/8030148/d0e45d1cdb63fc8b179a6c1678c51d90.eml)    __Время обновления:__ 2025-04-25 05:29:22+03:00 = 1745548162  __TCP__ &#9830; **192.168.0.122** : 58025 &#9830; ⟶ **193.0.214.202** : 110  __POP3__ &#9830;  &#9830; ⟶   __Ссылка на eml-файл:__ ftp://ftp.cloud.gcm/mail/8030148/8ac006c052d4a57ebdbbfb64ee1a93de.eml  __Доп. ссылка:__ [http://ftp.cloud.gcm/mail/8030148/8ac006c052d4a57ebdbbfb64ee1a93de.eml](http://ftp.cloud.gcm/mail/8030148/8ac006c052d4a57ebdbbfb64ee1a93de.eml)    __Время обновления:__ 2025-04-25 05:29:22+03:00 = 1745548162  __TCP__ &#9830; **192.168.0.122** : 58025 &#9830; ⟶ **193.0.214.202** : 110  __POP3__ &#9830;  &#9830; ⟶   __Ссылка на eml-файл:__ ftp://ftp.cloud.gcm/mail/8030148/36c534ee3fdb8913d574fc9a1abd677b.eml  __Доп. ссылка:__ [http://ftp.cloud.gcm/mail/8030148/36c534ee3fdb8913d574fc9a1abd677b.eml](http://ftp.cloud.gcm/mail/8030148/36c534ee3fdb8913d574fc9a1abd677b.eml)    __Время обновления:__ 2025-04-25 05:29:22+03:00 = 1745548162  __TCP__ &#9830; **192.168.0.122** : 58025 &#9830; ⟶ **193.0.214.202** : 110  __POP3__ &#9830;  &#9830; ⟶   __Ссылка на eml-файл:__ ftp://ftp.cloud.gcm/mail/8030148/0af2c1c772fcd567e0fd0dbc6bf5e5a4.eml  __Доп. ссылка:__ [http://ftp.cloud.gcm/mail/8030148/0af2c1c772fcd567e0fd0dbc6bf5e5a4.eml](http://ftp.cloud.gcm/mail/8030148/0af2c1c772fcd567e0fd0dbc6bf5e5a4.eml)    __Время обновления:__ 2025-04-25 05:29:22+03:00 = 1745548162  __TCP__ &#9830; **192.168.0.122** : 58025 &#9830; ⟶ **193.0.214.202** : 110  __POP3__ &#9830;  &#9830; ⟶   __Ссылка на eml-файл:__ ftp://ftp.cloud.gcm/mail/8030148/1c87b9c06ec211244199516a1206ca5a.eml  __Доп. ссылка:__ [http://ftp.cloud.gcm/mail/8030148/1c87b9c06ec211244199516a1206ca5a.eml](http://ftp.cloud.gcm/mail/8030148/1c87b9c06ec211244199516a1206ca5a.eml)  **Файл из вложения был загружен в KMR и PT Sandbox**Результат работы **PT Sandbox:** ([Ссылка](https://pt-sandbox.cloud.gcm/tasks/818af168-21a8-11f0-83aa-5fbc50edd27b)) - В рамках работы **PT Sandbox** был выполнен **поведенческий анализ**- Результат поведенческого анализа **PT Sandbox:CLEAN** Результат работы **KMR:**- Рассмотрены файлы из архива packageDescription.xml([Ссылка](https://kmr2.portal.alpha.ru/main/samples/detail/698161?tab=avscan)); 27646e7a8f64455da352913bc4c85337.bin([Ссылка](https://kmr2.portal.alpha.ru/main/samples/detail/698160?tab=avscan)); 3cfcef6ce2444de1b4b84d01edde3383.bin([Ссылка](https://kmr2.portal.alpha.ru/main/samples/detail/698159?tab=avscan));  всего 3 файлов- В результате анализа файлов из архива антивирусами в **KMR** опасных файлов не найдено- ioc, выявленные **KMR** в результате **поведенческого анализа** добавлены (За исключением ioc из белого списка)",
+            "id": "~91686760480",
+            "similarCases": {},
+            "sourceRef": "TSK-8MSK-6-ZPM-250425-2411151",
+            "status": "New",
+            "title": "ed8782b5..  : +1",
+            "createdAt": 1745560917603,
+            "customFields": {
+                "attack-type": {
+                    "string": "Распределенная КА"
+                },
+                "class-attack": {
+                    "string": "Рассылка ВПО/Cоциальная инженерия"
+                },
+                "first-time": {
+                    "date": 1745548524000
+                },
+                "last-time": {
+                    "date": 1745548162000
+                }
+            },
+            "date": 1745560916000,
+            "pap": 2,
+            "tlp": 1,
+            "updatedAt": 1745568135082,
+            "updatedBy": "e.anisimova@cloud.gcm",
+            "artifacts": {},
+            "caseTemplate": "mail_alert",
+            "createdBy": "zsiem@cloud.gcm",
+            "severity": 1,
+            "type": "mail_alert",
+            "follow": true,
+            "source": "ZSIEM",
+            "tags": [
+                "HAFN:send=\"KMR\"",
+                "Sensor:id=\"8030148\"",
+                "ATm:f_type=\"zip\"",
+                "ATm:archive=\"zip\"",
+                "PT:verdict=CLEAN",
+                "HAFN:verdict=\"CLEAN\""
+            ]
+        },
+        "objectId": "~91686760480",
+        "organisation": "GCM",
+        "organisationId": "~4192",
+        "requestId": "50ae5f0dc59a6842:-3d107b9c:1963e52bc3d:-8000:1468002",
+        "objectType": "alert"
+    }
+}
