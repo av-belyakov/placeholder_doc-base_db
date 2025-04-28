@@ -137,7 +137,7 @@ func CaseGenerator(chInput <-chan interfaces.CustomJsonDecoder) (string, *Verifi
 				r := reflect.TypeOf(data.GetValue())
 				switch r.Kind() {
 				case reflect.Slice:
-					if s, ok := data.GetValue().([]interface{}); ok {
+					if s, ok := data.GetValue().([]any); ok {
 						for _, value := range s {
 							f(value)
 						}
@@ -173,7 +173,7 @@ func CaseGenerator(chInput <-chan interfaces.CustomJsonDecoder) (string, *Verifi
 				r := reflect.TypeOf(data.GetValue())
 				switch r.Kind() {
 				case reflect.Slice:
-					if s, ok := data.GetValue().([]interface{}); ok {
+					if s, ok := data.GetValue().([]any); ok {
 						for _, value := range s {
 							f(value)
 						}

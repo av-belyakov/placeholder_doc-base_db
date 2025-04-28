@@ -24,6 +24,9 @@ type settingsDatabaseStorage struct {
 
 // SettingsChanInput параметры канала для передачи данных в модуль
 type SettingsChanInput struct {
+	Data    any
+	Section string
+	Command string
 }
 
 // SettingsChanOutput параметры канала для приёма данных из модуля
@@ -31,3 +34,7 @@ type SettingsChanOutput struct {
 }
 
 type DatabaseStorageOptions func(*DatabaseStorage) error
+
+type listSensorId struct {
+	sensors []string
+}
