@@ -8,44 +8,43 @@
 # maxFileSize - максимальный размер файла, после которого будет создаваться новый
 #  файл, а текущий будет архивироваться
 LOGGING:
-  - {
-      msgTypeName: error,
-      writingFile: true,
-      pathDirectory: logs,
-      writingStdout: false,
-      maxFileSize: 10000000,
-      writingDB: true,
-    }
-  - {
-      msgTypeName: warning,
-      writingFile: true,
-      pathDirectory: logs,
-      writingStdout: false,
-      maxFileSize: 10000000,
-      writingDB: true,
-    }
-  - {
-      msgTypeName: info,
-      writingFile: true,
-      pathDirectory: logs,
-      writingStdout: true,
-      maxFileSize: 10000000,
-      writingDB: true,
-    }
-  - {
-      msgTypeName: debug,
-      writingFile: false,
-      pathDirectory: logs,
-      writingStdout: true,
-      maxFileSize: 10000000,
-    }
-  - {
-      msgTypeName: events,
-      writingFile: true,
-      pathDirectory: logs,
-      writingStdout: false,
-      maxFileSize: 10000000,
-    }
+  - msgTypeName: error
+    writingDB: true
+    writingStdout: true
+    writingFile: true
+    pathDirectory: logs
+    maxFileSize: 10000000
+  - msgTypeName: warning
+    writingDB: true
+    writingStdout: true
+    writingFile: true
+    pathDirectory: logs
+    maxFileSize: 10000000
+  - msgTypeName: info
+    writingDB: true
+    writingStdout: true
+    writingFile: true
+    pathDirectory: logs
+    maxFileSize: 10000000
+  - msgTypeName: alert_raw_fields,
+    writingDB: false
+    writingStdout: false
+    writingFile: true
+    pathDirectory: logs
+    maxFileSize: 10000000
+  - msgTypeName: case_raw_fields
+    writingDB: false
+    writingStdout: false
+    writingFile: true
+    pathDirectory: logs
+    maxFileSize: 10000000
+  - msgTypeName: events
+    writingDB: false
+    writingStdout: false
+    writingFile: true
+    pathDirectory: logs
+    maxFileSize: 10000000
+
 #****   ZABBIX настройки подключения к серверу Zabbix ****
 #
 # networkHost: хост в формате ip или domainname для подклчения к серверу

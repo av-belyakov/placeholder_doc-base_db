@@ -2,6 +2,7 @@ package databasestorageapi
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net"
 	"net/http"
@@ -59,7 +60,36 @@ func (dbs *DatabaseStorage) Start(ctx context.Context) error {
 }
 
 func (dbs *DatabaseStorage) router(ctx context.Context) {
-	/*
-	   написать обработчик маршрутов
-	*/
+	handlersList := map[string]map[string]func(context.Context, any){
+		"handling alert": {
+			"add alert": dbs.addAlert,
+		},
+		"handling case": {
+			"add case": dbs.addCase,
+		},
+	}
+
+	for {
+		select {
+		case <-ctx.Done():
+			return
+
+		case msg := <-dbs.chInput:
+			strErr := "the handler for the accepted request was not found"
+
+			if _, ok := handlersList[msg.Section]; !ok {
+				dbs.logging.Send("error", supportingfunctions.CustomError(errors.New(strErr)).Error())
+
+				continue
+			}
+
+			if _, ok := handlersList[msg.Section][msg.Command]; !ok {
+				dbs.logging.Send("error", supportingfunctions.CustomError(errors.New(strErr)).Error())
+
+				continue
+			}
+
+			go handlersList[msg.Section][msg.Command](ctx, msg.Data)
+		}
+	}
 }
