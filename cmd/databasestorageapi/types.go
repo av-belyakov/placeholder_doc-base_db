@@ -33,6 +33,9 @@ type SettingsChanInput struct {
 
 // SettingsChanOutput параметры канала для приёма данных из модуля
 type SettingsChanOutput struct {
+	CaseId  string
+	RootId  string
+	Command string
 }
 
 type DatabaseStorageOptions func(*DatabaseStorage) error

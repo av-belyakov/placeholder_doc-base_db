@@ -44,7 +44,7 @@ func (api *apiNatsModule) incomingInformationHandler(ctx context.Context) {
 									  "command": "add_case_tag",
 									  "root_id": "%s",
 									  "case_id": "%s",
-									  "value": "Webhook: send=\"ES\""
+									  "value": "Webhook: send=\"ElasticsearchDB"
 								}`, incomingData.RootId, incomingData.CaseId)); err != nil {
 				api.logger.Send("error", supportingfunctions.CustomError(err).Error())
 			}

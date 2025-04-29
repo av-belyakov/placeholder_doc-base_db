@@ -242,7 +242,7 @@ func (dbs *DatabaseStorage) addAlert(ctx context.Context, data any) {
 
 	if res != nil && res.StatusCode == http.StatusCreated {
 		dbs.counter.SendMessage("update count insert subject alert to db", 1)
-		dbs.logger.Send("warning", supportingfunctions.CustomError(fmt.Errorf("count delete: '%d', count replacing fields '%d' for alert with rootId: '%s'", countDel, countReplacingFields, newDocument.GetEvent().GetRootId())).Error())
+		dbs.logger.Send("info", fmt.Sprintf("count delete:'%d', count replacing fields:'%d' for alert with rootId:'%s'", countDel, countReplacingFields, newDocument.GetEvent().GetRootId()))
 	}
 }
 
@@ -423,6 +423,13 @@ func (dbs *DatabaseStorage) addCase(ctx context.Context, data any) {
 
 	if res != nil && res.StatusCode == http.StatusCreated {
 		dbs.counter.SendMessage("update count insert subject case to db", 1)
-		dbs.logger.Send("warning", supportingfunctions.CustomError(fmt.Errorf("count delete: '%d', count replacing fields '%d' for alert with rootId: '%s'", countDel, countReplacingFields, newDocument.GetEvent().GetRootId())).Error())
+		dbs.logger.Send("info", fmt.Sprintf("count delete:'%d', count replacing fields:'%d' for alert with rootId:'%s'", countDel, countReplacingFields, newDocument.GetEvent().GetRootId()))
+
+		//запрос на отправку сообщения для установки тега
+		dbs.GetChanDataFromModule() <- SettingsChanOutput{
+			Command: "set tag",
+			CaseId:  fmt.Sprint(newDocument.GetEvent().GetObject().CaseId),
+			RootId:  newDocument.GetEvent().GetRootId(),
+		}
 	}
 }
