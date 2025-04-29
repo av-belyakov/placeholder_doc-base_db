@@ -5,12 +5,11 @@ import (
 	"errors"
 
 	"github.com/av-belyakov/placeholder_doc-base_db/interfaces"
-	"github.com/av-belyakov/placeholder_doc-base_db/internal/countermessage"
 	"github.com/av-belyakov/placeholder_doc-base_db/internal/supportingfunctions"
 )
 
 // New конструктор нового обработчика JSON сообщения
-func New(counter *countermessage.CounterMessage, logger interfaces.Logger) *DecoderJsonDocuments {
+func New(counter interfaces.Counter, logger interfaces.Logger) *DecoderJsonDocuments {
 	return &DecoderJsonDocuments{logger: logger, counter: counter}
 }
 
@@ -47,7 +46,7 @@ func (s *DecoderJsonDocuments) Start(b []byte, taskId string) chan interfaces.Cu
 			_ = processingReflectSlice(chanInput, listSlice, "")
 		}
 
-		// счетчик обработанных кейсов
+		// счетчик обработанных событий
 		s.counter.SendMessage("update processed events", 1)
 
 		close(chanInput)

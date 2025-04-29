@@ -7,220 +7,15 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"runtime"
 	"strings"
-	"time"
 
 	"github.com/elastic/go-elasticsearch/v8/esapi"
 
-	"github.com/av-belyakov/placeholder_doc-base_db/cmd/documentgenerator"
 	"github.com/av-belyakov/placeholder_doc-base_db/internal/supportingfunctions"
 )
 
-func (dbs *DatabaseStorage) addAlert(ctx context.Context, data any) {
-	newDocument, ok := data.(documentgenerator.VerifiedAlert)
-	if !ok {
-		dbs.logging.Send("error", supportingfunctions.CustomError(errors.New("type conversion error")).Error())
-
-		return
-	}
-
-}
-
-func (dbs *DatabaseStorage) addCase(ctx context.Context, data any) {
-	newDocument, ok := data.(documentgenerator.VerifiedCase)
-	if !ok {
-		dbs.logging.Send("error", supportingfunctions.CustomError(errors.New("type conversion error")).Error())
-
-		return
-	}
-
-	indexName, isExist := dbs.settings.storages["case"]
-	if !isExist {
-		dbs.logging.Send("error", supportingfunctions.CustomError(errors.New("the identifier of the index name was not found")).Error())
-
-		return
-	}
-
-	var countReplacingFields int
-	tag := fmt.Sprintf("case rootId: '%s'", newDocument.GetEvent().GetRootId())
-
-	t := time.Now()
-	month := int(t.Month())
-	indexCurrent := fmt.Sprintf("%s_%d_%d", indexName, t.Year(), month)
-	queryCurrent := strings.NewReader(fmt.Sprintf("{\"query\": {\"bool\": {\"must\": [{\"match\": {\"source\": \"%s\"}}, {\"match\": {\"event.rootId\": \"%s\"}}]}}}", newDocument.GetSource(), newDocument.GetEvent().GetRootId()))
-
-	sensorsId := listSensorId{
-		sensors: []string(nil),
-	}
-
-	caseElem := newDocument.Get()
-	eventElem := caseElem.GetEvent()
-	objectElem := eventElem.GetObject()
-	if listSensorId, ok := objectElem.GetTags()["sensor:id"]; ok {
-		for _, v := range listSensorId {
-			sensorsId.addElem(v)
-		}
-	}
-
-	newDocumentBinary, err := json.Marshal(newDocument.Get())
-	if err != nil {
-		dbs.logging.Send("error", supportingfunctions.CustomError(err).Error())
-
-		return
-	}
-
-	indexes, err := dbs.GetExistingIndexes(ctx, indexName)
-	if err != nil {
-		dbs.logging.Send("error", supportingfunctions.CustomError(err).Error())
-
-		return
-	}
-
-	//будет выполнятся поиск по индексам только в текущем году
-	//так как при накоплении большого количества индексов, поиск
-	//по всем серьезно замедлит работу
-	indexesOnlyCurrentYear := []string(nil)
-	for _, v := range indexes {
-		if strings.Contains(v, fmt.Sprint(t.Year())) {
-			indexesOnlyCurrentYear = append(indexesOnlyCurrentYear, v)
-		}
-	}
-
-	// если похожих индексов нет
-	if len(indexesOnlyCurrentYear) == 0 {
-		hsd.InsertNewDocument(tag, indexCurrent, newDocumentBinary, logging, counting)
-
-		/*
-		   res, err := hsd.InsertDocument(tag, index, document)
-		   	defer responseClose(res)
-		   	if err != nil {
-		   		_, f, l, _ := runtime.Caller(0)
-		   		logging <- datamodels.MessageLogging{
-		   			MsgData: fmt.Sprintf("'%s' %s:%d", err.Error(), f, l-2),
-		   			MsgType: "error",
-		   		}
-
-		   		return
-		   	}
-
-		   	//счетчик
-		   	counting <- datamodels.DataCounterSettings{
-		   		DataType: "update count insert Elasticserach",
-		   		DataMsg:  "subject_alert",
-		   		Count:    1,
-		   	}
-		*/
-
-		indexes = append(indexes, indexCurrent)
-		//устанавливаем максимальный лимит количества полей для всех индексов которые
-		//содержат значение по умолчанию в 1000 полей
-		if err := SetMaxTotalFieldsLimit(hsd, indexes, logging); err != nil {
-			dbs.logging.Send("error", supportingfunctions.CustomError(err).Error())
-
-			return
-		}
-	}
-
-	//устанавливаем максимальный лимит количества полей для всех индексов которые
-	//содержат значение по умолчанию в 1000 полей
-	if err := SetMaxTotalFieldsLimit(hsd, indexes, logging); err != nil {
-		dbs.logging.Send("error", supportingfunctions.CustomError(err).Error())
-	}
-
-	res, err := hsd.SearchDocument(indexesOnlyCurrentYear, queryCurrent)
-	defer func() {
-		if res == nil || res.Body == nil {
-			return
-		}
-
-		res.Body.Close()
-	}()
-	if err != nil {
-		dbs.logging.Send("error", supportingfunctions.CustomError(err).Error())
-
-		return
-	}
-
-	decEs := datamodels.ElasticsearchResponseCase{}
-	err = json.NewDecoder(res.Body).Decode(&decEs)
-	if err != nil {
-		dbs.logging.Send("error", supportingfunctions.CustomError(err).Error())
-
-		return
-	}
-
-	if decEs.Options.Total.Value == 0 {
-		//выполняется только когда не найден искомый документ
-		hsd.InsertNewDocument(tag, indexCurrent, newDocumentBinary, logging, counting)
-
-		return
-	}
-
-	//*** при наличие искомого документа выполняем его замену ***
-	//***********************************************************
-	listDeleting := []datamodels.ServiseOption(nil)
-	updateVerified := datamodels.NewVerifiedEsCase()
-	for _, v := range decEs.Options.Hits {
-		count, err := updateVerified.Event.ReplacingOldValues(*v.Source.GetEvent())
-		if err != nil {
-			dbs.logging.Send("error", supportingfunctions.CustomError(err).Error())
-		} else {
-			countReplacingFields += count
-		}
-
-		countReplacingFields += updateVerified.ObservablesMessageEs.ReplacingOldValues(v.Source.ObservablesMessageEs)
-		countReplacingFields += updateVerified.TtpsMessageTheHive.ReplacingOldValues(v.Source.TtpsMessageTheHive)
-
-		listDeleting = append(listDeleting, datamodels.ServiseOption{
-			ID:    v.ID,
-			Index: v.Index,
-		})
-
-		//устанавливаем время создания первой записи о кейсе
-		updateVerified.SetCreateTimestamp(v.Source.CreateTimestamp)
-	}
-
-	//выполняем обновление объекта типа Event
-	updateVerified.SetSource(newDocument.GetSource())
-	num, err := updateVerified.Event.ReplacingOldValues(*newDocument.GetEvent())
-	if err != nil {
-		dbs.logging.Send("error", supportingfunctions.CustomError(err).Error())
-	} else {
-		countReplacingFields += num
-	}
-
-	countReplacingFields += updateVerified.ObservablesMessageEs.ReplacingOldValues(*newDocument.GetObservables())
-	countReplacingFields += updateVerified.TtpsMessageTheHive.ReplacingOldValues(*newDocument.GetTtps())
-
-	nvbyte, err := json.Marshal(updateVerified)
-	if err != nil {
-		dbs.logging.Send("error", supportingfunctions.CustomError(err).Error())
-
-		return
-	}
-
-	res, countDel, err := hsd.UpdateDocument(tag, indexCurrent, listDeleting, nvbyte)
-	defer responseClose(res)
-	if err != nil {
-		dbs.logging.Send("error", supportingfunctions.CustomError(fmt.Errorf("rootId '%s' '%s'", newDocument.GetEvent().GetRootId(), err.Error())).Error())
-
-		return
-	}
-
-	if res != nil && res.StatusCode == http.StatusCreated {
-		//счетчик
-		counting <- datamodels.DataCounterSettings{
-			DataType: "update count insert Elasticserach",
-			DataMsg:  "subject_case",
-			Count:    1,
-		}
-
-		dbs.logging.Send("warning", supportingfunctions.CustomError(fmt.Errorf("count delete: '%d', count replacing fields '%d' for alert with rootId: '%s'", countDel, countReplacingFields, newDocument.GetEvent().GetRootId())).Error())
-	}
-}
-
-// GetExistingIndexes выполняет проверку наличия индексов соответствующих определенному
-// шаблону и возвращает список наименований индексов подходящих под заданный шаблон
+// GetExistingIndexes проверка наличия индексов соответствующих определенному шаблону
 func (dbs *DatabaseStorage) GetExistingIndexes(ctx context.Context, pattern string) ([]string, error) {
 	listIndexes := []string(nil)
 	msg := []struct {
@@ -251,28 +46,87 @@ func (dbs *DatabaseStorage) GetExistingIndexes(ctx context.Context, pattern stri
 	return listIndexes, err
 }
 
-// GetIndexSetting получает натройки выбранного индекса
-func (dbs *DatabaseStorage) GetIndexSetting(index, query string) (*esapi.Response, error) {
-	var (
-		res *esapi.Response
-		err error
-	)
-
+// GetIndexSetting настройки выбранного индекса
+func (dbs *DatabaseStorage) GetIndexSetting(ctx context.Context, index, query string) (
+	settings map[string]struct {
+		Settings struct {
+			Index struct {
+				Mapping struct {
+					TotalFields struct {
+						Limit string `json:"limit"`
+					} `json:"total_fields"`
+				} `json:"mapping"`
+			} `json:"index"`
+		} `json:"settings"`
+	}, err error) {
 	req := esapi.IndicesGetSettingsRequest{
 		Index:  []string{index},
 		Pretty: true,
 		Human:  true,
 	}
 
-	res, err = req.Do(context.Background(), dbs.client.Transport)
+	res, err := req.Do(ctx, dbs.client.Transport)
 	if err != nil {
-		return res, err
+		return
 	}
 
-	return res, nil
+	if res.StatusCode != http.StatusOK {
+		err = fmt.Errorf("the server response when executing an index search query is equal to '%s'", res.Status())
+
+		return
+	}
+
+	err = json.NewDecoder(res.Body).Decode(&settings)
+	if err != nil {
+		return
+	}
+
+	return
 }
 
-// InsertDocument добавляет новый документ в заданный индекс
+// SetIndexSetting новые настройки индекса
+func (dbs *DatabaseStorage) SetIndexSetting(ctx context.Context, indexes []string, query string) (bool, error) {
+	indicesSettings := esapi.IndicesPutSettingsRequest{
+		Index: indexes,
+		Body:  strings.NewReader(query),
+	}
+
+	res, err := indicesSettings.Do(ctx, dbs.client.Transport)
+	if err != nil {
+		return false, err
+	}
+	defer responseClose(res)
+
+	if res.StatusCode == http.StatusCreated || res.StatusCode == http.StatusOK {
+		return true, nil
+	}
+
+	r := map[string]any{}
+	if err = json.NewDecoder(res.Body).Decode(&r); err != nil {
+		_, f, l, _ := runtime.Caller(0)
+		return true, fmt.Errorf("'%v' %s:%d", err, f, l-1)
+	}
+
+	if e, ok := r["error"]; ok {
+		return true, fmt.Errorf("received from module Elsaticsearch: %s (%s)", res.Status(), e)
+	}
+
+	return false, nil
+}
+
+// DelIndexSetting
+func (dbs *DatabaseStorage) DelIndexSetting(ctx context.Context, indexes []string) error {
+	req := esapi.IndicesDeleteRequest{Index: indexes}
+	res, err := req.Do(ctx, dbs.client.Transport)
+	if err != nil {
+		return err
+	}
+	defer responseClose(res)
+
+	return err
+}
+
+// InsertDocument добавить новый документ в заданный индекс
 func (dbs *DatabaseStorage) InsertDocument(tag, index string, b []byte) (*esapi.Response, error) {
 	var res *esapi.Response
 
@@ -297,8 +151,151 @@ func (dbs *DatabaseStorage) InsertDocument(tag, index string, b []byte) (*esapi.
 	}
 
 	if err, ok := r["error"]; ok {
-		return res, supportingfunctions.CustomError(fmt.Errorf("%s received from module Elsaticsearch: %s (%s), %w", tag, res.Status(), err))
+		return res, supportingfunctions.CustomError(fmt.Errorf("received from database: %s (%s), %v", tag, res.Status(), err))
 	}
 
 	return res, nil
+}
+
+// UpdateDocument поиск и обновление документов
+func (dbs *DatabaseStorage) UpdateDocument(tag, currentIndex string, list []ServiseOption, document []byte) (res *esapi.Response, countDel int, err error) {
+	for _, v := range list {
+		res, errDel := dbs.client.Delete(v.Index, v.ID)
+		responseClose(res)
+		if errDel != nil {
+			err = fmt.Errorf("%v, %v", err, errDel)
+		}
+
+		countDel++
+	}
+
+	res, err = dbs.InsertDocument(tag, currentIndex, document)
+
+	return res, countDel, err
+}
+
+// SetMaxTotalFieldsLimit устанавливает максимальный лимит полей для
+// переданного списка индексов в 2000, если такой лимит не был установлен ранее.
+// Данная функция позволяет убрать ошибку 'Elasticsearch типа Limit of total
+// fields [1000] has been exceeded while adding new fields' которая
+// возникает при установленном максимальном количестве полей в 1000, что
+// соответствует дефолтному значению.
+func (dbs *DatabaseStorage) SetMaxTotalFieldsLimit(ctx context.Context, indexes []string) error {
+	if len(indexes) == 0 {
+		return fmt.Errorf("an empty list of indexes was received")
+	}
+
+	getIndexLimit := func(ctx context.Context, indexName string) (string, bool, error) {
+		indexSettings, err := dbs.GetIndexSetting(ctx, indexName, "")
+		if err != nil {
+			return "", false, err
+		}
+
+		if info, ok := indexSettings[indexName]; ok {
+			return info.Settings.Index.Mapping.TotalFields.Limit, ok, nil
+		}
+
+		return "", false, nil
+	}
+
+	var errList error
+	indexForTotalFieldsLimit := []string(nil)
+	for _, v := range indexes {
+		limit, ok, err := getIndexLimit(ctx, v)
+		if err != nil {
+			errList = errors.Join(errList, supportingfunctions.CustomError(err))
+		}
+
+		if !ok || limit == "2000" {
+			continue
+		}
+
+		indexForTotalFieldsLimit = append(indexForTotalFieldsLimit, v)
+	}
+
+	if len(indexForTotalFieldsLimit) == 0 {
+		return errList
+	}
+
+	var query string = `{
+		"index": {
+			"mapping": {
+				"total_fields": {
+					"limit": 2000
+					}
+				}
+			}
+		}`
+	if _, err := dbs.SetIndexSetting(ctx, indexForTotalFieldsLimit, query); err != nil {
+		errList = errors.Join(errList, err)
+
+		return err
+	}
+
+	return errList
+}
+
+// SearchUnderlineIdAlert поиск объекта типа 'alert' по его _id
+func (dbs *DatabaseStorage) SearchUnderlineIdAlert(ctx context.Context, indexName, rootId, source string) (string, error) {
+	var alertId string
+
+	query := strings.NewReader(fmt.Sprintf("{\"query\": {\"bool\": {\"must\": [{\"match\": {\"source\": \"%s\"}}, {\"match\": {\"event.rootId\": \"%s\"}}]}}}", source, rootId))
+
+	//выполняем поиск _id индекса
+	res, err := dbs.client.Search(
+		dbs.client.Search.WithContext(ctx),
+		dbs.client.Search.WithIndex(indexName),
+		dbs.client.Search.WithBody(query),
+	)
+	if err != nil {
+		return alertId, err
+	}
+	defer responseClose(res)
+
+	if res.StatusCode != http.StatusOK {
+		return alertId, fmt.Errorf("%s", res.Status())
+	}
+
+	tmp := AlertDBResponse{}
+	if err = json.NewDecoder(res.Body).Decode(&tmp); err != nil {
+		return alertId, err
+	}
+
+	for _, v := range tmp.Options.Hits {
+		alertId = v.ID
+	}
+
+	return alertId, nil
+}
+
+// SearchUnderlineIdCase поиск объекта типа 'case' по его _id
+func (dbs *DatabaseStorage) SearchUnderlineIdCase(ctx context.Context, indexName, rootId, source string) (string, error) {
+	var caseId string
+	query := strings.NewReader(fmt.Sprintf("{\"query\": {\"bool\": {\"must\": [{\"match\": {\"source\": \"%s\"}}, {\"match\": {\"event.rootId\": \"%s\"}}]}}}", source, rootId))
+
+	//выполняем поиск _id индекса
+	res, err := dbs.client.Search(
+		dbs.client.Search.WithContext(ctx),
+		dbs.client.Search.WithIndex(indexName),
+		dbs.client.Search.WithBody(query),
+	)
+	if err != nil {
+		return caseId, err
+	}
+	defer responseClose(res)
+
+	if res.StatusCode != http.StatusOK {
+		return caseId, fmt.Errorf("%s", res.Status())
+	}
+
+	tmp := CaseDBResponse{}
+	if err = json.NewDecoder(res.Body).Decode(&tmp); err != nil {
+		return caseId, err
+	}
+
+	for _, v := range tmp.Options.Hits {
+		caseId = v.ID
+	}
+
+	return caseId, nil
 }

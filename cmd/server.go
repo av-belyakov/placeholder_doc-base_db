@@ -108,6 +108,7 @@ func server(ctx context.Context) {
 	// ************** инициализация модуля взаимодействия с NATS *************
 	confNats := conf.NATS
 	apiNats, err := natsapi.New(
+		counting,
 		logging,
 		natsapi.WithHost(confNats.Host),
 		natsapi.WithPort(confNats.Port),
@@ -130,6 +131,7 @@ func server(ctx context.Context) {
 	// ************** инициализация модуля взаимодействия с БД *************
 	confStorageDB := conf.GetStorageDB()
 	apiDBS, err := databasestorageapi.New(
+		counting,
 		logging,
 		databasestorageapi.WithHost(confStorageDB.Host),
 		databasestorageapi.WithPort(confStorageDB.Port),

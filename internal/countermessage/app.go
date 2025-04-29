@@ -48,17 +48,11 @@ func (c *CounterMessage) Start(ctx context.Context) {
 				case "update processed events":
 					msg = fmt.Sprintf("обработано: %d, %s", count, patternTime)
 
-				case "update events meet rules - subject_case":
-					msg = fmt.Sprintf("подписка-'subject_case', соответствие правилам: %d, %s", count, patternTime)
+				case "update count insert subject case to db":
+					msg = fmt.Sprintf("подписка-'subject_case', добавлено в базу данных: %d, %s", count, patternTime)
 
-				case "update events meet rules - subject_alert":
-					msg = fmt.Sprintf("подписка-'subject_alert', соответствие правилам: %d, %s", count, patternTime)
-
-				case "update count insert subject_case to db":
-					msg = fmt.Sprintf("подписка-'subject_case', добавлено в MongoDB: %d, %s", count, patternTime)
-
-				case "update count insert subject_alert to db":
-					msg = fmt.Sprintf("подписка-'subject_alert', добавлено в MongoDB: %d, %s", count, patternTime)
+				case "update count insert subject alert to db":
+					msg = fmt.Sprintf("подписка-'subject_alert', добавлено в базу данных: %d, %s", count, patternTime)
 
 				}
 

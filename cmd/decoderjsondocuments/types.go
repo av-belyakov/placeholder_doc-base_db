@@ -2,12 +2,11 @@ package decoderjsondocuments
 
 import (
 	"github.com/av-belyakov/placeholder_doc-base_db/interfaces"
-	"github.com/av-belyakov/placeholder_doc-base_db/internal/countermessage"
 )
 
 type DecoderJsonDocuments struct {
 	logger  interfaces.Logger
-	counter *countermessage.CounterMessage
+	counter interfaces.Counter
 }
 
 // ChanInputSettings параметры канала декодера JSON документов

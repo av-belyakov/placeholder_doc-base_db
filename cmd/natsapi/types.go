@@ -8,8 +8,9 @@ import (
 
 // apiNatsSettings настройки для API NATS
 type apiNatsModule struct {
-	natsConn      *nats.Conn
+	counter       interfaces.Counter
 	logger        interfaces.Logger
+	natsConn      *nats.Conn
 	subscriptions map[string]string
 	settings      apiNatsSettings
 	chFromModule  chan SettingsChanOutput

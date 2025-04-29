@@ -8,12 +8,11 @@ import (
 	"github.com/av-belyakov/placeholder_doc-base_db/cmd/decoderjsondocuments"
 	"github.com/av-belyakov/placeholder_doc-base_db/cmd/documentgenerator"
 	"github.com/av-belyakov/placeholder_doc-base_db/interfaces"
-	"github.com/av-belyakov/placeholder_doc-base_db/internal/countermessage"
 	"github.com/av-belyakov/placeholder_doc-base_db/internal/supportingfunctions"
 )
 
 // NewRouter маршрутизатор сообщений внутри приложения
-func NewRouter(counter *countermessage.CounterMessage, logger interfaces.Logger, settings ApplicationRouterSettings) *ApplicationRouter {
+func NewRouter(counter interfaces.Counter, logger interfaces.Logger, settings ApplicationRouterSettings) *ApplicationRouter {
 	return &ApplicationRouter{
 		counter:       counter,
 		logger:        logger,
