@@ -52,7 +52,7 @@ type AlertDBResponseOptions struct {
 
 // PatternVerifiedAlert шаблон
 type PatternVerifiedAlert struct {
-	Source documentgenerator.VerifiedCase `json:"_source"`
+	Source documentgenerator.VerifiedAlert `json:"_source"`
 	ServiseOption
 }
 
