@@ -93,7 +93,7 @@ func processingReflectMap(chInput chan<- interfaces.CustomJsonDecoder, l map[str
 		r := reflect.TypeOf(v)
 
 		if r == nil {
-			return nl
+			continue
 		}
 
 		fbTmp = fieldBranch
@@ -135,7 +135,7 @@ func processingReflectSlice(chInput chan<- interfaces.CustomJsonDecoder, l []any
 		r := reflect.TypeOf(v)
 
 		if r == nil {
-			return nl
+			continue
 		}
 
 		switch r.Kind() {
