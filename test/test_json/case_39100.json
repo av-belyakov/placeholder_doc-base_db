@@ -47,10 +47,13 @@
                 "Webhook: send=\"MISP\"",
                 "OfferGate",
                 "Webhook:send=\"WEBKOOK_helpers\"",
+                "Sensor:id=\"8030071\"",
                 "NewGate",
                 "Webhook:send=\"ZK\"",
+                "Sensor:id=\"8030167\"",
                 "ATs:reason=\"ML класс: Сканер уязвимостей\"",
-                "ATs:geoip=\"Россия\""
+                "ATs:geoip=\"Россия\"",
+                "Sensor:id=\"8030167\""
             ],
             "_id": "~88678416456",
             "_type": "case",
@@ -151,6 +154,23 @@
             "data": "6285814ef8073edf478ed7b90d015992459e0c96d546bf51dbe9c8eb56e585f8",
             "dataType": "hash",
             "ioc": true,
+            "sighted": false
+        },
+        {
+            "extraData": {},
+            "ignoreSimilarity": false,
+            "reports": {},
+            "tags": [],
+            "_createdAt": 1729076104054,
+            "message": "simple ip address",
+            "_id": "~88679125064",
+            "startDate": 1729076104054,
+            "tlp": 2,
+            "_createdBy": "a.belyakov@cloud.gcm",
+            "_type": "Observable",
+            "data": "78.0.01.26",
+            "dataType": "ip",
+            "ioc": false,
             "sighted": false
         },
         {

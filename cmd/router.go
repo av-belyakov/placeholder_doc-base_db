@@ -34,7 +34,7 @@ func (r *ApplicationRouter) Router(ctx context.Context) {
 				return
 
 			case msg := <-r.chFromNatsApi:
-				if msg.SubjectType == "object.alerttype" {
+				if msg.SubjectType == "alert" {
 					go func() {
 						rootId, verifyAlert, listRawFields := documentgenerator.AlertGenerator(decoder.Start(msg.Data, msg.TaskId))
 
@@ -48,7 +48,7 @@ func (r *ApplicationRouter) Router(ctx context.Context) {
 							Data:    verifyAlert,
 						}
 					}()
-				} else if msg.SubjectType == "object.casetype" {
+				} else if msg.SubjectType == "case" {
 					go func() {
 						rootId, verifyCase, listRawFields := documentgenerator.CaseGenerator(decoder.Start(msg.Data, msg.TaskId))
 
@@ -56,11 +56,23 @@ func (r *ApplicationRouter) Router(ctx context.Context) {
 							r.logger.Send("case_raw_fields", supportingfunctions.JoinRawFieldsToString(listRawFields, "rootId", rootId))
 						}
 
+						//передача объекта в модуль взаимодействия с базой данных для
+						//дальнейшей загрузки данных в базу
 						r.chToDBSApi <- databasestorageapi.SettingsChanInput{
 							Section: "handling case",
 							Command: "add case",
 							Data:    verifyCase,
 						}
+
+						ipAddrObjects := verifyCase.GetAdditionalInformation().GetIpAddressesInformation()
+
+						//запрос на получение дополнительной информации об ip адресе (GeoIP)
+						listIpAddr := documentgenerator.GetListIPAddr(ipAddrObjects)
+
+						r.chToNatsApi <- natsapi.SettingsChanInput{}
+
+						//запрос на получение дополнительной информации о сенсоре
+
 					}()
 				} else {
 					r.logger.Send("error", supportingfunctions.CustomError(errors.New("undefined subscription type")).Error())

@@ -12,11 +12,11 @@ import (
 
 // subscriptionHandler обработчик подписок
 func (api *apiNatsModule) subscriptionHandler() {
-	for _, v := range api.subscriptions {
+	for k, v := range api.subscriptions {
 		_, err := api.natsConn.Subscribe(v, func(m *nats.Msg) {
 			api.chFromModule <- SettingsChanOutput{
 				TaskId:      uuid.NewString(),
-				SubjectType: v,
+				SubjectType: k,
 				Data:        m.Data,
 			}
 
@@ -37,16 +37,24 @@ func (api *apiNatsModule) incomingInformationHandler(ctx context.Context) {
 			return
 
 		case incomingData := <-api.chToModule:
-			//команда на установку тега
-			if err := api.natsConn.Publish(api.settings.command,
-				fmt.Appendf(nil, `{
+			switch incomingData.Command {
+			case "set tag":
+				//команда на установку тега
+				if err := api.natsConn.Publish(api.settings.command,
+					fmt.Appendf(nil, `{
 									  "service": "placeholder_docbase_db",
 									  "command": "add_case_tag",
 									  "root_id": "%s",
 									  "case_id": "%s",
 									  "value": "Webhook: send=\"ElasticsearchDB"
 								}`, incomingData.RootId, incomingData.CaseId)); err != nil {
-				api.logger.Send("error", supportingfunctions.CustomError(err).Error())
+					api.logger.Send("error", supportingfunctions.CustomError(err).Error())
+				}
+
+			case "get geoip":
+
+			case "get sensor information":
+
 			}
 		}
 	}

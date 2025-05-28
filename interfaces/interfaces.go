@@ -1,6 +1,8 @@
 package interfaces
 
-import "context"
+import (
+	"context"
+)
 
 //**************** счётчик *****************
 
@@ -112,4 +114,8 @@ type UserTypeGetter interface {
 	SetValueSnortSid(string)
 	SetAnySnortSidNumber(any)
 	SetValueSnortSidNumber(int)
+}
+
+type WithIpAddrReader interface {
+	GetIpAddrString() string
 }

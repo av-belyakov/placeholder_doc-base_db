@@ -3,6 +3,7 @@ package documentgenerator
 import (
 	"errors"
 	"regexp"
+	"slices"
 )
 
 // searchEventSource выполняет поиск источника события
@@ -28,4 +29,21 @@ func getSensorIdFromDescription(v string) (string, error) {
 	}
 
 	return tmp[1], nil
+}
+
+// GetListIPAddr список ip адресов из элементов объекта
+func GetListIPAddr(objects []IpAddressInformation) []string {
+	newList := make([]string, 0, len(objects))
+
+	for _, v := range objects {
+		if slices.ContainsFunc(newList, func(elem string) bool {
+			return elem == v.GetIpAddrString()
+		}) {
+			continue
+		}
+
+		newList = append(newList, v.GetIpAddrString())
+	}
+
+	return newList
 }

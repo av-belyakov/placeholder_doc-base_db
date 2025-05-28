@@ -20,8 +20,15 @@ import (
 func CaseGenerator(chInput <-chan interfaces.CustomJsonDecoder) (string, *VerifiedCase, map[string]string) {
 	var (
 		rootId string
+
 		// список не обработанных полей
 		listRawFields map[string]string = make(map[string]string)
+
+		//объект с дополнительной информацией по сенсорам и ip адресам
+		additionalInformation AdditionalInformation = AdditionalInformation{
+			Sensors:     []SensorInformation{},
+			IpAddresses: []IpAddressInformation{},
+		}
 
 		//Финальный объект
 		verifiedCase *VerifiedCase = NewVerifiedCase()
@@ -232,29 +239,31 @@ func CaseGenerator(chInput <-chan interfaces.CustomJsonDecoder) (string, *Verifi
 	objectElem := eventCase.GetObject()
 
 	//формируется список идентификаторов сенсоров
-	sensorsId := listSensorId{
-		sensors: []string(nil),
-	}
 	if listSensorId, ok := objectElem.GetTags()["sensor:id"]; ok {
 		for _, v := range listSensorId {
-			sensorsId.AddElem(v)
+			additionalInformation.AddSensorInformation(SensorInformation{
+				SensorId: v,
+			})
 		}
 	}
 
 	//формируется список ip адресов
-	ipAddresses := listIpAddresses{
-		ip: []string(nil),
-	}
 	if ipObservables, ok := verifiedCase.GetKeyObservables("ip"); ok {
 		for _, v := range ipObservables {
-			ipAddresses.AddElem(v.Data)
+			additionalInformation.AddGetIpAddressInformation(IpAddressInformation{
+				Ip: v.Data,
+			})
 		}
 	}
 	if listIpAddresses, ok := objectElem.GetTags()["ip"]; ok {
 		for _, v := range listIpAddresses {
-			ipAddresses.AddElem(v)
+			additionalInformation.AddGetIpAddressInformation(IpAddressInformation{
+				Ip: v,
+			})
 		}
 	}
+
+	verifiedCase.SetAdditionalInformation(additionalInformation)
 
 	return rootId, verifiedCase, listRawFields
 }

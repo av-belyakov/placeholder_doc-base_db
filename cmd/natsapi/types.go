@@ -37,6 +37,7 @@ type SettingsChanOutput struct {
 
 // SettingsChanInput канал для приема данных в модуль
 type SettingsChanInput struct {
+	Data    []byte
 	Command string
 	TaskId  string
 	CaseId  string

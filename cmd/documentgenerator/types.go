@@ -31,8 +31,8 @@ type VerifiedCase struct {
 
 // AdditionalInformation дополнительная информация добавляемая к информации по кейсам
 type AdditionalInformation struct {
-	Sensors     []SensorInformation      `json:"@sensorAdditionalInformation"`
-	IpAddresses []IpAddressesInformation `json:"@ipAddressAdditionalInformation"`
+	Sensors     []SensorInformation    `json:"@sensorAdditionalInformation"`
+	IpAddresses []IpAddressInformation `json:"@ipAddressAdditionalInformation"`
 }
 
 // SensorInformation содержит дополнительную информацию о сенсоре
@@ -49,7 +49,7 @@ type SensorInformation struct {
 }
 
 // IpAddressesInformation дополнительная информация об ip адресе
-type IpAddressesInformation struct {
+type IpAddressInformation struct {
 	Ip          string `json:"ip"`          //ip адрес по которому выполнялся поиск
 	City        string `json:"city"`        //город
 	Country     string `json:"country"`     //страна
