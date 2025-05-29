@@ -25,17 +25,18 @@ func TestMain(m *testing.M) {
 	//настройки NATS
 	os.Unsetenv("GO_PHDOCBASEDB_NHOST")
 	os.Unsetenv("GO_PHDOCBASEDB_NPORT")
-	os.Unsetenv("GO_PHDOCBASEDB_NCACHETTL")
 	os.Unsetenv("GO_PHDOCBASEDB_NCOMMAND")
+	os.Unsetenv("GO_PHDOCBASEDB_REQUESTS")
+	os.Unsetenv("GO_PHDOCBASEDB_NCACHETTL")
 	os.Unsetenv("GO_PHDOCBASEDB_NSUBLISTENER")
 
 	// Настройки доступа к БД в которую будут записыватся alert и case
+	os.Unsetenv("GO_PHDOCBASEDB_DBSTORAGEN")
 	os.Unsetenv("GO_PHDOCBASEDB_DBSTORAGEHOST")
 	os.Unsetenv("GO_PHDOCBASEDB_DBSTORAGEPORT")
 	os.Unsetenv("GO_PHDOCBASEDB_DBSTORAGENAME")
 	os.Unsetenv("GO_PHDOCBASEDB_DBSTORAGEUSER")
 	os.Unsetenv("GO_PHDOCBASEDB_DBSTORAGEPASSWD")
-	os.Unsetenv("GO_PHDOCBASEDB_DBSTORAGEN")
 
 	//настройки доступа к БД в которую будут записыватся логи
 	os.Unsetenv("GO_PHDOCBASEDB_DBWLOGHOST")
@@ -68,15 +69,26 @@ func TestConfigHandler(t *testing.T) {
 			assert.Equal(t, conf.GetNATS().CacheTTL, 3600)
 			assert.Equal(t, conf.GetNATS().Command, "object.commandstype.test")
 
-			list := map[string]string{
+			listRequests := map[string]string{
+				"get_geoip_info":  "object.geoip-request.test",
+				"get_sensor_info": "object.sensor-info-request.test",
+			}
+			for k, v := range listRequests {
+				s, ok := conf.GetNATS().Requests[k]
+				assert.True(t, ok)
+				assert.Equal(t, s, v)
+			}
+
+			listSubscriptions := map[string]string{
 				"alert": "object.alerttype.test",
 				"case":  "object.casetype.test",
 			}
-			for k, v := range list {
+			for k, v := range listSubscriptions {
 				s, ok := conf.GetNATS().Subscriptions[k]
 				assert.True(t, ok)
 				assert.Equal(t, s, v)
 			}
+
 		})
 
 		t.Run("Тест 2. Проверка настройки DATABASESTORAGE из файла config_test.yml", func(t *testing.T) {
@@ -111,8 +123,9 @@ func TestConfigHandler(t *testing.T) {
 		t.Run("Тест 1. Проверка настройки NATS", func(t *testing.T) {
 			os.Setenv("GO_PHDOCBASEDB_NHOST", "127.0.0.1")
 			os.Setenv("GO_PHDOCBASEDB_NPORT", "4242")
-			os.Setenv("GO_PHDOCBASEDB_NCACHETTL", "650")
 			os.Setenv("GO_PHDOCBASEDB_NCOMMAND", "obj.command")
+			os.Setenv("GO_PHDOCBASEDB_NCACHETTL", "650")
+			os.Setenv("GO_PHDOCBASEDB_REQUESTS", "get_geoip_info:object.geoipreq;get_sensor_info:object.sensorinforeq")
 			os.Setenv("GO_PHDOCBASEDB_NSUBLISTENER", "alert:object.env.alerttype.test;case:object.env.casetype.test")
 
 			conf, err := confighandler.New(Root_Dir)
@@ -123,11 +136,21 @@ func TestConfigHandler(t *testing.T) {
 			assert.Equal(t, conf.GetNATS().CacheTTL, 650)
 			assert.Equal(t, conf.GetNATS().Command, "obj.command")
 
-			list := map[string]string{
+			listRequest := map[string]string{
+				"get_geoip_info":  "object.geoipreq",
+				"get_sensor_info": "object.sensorinforeq",
+			}
+			for k, v := range listRequest {
+				s, ok := conf.GetNATS().Requests[k]
+				assert.True(t, ok)
+				assert.Equal(t, s, v)
+			}
+
+			listSubscriptions := map[string]string{
 				"alert": "object.env.alerttype.test",
 				"case":  "object.env.casetype.test",
 			}
-			for k, v := range list {
+			for k, v := range listSubscriptions {
 				s, ok := conf.GetNATS().Subscriptions[k]
 				assert.True(t, ok)
 				assert.Equal(t, s, v)

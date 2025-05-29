@@ -50,6 +50,7 @@ type Handshake struct {
 
 type CfgNats struct {
 	Subscriptions map[string]string `yaml:"subscriptions"`
+	Requests      map[string]string `yaml:"requests"`
 	Command       string            `validate:"required" yaml:"command"`
 	Host          string            `validate:"required" yaml:"host"`
 	Port          int               `validate:"gt=0,lte=65535" yaml:"port"`
