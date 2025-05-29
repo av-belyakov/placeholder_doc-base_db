@@ -11,6 +11,7 @@ type apiNatsModule struct {
 	counter       interfaces.Counter
 	logger        interfaces.Logger
 	natsConn      *nats.Conn
+	requests      map[string]string
 	subscriptions map[string]string
 	settings      apiNatsSettings
 	chFromModule  chan SettingsChanOutput

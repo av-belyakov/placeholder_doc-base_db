@@ -2,7 +2,7 @@ package natsapi
 
 import (
 	"context"
-	"fmt"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/nats-io/nats.go"
@@ -38,22 +38,43 @@ func (api *apiNatsModule) incomingInformationHandler(ctx context.Context) {
 
 		case incomingData := <-api.chToModule:
 			switch incomingData.Command {
-			case "set tag":
+			case "set_tag":
 				//команда на установку тега
-				if err := api.natsConn.Publish(api.settings.command,
-					fmt.Appendf(nil, `{
-									  "service": "placeholder_docbase_db",
-									  "command": "add_case_tag",
-									  "root_id": "%s",
-									  "case_id": "%s",
-									  "value": "Webhook: send=\"ElasticsearchDB"
-								}`, incomingData.RootId, incomingData.CaseId)); err != nil {
+				if err := api.natsConn.Publish(api.settings.command, incomingData.Data); err != nil {
 					api.logger.Send("error", supportingfunctions.CustomError(err).Error())
 				}
 
-			case "get geoip":
+			case "get_geoip_info":
+				go func(ctx context.Context) {
+					ctxTimeout, cancel := context.WithTimeout(ctx, 15*time.Second)
+					defer cancel()
 
-			case "get sensor information":
+					res, err := api.natsConn.RequestWithContext(ctxTimeout, api.requests["get_geoip_info"], incomingData.Data)
+					if err != nil {
+						api.logger.Send("error", supportingfunctions.CustomError(err).Error())
+					}
+
+					api.chFromModule <- SettingsChanOutput{
+						SubjectType: "geoip information",
+						Data:        res.Data,
+					}
+				}(ctx)
+
+			case "get_sensor_info":
+				go func(ctx context.Context) {
+					ctxTimeout, cancel := context.WithTimeout(ctx, 15*time.Second)
+					defer cancel()
+
+					res, err := api.natsConn.RequestWithContext(ctxTimeout, api.requests["get_sensor_info"], incomingData.Data)
+					if err != nil {
+						api.logger.Send("error", supportingfunctions.CustomError(err).Error())
+					}
+
+					api.chFromModule <- SettingsChanOutput{
+						SubjectType: "sensor information",
+						Data:        res.Data,
+					}
+				}(ctx)
 
 			}
 		}
