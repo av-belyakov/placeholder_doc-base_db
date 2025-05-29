@@ -6,6 +6,9 @@ NATS:
     alert: object.alerttype
     case: object.casetype
   command: object.commandstype
+  requests:
+    get_geoip_info: object.geoip-request
+    get_sensor_info: object.sensor-info-request
 DATABASESTORAGE:
   host: datahook.cloud.gcm
   port: 9200

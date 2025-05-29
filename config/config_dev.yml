@@ -6,6 +6,9 @@ NATS:
     alert: object.alerttype.test
     case: object.casetype.test
   command: object.commandstype.test
+  requests:
+    get_geoip_info: object.geoip-request.test
+    get_sensor_info: object.sensor-info-request.test
 DATABASESTORAGE:
   host: datahook.cloud.gcm
   port: 9200

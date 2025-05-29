@@ -26,17 +26,18 @@ func New(rootDir string) (*ConfigApp, error) {
 			//Подключение к NATS
 			"GO_PHDOCBASEDB_NHOST":        "",
 			"GO_PHDOCBASEDB_NPORT":        "",
-			"GO_PHDOCBASEDB_NCACHETTL":    "",
 			"GO_PHDOCBASEDB_NCOMMAND":     "",
+			"GO_PHDOCBASEDB_REQUESTS":     "",
+			"GO_PHDOCBASEDB_NCACHETTL":    "",
 			"GO_PHDOCBASEDB_NSUBLISTENER": "",
 
 			//Настройки доступа к БД в которую будут записыватся alert и case
+			"GO_PHDOCBASEDB_DBSTORAGEN":      "",
 			"GO_PHDOCBASEDB_DBSTORAGEHOST":   "",
 			"GO_PHDOCBASEDB_DBSTORAGEPORT":   "",
 			"GO_PHDOCBASEDB_DBSTORAGENAME":   "",
 			"GO_PHDOCBASEDB_DBSTORAGEUSER":   "",
 			"GO_PHDOCBASEDB_DBSTORAGEPASSWD": "",
-			"GO_PHDOCBASEDB_DBSTORAGEN":      "",
 
 			//Настройки доступа к БД в которую будут записыватся логи
 			"GO_PHDOCBASEDB_DBWLOGHOST":        "",
@@ -115,6 +116,9 @@ func New(rootDir string) (*ConfigApp, error) {
 		}
 		if viper.IsSet("NATS.command") {
 			conf.NATS.Command = viper.GetString("NATS.command")
+		}
+		if viper.IsSet("NATS.requests") {
+			conf.NATS.Requests = viper.GetStringMapString("NATS.requests")
 		}
 		if viper.IsSet("NATS.subscriptions") {
 			conf.NATS.Subscriptions = viper.GetStringMapString("NATS.subscriptions")
@@ -226,6 +230,20 @@ func New(rootDir string) (*ConfigApp, error) {
 	if envList["GO_PHDOCBASEDB_NCOMMAND"] != "" {
 		conf.NATS.Command = envList["GO_PHDOCBASEDB_NCOMMAND"]
 	}
+	if envList["GO_PHDOCBASEDB_REQUESTS"] != "" {
+		reqlistener := envList["GO_PHDOCBASEDB_REQUESTS"]
+		if !strings.Contains(reqlistener, ";") {
+			if tmp := strings.Split(reqlistener, ":"); len(tmp) == 2 {
+				conf.NATS.Requests[tmp[0]] = tmp[1]
+			}
+		} else {
+			for sl := range strings.SplitSeq(reqlistener, ";") {
+				if tmp := strings.Split(sl, ":"); len(tmp) == 2 {
+					conf.NATS.Requests[tmp[0]] = tmp[1]
+				}
+			}
+		}
+	}
 	if envList["GO_PHDOCBASEDB_NSUBLISTENER"] != "" {
 		sublistener := envList["GO_PHDOCBASEDB_NSUBLISTENER"]
 		if !strings.Contains(sublistener, ";") {
@@ -233,7 +251,7 @@ func New(rootDir string) (*ConfigApp, error) {
 				conf.NATS.Subscriptions[tmp[0]] = tmp[1]
 			}
 		} else {
-			for _, sl := range strings.Split(sublistener, ";") {
+			for sl := range strings.SplitSeq(sublistener, ";") {
 				if tmp := strings.Split(sl, ":"); len(tmp) == 2 {
 					conf.NATS.Subscriptions[tmp[0]] = tmp[1]
 				}
