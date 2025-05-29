@@ -113,6 +113,7 @@ func server(ctx context.Context) {
 		natsapi.WithHost(confNats.Host),
 		natsapi.WithPort(confNats.Port),
 		natsapi.WithCacheTTL(confNats.CacheTTL),
+		natsapi.WithRequests(confNats.Requests),
 		natsapi.WithSendCommand(confNats.Command),
 		natsapi.WithSubscriptions(confNats.Subscriptions))
 	if err != nil {

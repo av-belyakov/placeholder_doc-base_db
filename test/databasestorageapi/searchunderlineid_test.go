@@ -11,7 +11,7 @@ import (
 	"github.com/av-belyakov/placeholder_doc-base_db/cmd/databasestorageapi"
 )
 
-func TestGetIndexSettings(t *testing.T) {
+func TestSearchUnderlineId(t *testing.T) {
 	//загружаем ключи и пароли
 	if err := godotenv.Load("../../.env"); err != nil {
 		t.Log(err)
@@ -32,14 +32,10 @@ func TestGetIndexSettings(t *testing.T) {
 	)
 	assert.NoError(t, err)
 
-	indexSettings, err := apiDBS.GetIndexSetting(ctx, "module_placeholder_new_case_2025_4", "")
+	underlineId, err := apiDBS.SearchUnderlineIdCase(ctx, "module_placeholder_new_case_2025_5", "~1402712072")
 	assert.NoError(t, err)
-	assert.NotEmpty(t, len(indexSettings))
 
-	t.Log("Indexes:")
-	for k, v := range indexSettings {
-		t.Logf("Index:'%s'\n\tValue:'%+v'\n", k, v)
-	}
+	t.Log("underlineId:", underlineId)
 
 	t.Cleanup(func() {
 		os.Unsetenv("GO_PHDOCBASEDB_DBWLOGPASSWD")

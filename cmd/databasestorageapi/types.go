@@ -41,7 +41,7 @@ type SettingsChanOutput struct {
 
 type DatabaseStorageOptions func(*DatabaseStorage) error
 
-// *** для объектов типа 'alert' ***
+// ******* для объектов типа 'alert' *******
 // AlertDBResponse информация о кейсах
 type AlertDBResponse struct {
 	Options AlertDBResponseOptions `json:"hits"`
@@ -60,7 +60,7 @@ type PatternVerifiedAlert struct {
 	ServiseOption
 }
 
-// *** для объектов типа 'case' ***
+// ******* для объектов типа 'case' *******
 // CaseDBResponse информация о кейсах
 type CaseDBResponse struct {
 	Options CaseDBResponseOptions `json:"hits"`

@@ -121,20 +121,24 @@ func (dbs *DatabaseStorage) addCase(ctx context.Context, data any) {
 			Data:    reqSetTag,
 		}
 
-		//запросы для обогащения кейса дополнительной информацией геопозиционирование
-		// ip адресов
-		dbs.GetChanDataFromModule() <- SettingsChanOutput{
-			Command: "get_geoip_info",
-			RootId:  newDocument.GetEvent().GetRootId(),
-			Data:    reqGeoIP,
+		if len(ipAddrObjects) > 0 {
+			//запросы для обогащения кейса дополнительной информацией геопозиционирование
+			// ip адресов
+			dbs.GetChanDataFromModule() <- SettingsChanOutput{
+				Command: "get_geoip_info",
+				RootId:  newDocument.GetEvent().GetRootId(),
+				Data:    reqGeoIP,
+			}
 		}
 
-		//запросы для обогащения кейса дополнительной информацией информация о
-		// принадлежности и месте установки сенсора
-		dbs.GetChanDataFromModule() <- SettingsChanOutput{
-			Command: "get_sensor_info",
-			RootId:  newDocument.GetEvent().GetRootId(),
-			Data:    reqSensorId,
+		if len(sensorIdObjects) > 0 {
+			//запросы для обогащения кейса дополнительной информацией информация о
+			// принадлежности и месте установки сенсора
+			dbs.GetChanDataFromModule() <- SettingsChanOutput{
+				Command: "get_sensor_info",
+				RootId:  newDocument.GetEvent().GetRootId(),
+				Data:    reqSensorId,
+			}
 		}
 
 		return
@@ -191,20 +195,24 @@ func (dbs *DatabaseStorage) addCase(ctx context.Context, data any) {
 			Data:    reqSetTag,
 		}
 
-		//запросы для обогащения кейса дополнительной информацией геопозиционирование
-		// ip адресов
-		dbs.GetChanDataFromModule() <- SettingsChanOutput{
-			Command: "get me geoip",
-			RootId:  newDocument.GetEvent().GetRootId(),
-			Data:    reqGeoIP,
+		if len(ipAddrObjects) > 0 {
+			//запросы для обогащения кейса дополнительной информацией геопозиционирование
+			// ip адресов
+			dbs.GetChanDataFromModule() <- SettingsChanOutput{
+				Command: "get_geoip_info",
+				RootId:  newDocument.GetEvent().GetRootId(),
+				Data:    reqGeoIP,
+			}
 		}
 
-		//запросы для обогащения кейса дополнительной информацией информация о
-		// принадлежности и месте установки сенсора
-		dbs.GetChanDataFromModule() <- SettingsChanOutput{
-			Command: "get me sensor information",
-			RootId:  newDocument.GetEvent().GetRootId(),
-			Data:    reqSensorId,
+		if len(sensorIdObjects) > 0 {
+			//запросы для обогащения кейса дополнительной информацией информация о
+			// принадлежности и месте установки сенсора
+			dbs.GetChanDataFromModule() <- SettingsChanOutput{
+				Command: "get_sensor_info",
+				RootId:  newDocument.GetEvent().GetRootId(),
+				Data:    reqSensorId,
+			}
 		}
 
 		return

@@ -62,6 +62,19 @@ func WithNameRegionalObject(v string) NatsApiOptions {
 	}
 }
 
+// WithRequests запросы к сторонним сервисам
+func WithRequests(v map[string]string) NatsApiOptions {
+	return func(n *apiNatsModule) error {
+		if len(v) == 0 {
+			return errors.New("the value of 'requests' cannot be empty")
+		}
+
+		n.requests = v
+
+		return nil
+	}
+}
+
 // WithSubscriptions 'слушатель' разных типов сообщений
 func WithSubscriptions(v map[string]string) NatsApiOptions {
 	return func(n *apiNatsModule) error {

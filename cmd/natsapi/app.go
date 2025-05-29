@@ -90,10 +90,9 @@ func (api *apiNatsModule) Start(ctx context.Context) error {
 	//обработчик информации полученной изнутри приложения
 	go api.incomingInformationHandler(ctx)
 
-	go func(ctx context.Context, nc *nats.Conn) {
-		<-ctx.Done()
+	context.AfterFunc(ctx, func() {
 		nc.Drain()
-	}(ctx, nc)
+	})
 
 	return nil
 }

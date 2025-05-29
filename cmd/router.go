@@ -34,7 +34,8 @@ func (r *ApplicationRouter) Router(ctx context.Context) {
 				return
 
 			case msg := <-r.chFromNatsApi:
-				if msg.SubjectType == "alert" {
+				switch msg.SubjectType {
+				case "alert":
 					go func() {
 						rootId, verifyAlert, listRawFields := documentgenerator.AlertGenerator(decoder.Start(msg.Data, msg.TaskId))
 
@@ -48,7 +49,8 @@ func (r *ApplicationRouter) Router(ctx context.Context) {
 							Data:    verifyAlert,
 						}
 					}()
-				} else if msg.SubjectType == "case" {
+
+				case "case":
 					go func() {
 						rootId, verifyCase, listRawFields := documentgenerator.CaseGenerator(decoder.Start(msg.Data, msg.TaskId))
 
@@ -64,38 +66,36 @@ func (r *ApplicationRouter) Router(ctx context.Context) {
 							Data:    verifyCase,
 						}
 					}()
-				} else {
+
+				case "geoip information":
+					//передача информации о географическом местоположении ip адресов
+					r.chToDBSApi <- databasestorageapi.SettingsChanInput{
+						Section: "information handling",
+						Command: "add geoip information",
+						Data:    msg.Data,
+					}
+
+				case "sensor information":
+					// местоположении и принадлежности сенсоров
+					r.chToDBSApi <- databasestorageapi.SettingsChanInput{
+						Section: "information handling",
+						Command: "add sensor information",
+						Data:    msg.Data,
+					}
+
+				default:
 					r.logger.Send("error", supportingfunctions.CustomError(errors.New("undefined subscription type")).Error())
+
 				}
 
 			case msg := <-r.chFromDBSApi:
-				//запрос на установку тега в TheHive
+				//пересылаются запросы на установку тега в TheHive, geoip информации
+				// информации о место располажения и принадлежности сенсоров
 				r.chToNatsApi <- natsapi.SettingsChanInput{
 					Command: msg.Command,
 					RootId:  msg.RootId,
+					Data:    msg.Data,
 				}
-
-				//
-				//
-				// Здесь же надо отправить запрос, через NATS, к сторониим модулям
-				// для получения дополнительной информации, такой как GeoIP, подробная
-				// информация о сенсорах и т.д.
-				//
-				//
-
-				/*
-					//делаем запрос на получение дополнительной информации о сенсорах
-					if len(sensorsId.Get()) > 0 || len(ipAddresses.Get()) > 0 {
-						//делаем запрос к модулю обогащения доп. информацией из Zabbix
-						opts.eemChan <- eventenrichmentmodule.SettingsChanInputEEM{
-							RootId:      eventCase.GetRootId(),
-							Source:      verifiedCase.GetSource(),
-							SensorsId:   sensorsId.Get(),
-							IpAddresses: ipAddresses.Get(),
-						}
-					}
-				*/
-
 			}
 		}
 	}()
