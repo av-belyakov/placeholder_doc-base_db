@@ -63,16 +63,6 @@ func (r *ApplicationRouter) Router(ctx context.Context) {
 							Command: "add case",
 							Data:    verifyCase,
 						}
-
-						ipAddrObjects := verifyCase.GetAdditionalInformation().GetIpAddressesInformation()
-
-						//запрос на получение дополнительной информации об ip адресе (GeoIP)
-						listIpAddr := documentgenerator.GetListIPAddr(ipAddrObjects)
-
-						r.chToNatsApi <- natsapi.SettingsChanInput{}
-
-						//запрос на получение дополнительной информации о сенсоре
-
 					}()
 				} else {
 					r.logger.Send("error", supportingfunctions.CustomError(errors.New("undefined subscription type")).Error())

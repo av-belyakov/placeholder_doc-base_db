@@ -47,3 +47,20 @@ func GetListIPAddr(objects []IpAddressInformation) []string {
 
 	return newList
 }
+
+// GetListSensorId список идентификаторов сенсоров
+func GetListSensorId(objects []SensorInformation) []string {
+	newList := make([]string, 0, len(objects))
+
+	for _, v := range objects {
+		if slices.ContainsFunc(newList, func(elem string) bool {
+			return elem == v.GetSensorId()
+		}) {
+			continue
+		}
+
+		newList = append(newList, v.GetSensorId())
+	}
+
+	return newList
+}

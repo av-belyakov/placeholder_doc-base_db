@@ -33,8 +33,9 @@ type SettingsChanInput struct {
 
 // SettingsChanOutput параметры канала для приёма данных из модуля
 type SettingsChanOutput struct {
-	CaseId  string
+	Data    []byte
 	RootId  string
+	CaseId  string
 	Command string
 }
 

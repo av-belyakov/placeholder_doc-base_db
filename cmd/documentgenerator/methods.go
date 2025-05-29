@@ -245,6 +245,11 @@ func (ai *AdditionalInformation) ToStringBeautiful(num int) string {
 	return str.String()
 }
 
+// GetSensorId идентификатор сенсора
+func (si *SensorInformation) GetSensorId() string {
+	return si.SensorId
+}
+
 // ToStringBeautiful для информации по сенсору
 func (si *SensorInformation) ToStringBeautiful(num int) string {
 	ws := supportingfunctions.GetWhitespace(num)

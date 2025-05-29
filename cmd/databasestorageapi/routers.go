@@ -69,25 +69,7 @@ func (dbs *DatabaseStorage) addAlert(ctx context.Context, data any) {
 	//формируем наименование индекса
 	currentIndex := fmt.Sprintf("%s_%s_%d_%d", indexName, newDocument.GetSource(), t.Year(), int(t.Month()))
 
-	sensorsId := listSensorId{
-		sensors: []string(nil),
-	}
-
-	objectElement := newDocument.Get().GetEvent().GetObject()
 	tag := fmt.Sprintf("alert rootId: '%s'", newDocument.GetEvent().GetRootId())
-	if listSensorId, ok := objectElement.GetTags()["sensor:id"]; ok {
-		for _, v := range listSensorId {
-			sensorsId.addElem(v)
-		}
-	}
-
-	detailElem := newDocument.Get().GetEvent().GetDetails()
-	if listSensorId, ok := detailElem.GetTags()["sensor:id"]; ok {
-		for _, v := range listSensorId {
-			sensorsId.addElem(v)
-		}
-	}
-
 	newDocumentBinary, err := json.Marshal(newDocument.Get())
 	if err != nil {
 		dbs.logger.Send("error", supportingfunctions.CustomError(err).Error())
@@ -266,19 +248,29 @@ func (dbs *DatabaseStorage) addCase(ctx context.Context, data any) {
 	t := time.Now()
 	//формируем наименование индекса
 	currentIndex := fmt.Sprintf("%s_%d_%d", indexName, t.Year(), int(t.Month()))
+	caseId := fmt.Sprint(newDocument.GetEvent().GetObject().CaseId)
 
-	sensorsId := listSensorId{
-		sensors: []string(nil),
-	}
+	//получаем список ip адресов
+	ipAddrObjects := newDocument.GetAdditionalInformation().GetIpAddressesInformation()
+	reqGeoIP := fmt.Appendf(nil, `{
+			  "source": "placeholder_doc-base_db",
+  			  "task_id": "%s",
+  			  "list_ip_addresses": "%v"
+			}`,
+		newDocument.GetEvent().GetRootId(),
+		documentgenerator.GetListIPAddr(ipAddrObjects))
 
-	objectElement := newDocument.Get().GetEvent().GetObject()
+	//получаем список сенсоров
+	sensorIdObjects := newDocument.GetAdditionalInformation().GetSensorsInformation()
+	reqSensorId := fmt.Appendf(nil, `{
+			  "source": "placeholder_doc-base_db",
+  			  "task_id": "%s",
+  			  "list_sensors": "%v"
+			}`,
+		newDocument.GetEvent().GetRootId(),
+		documentgenerator.GetListSensorId(sensorIdObjects))
+
 	tag := fmt.Sprintf("case rootId: '%s'", newDocument.GetEvent().GetRootId())
-	if listSensorId, ok := objectElement.GetTags()["sensor:id"]; ok {
-		for _, v := range listSensorId {
-			sensorsId.addElem(v)
-		}
-	}
-
 	newDocumentBinary, err := json.Marshal(newDocument.Get())
 	if err != nil {
 		dbs.logger.Send("error", supportingfunctions.CustomError(err).Error())
@@ -305,6 +297,8 @@ func (dbs *DatabaseStorage) addCase(ctx context.Context, data any) {
 
 	// если похожих индексов нет
 	if len(indexesOnlyCurrentYear) == 0 {
+		//
+		//вставка документа
 		res, err := dbs.InsertDocument(tag, currentIndex, newDocumentBinary)
 		if err != nil {
 			dbs.logger.Send("error", supportingfunctions.CustomError(err).Error())
@@ -313,14 +307,38 @@ func (dbs *DatabaseStorage) addCase(ctx context.Context, data any) {
 		}
 		defer responseClose(res)
 
-		//счетчик
-		dbs.counter.SendMessage("update count insert subject case to db", 1)
-
 		existingIndexes = append(existingIndexes, currentIndex)
 		//устанавливаем максимальный лимит количества полей для всех индексов которые
 		//содержат значение по умолчанию в 1000 полей
 		if err := dbs.SetMaxTotalFieldsLimit(ctx, existingIndexes); err != nil {
 			dbs.logger.Send("error", supportingfunctions.CustomError(err).Error())
+		}
+
+		//счетчик
+		dbs.counter.SendMessage("update count insert subject case to db", 1)
+		dbs.logger.Send("info", fmt.Sprintf("insert new document to caseId:'%s' with rootId:'%s'", caseId, newDocument.GetEvent().GetRootId()))
+
+		//запрос на отправку сообщения для установки тега
+		dbs.GetChanDataFromModule() <- SettingsChanOutput{
+			Command: "set tag",
+			CaseId:  caseId,
+			RootId:  newDocument.GetEvent().GetRootId(),
+		}
+
+		//запросы для обогащения кейса дополнительной информацией геопозиционирование
+		// ip адресов
+		dbs.GetChanDataFromModule() <- SettingsChanOutput{
+			Command: "get_geoip_info",
+			RootId:  newDocument.GetEvent().GetRootId(),
+			Data:    reqGeoIP,
+		}
+
+		//запросы для обогащения кейса дополнительной информацией информация о
+		// принадлежности и месте установки сенсора
+		dbs.GetChanDataFromModule() <- SettingsChanOutput{
+			Command: "get_sensor_info",
+			RootId:  newDocument.GetEvent().GetRootId(),
+			Data:    reqSensorId,
 		}
 
 		return
@@ -355,6 +373,8 @@ func (dbs *DatabaseStorage) addCase(ctx context.Context, data any) {
 
 	//вставка выполняется только когда не найден искомый документ
 	if response.Options.Total.Value == 0 {
+		//
+		//вставка документа
 		res, err := dbs.InsertDocument(tag, currentIndex, newDocumentBinary)
 		if err != nil {
 			dbs.logger.Send("error", supportingfunctions.CustomError(err).Error())
@@ -365,6 +385,30 @@ func (dbs *DatabaseStorage) addCase(ctx context.Context, data any) {
 
 		//счетчик
 		dbs.counter.SendMessage("update count insert subject case to db", 1)
+		dbs.logger.Send("info", fmt.Sprintf("insert new document to caseId:'%s' with rootId:'%s'", caseId, newDocument.GetEvent().GetRootId()))
+
+		//запрос на отправку сообщения для установки тега
+		dbs.GetChanDataFromModule() <- SettingsChanOutput{
+			Command: "set tag",
+			CaseId:  caseId,
+			RootId:  newDocument.GetEvent().GetRootId(),
+		}
+
+		//запросы для обогащения кейса дополнительной информацией геопозиционирование
+		// ip адресов
+		dbs.GetChanDataFromModule() <- SettingsChanOutput{
+			Command: "get me geoip",
+			RootId:  newDocument.GetEvent().GetRootId(),
+			Data:    reqGeoIP,
+		}
+
+		//запросы для обогащения кейса дополнительной информацией информация о
+		// принадлежности и месте установки сенсора
+		dbs.GetChanDataFromModule() <- SettingsChanOutput{
+			Command: "get me sensor information",
+			RootId:  newDocument.GetEvent().GetRootId(),
+			Data:    reqSensorId,
+		}
 
 		return
 	}
@@ -413,6 +457,7 @@ func (dbs *DatabaseStorage) addCase(ctx context.Context, data any) {
 		return
 	}
 
+	//обновление уже существующего документа
 	res, countDel, err := dbs.UpdateDocument(tag, currentIndex, listDeleting, nvbyte)
 	if err != nil {
 		dbs.logger.Send("error", supportingfunctions.CustomError(fmt.Errorf("rootId '%s' '%s'", newDocument.GetEvent().GetRootId(), err.Error())).Error())
@@ -423,13 +468,6 @@ func (dbs *DatabaseStorage) addCase(ctx context.Context, data any) {
 
 	if res != nil && res.StatusCode == http.StatusCreated {
 		dbs.counter.SendMessage("update count insert subject case to db", 1)
-		dbs.logger.Send("info", fmt.Sprintf("count delete:'%d', count replacing fields:'%d' for alert with rootId:'%s'", countDel, countReplacingFields, newDocument.GetEvent().GetRootId()))
-
-		//запрос на отправку сообщения для установки тега
-		dbs.GetChanDataFromModule() <- SettingsChanOutput{
-			Command: "set tag",
-			CaseId:  fmt.Sprint(newDocument.GetEvent().GetObject().CaseId),
-			RootId:  newDocument.GetEvent().GetRootId(),
-		}
+		dbs.logger.Send("info", fmt.Sprintf("update document, count delete:'%d', count replacing fields:'%d' for alert with rootId:'%s'", countDel, countReplacingFields, newDocument.GetEvent().GetRootId()))
 	}
 }
