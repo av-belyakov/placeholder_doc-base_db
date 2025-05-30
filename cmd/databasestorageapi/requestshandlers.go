@@ -269,9 +269,9 @@ func (dbs *DatabaseStorage) SearchUnderlineIdAlert(ctx context.Context, indexNam
 }
 
 // SearchUnderlineIdCase поиск объекта типа 'case' по его _id
-func (dbs *DatabaseStorage) SearchUnderlineIdCase(ctx context.Context, indexName, rootId, source string) (string, error) {
-	var caseId string
-	query := strings.NewReader(fmt.Sprintf("{\"query\": {\"bool\": {\"must\": [{\"match\": {\"source\": \"%s\"}}, {\"match\": {\"event.rootId\": \"%s\"}}]}}}", source, rootId))
+func (dbs *DatabaseStorage) SearchUnderlineIdCase(ctx context.Context, indexName, rootId string) (string, error) {
+	var underlineId string
+	query := strings.NewReader(fmt.Sprintf("{\"query\": {\"bool\": {\"must\": [{\"match\": {\"event.rootId\": \"%s\"}}]}}}", rootId))
 
 	//выполняем поиск _id индекса
 	res, err := dbs.client.Search(
@@ -280,22 +280,34 @@ func (dbs *DatabaseStorage) SearchUnderlineIdCase(ctx context.Context, indexName
 		dbs.client.Search.WithBody(query),
 	)
 	if err != nil {
-		return caseId, err
+		return underlineId, err
 	}
 	defer responseClose(res)
 
 	if res.StatusCode != http.StatusOK {
-		return caseId, fmt.Errorf("%s", res.Status())
+		return underlineId, fmt.Errorf("%s", res.Status())
+	}
+
+	var bodyRes map[string]any
+	if err = json.NewDecoder(res.Body).Decode(&bodyRes); err != nil {
+		return underlineId, err
+	}
+
+	fmt.Println("Body response:")
+	for k, v := range bodyRes {
+		fmt.Printf("%s:\n%+v\n", k, v)
 	}
 
 	tmp := CaseDBResponse{}
 	if err = json.NewDecoder(res.Body).Decode(&tmp); err != nil {
-		return caseId, err
+		return underlineId, err
 	}
 
 	for _, v := range tmp.Options.Hits {
-		caseId = v.ID
+		if v.ID != "" {
+			return v.ID, nil
+		}
 	}
 
-	return caseId, nil
+	return underlineId, nil
 }

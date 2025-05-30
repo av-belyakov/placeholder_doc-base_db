@@ -2,47 +2,36 @@ package databasestorageapi
 
 import (
 	"context"
-	"encoding/json"
-	"errors"
-	"fmt"
-	"net/http"
-	"runtime"
-	"strings"
-	"time"
-
-	"github.com/av-belyakov/placeholder_doc-base_db/internal/response"
-	"github.com/av-belyakov/placeholder_doc-base_db/internal/supportingfunctions"
 )
 
 // addGeoIPInformation дополнительная информация о географическом местоположении ip адресов
 func (dbs *DatabaseStorage) addGeoIPInformation(ctx context.Context, data any) {
-	//добавляем небольшую задержку что бы СУБД успела добавить индекс
-	//***************************************************************
-	time.Sleep(3 * time.Second)
-	//***************************************************************
+	/*	//добавляем небольшую задержку что бы СУБД успела добавить индекс
+		//***************************************************************
+		time.Sleep(3 * time.Second)
+		//***************************************************************
 
-	newDocument, ok := data.(response.ResponseGeoIpInformation)
-	if !ok {
-		dbs.logger.Send("error", supportingfunctions.CustomError(errors.New("type conversion error")).Error())
+		newDocument, ok := data.(response.ResponseGeoIpInformation)
+		if !ok {
+			dbs.logger.Send("error", supportingfunctions.CustomError(errors.New("type conversion error")).Error())
 
-		return
-	}
+			return
+		}
 
-	//получаем наименование хранилища
-	indexName, isExist := dbs.settings.storages["case"]
-	if !isExist {
-		dbs.logger.Send("error", supportingfunctions.CustomError(errors.New("the identifier of the index name was not found")).Error())
+		//получаем наименование хранилища
+		indexName, isExist := dbs.settings.storages["case"]
+		if !isExist {
+			dbs.logger.Send("error", supportingfunctions.CustomError(errors.New("the identifier of the index name was not found")).Error())
 
-		return
-	}
+			return
+		}
 
-	// SearchUnderlineIdCase поиск объекта типа 'case' по его _id
-	dbs.SearchUnderlineIdCase()
+		// SearchUnderlineIdCase поиск объекта типа 'case' по его _id
+		dbs.SearchUnderlineIdCase()
+		/*
 
-	/*
-
-		Здесь надо как то найти кейс с соответствующим ip и обновить у него информацию
-		об GeoIP ip адресах
+			Здесь надо как то найти кейс с соответствующим ip и обновить у него информацию
+			об GeoIP ip адресах
 
 	*/
 
@@ -50,39 +39,41 @@ func (dbs *DatabaseStorage) addGeoIPInformation(ctx context.Context, data any) {
 
 // addSensorInformation дополнительная информация о местоположении и принадлежности сенсоров
 func (dbs *DatabaseStorage) addSensorInformation(ctx context.Context, data any) {
-	//добавляем небольшую задержку что бы СУБД успела добавить индекс
-	//***************************************************************
-	time.Sleep(3 * time.Second)
-	//***************************************************************
-
-	newDocument, ok := data.(response.ResponseSensorsInformation)
-	if !ok {
-		dbs.logger.Send("error", supportingfunctions.CustomError(errors.New("type conversion error")).Error())
-
-		return
-	}
-
-	//получаем наименование хранилища
-	indexName, isExist := dbs.settings.storages["case"]
-	if !isExist {
-		dbs.logger.Send("error", supportingfunctions.CustomError(errors.New("the identifier of the index name was not found")).Error())
-
-		return
-	}
-
-	// SearchUnderlineIdCase поиск объекта типа 'case' по его _id
-	dbs.SearchUnderlineIdCase()
-
 	/*
+	   //добавляем небольшую задержку что бы СУБД успела добавить индекс
+	   //***************************************************************
+	   time.Sleep(3 * time.Second)
+	   //***************************************************************
 
-		Здесь надо как то найти кейс с соответствующим ip и обновить у него информацию
-		об GeoIP ip адресах
+	   newDocument, ok := data.(response.ResponseSensorsInformation)
 
+	   	if !ok {
+	   		dbs.logger.Send("error", supportingfunctions.CustomError(errors.New("type conversion error")).Error())
+
+	   		return
+	   	}
+
+	   //получаем наименование хранилища
+	   indexName, isExist := dbs.settings.storages["case"]
+
+	   	if !isExist {
+	   		dbs.logger.Send("error", supportingfunctions.CustomError(errors.New("the identifier of the index name was not found")).Error())
+
+	   		return
+	   	}
+
+	   // SearchUnderlineIdCase поиск объекта типа 'case' по его _id
+	   underlineId, err := dbs.SearchUnderlineIdCase(ctx, indexName, newDocument.TaskId)
+
+	   /*
+
+	   	Здесь надо как то найти кейс с соответствующим ip и обновить у него информацию
+	   	об GeoIP ip адресах
 	*/
 }
 
 // AddEventenrichmentCase выполняет обогащение уже имеющегося кейса дополнительной, полезной информацией
-func (hsd HandlerSendData) AddEventenrichmentCase(data interface{}, indexName string, logging chan<- datamodels.MessageLogging) {
+/*func (hsd HandlerSendData) AddEventenrichmentCase(data interface{}, indexName string, logging chan<- datamodels.MessageLogging) {
 
 	//добавляем небольшую задержку что бы СУБД успела добавить индекс
 	//***************************************************************
@@ -205,4 +196,4 @@ func (hsd HandlerSendData) AddEventenrichmentCase(data interface{}, indexName st
 			MsgType: "error",
 		}
 	}
-}
+}*/
