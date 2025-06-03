@@ -2,39 +2,85 @@ package databasestorageapi
 
 import (
 	"context"
+	"encoding/json"
+	"errors"
+	"fmt"
+	"net/http"
+	"strings"
+	"time"
+
+	"github.com/av-belyakov/placeholder_doc-base_db/internal/response"
+	"github.com/av-belyakov/placeholder_doc-base_db/internal/supportingfunctions"
 )
 
 // addGeoIPInformation дополнительная информация о географическом местоположении ip адресов
 func (dbs *DatabaseStorage) addGeoIPInformation(ctx context.Context, data any) {
-	/*	//добавляем небольшую задержку что бы СУБД успела добавить индекс
-		//***************************************************************
-		time.Sleep(3 * time.Second)
-		//***************************************************************
+	//добавляем небольшую задержку что бы СУБД успела добавить индекс
+	//***************************************************************
+	time.Sleep(3 * time.Second)
+	//***************************************************************
 
-		newDocument, ok := data.(response.ResponseGeoIpInformation)
-		if !ok {
-			dbs.logger.Send("error", supportingfunctions.CustomError(errors.New("type conversion error")).Error())
+	newDocument, ok := data.(response.ResponseGeoIpInformation)
+	if !ok {
+		dbs.logger.Send("error", supportingfunctions.CustomError(errors.New("type conversion error")).Error())
 
-			return
-		}
+		return
+	}
 
-		//получаем наименование хранилища
-		indexName, isExist := dbs.settings.storages["case"]
-		if !isExist {
-			dbs.logger.Send("error", supportingfunctions.CustomError(errors.New("the identifier of the index name was not found")).Error())
+	//получаем наименование хранилища
+	indexName, isExist := dbs.settings.storages["case"]
+	if !isExist {
+		dbs.logger.Send("error", supportingfunctions.CustomError(errors.New("the identifier of the index name was not found")).Error())
 
-			return
-		}
+		return
+	}
 
-		// SearchUnderlineIdCase поиск объекта типа 'case' по его _id
-		dbs.SearchUnderlineIdCase()
-		/*
+	t := time.Now()
+	month := int(t.Month())
+	//текущий индекс
+	indexCurrent := fmt.Sprintf("%s_%d_%d", indexName, t.Year(), month)
 
-			Здесь надо как то найти кейс с соответствующим ip и обновить у него информацию
-			об GeoIP ip адресах
+	//поиск _id объекта типа 'case' по его rootId (что в передается в newDocument.TaskId)
+	underlineId, err := dbs.SearchUnderlineIdCase(ctx, indexCurrent, newDocument.TaskId)
+	if err != nil {
+		dbs.logger.Send("error", supportingfunctions.CustomError(errors.New("the identifier of the index name was not found")).Error())
 
-	*/
+		return
+	}
 
+	//формируется список с информацией по ip адресам
+	var ipInfoList []IpAddressesInformation
+	for _, ipAddress := range newDocument.Informations {
+		ipInfoList = append(ipInfoList, IpAddressesInformation{
+			Ip:          ipAddress.IpAddr,
+			City:        ipAddress.City,
+			Country:     ipAddress.Country,
+			CountryCode: ipAddress.Code,
+		})
+	}
+
+	request, err := json.MarshalIndent(AdditionalInformationIpAddress{
+		IpAddresses: ipInfoList,
+	}, "", " ")
+	if err != nil {
+		dbs.logger.Send("error", supportingfunctions.CustomError(fmt.Errorf("'rootId:'%s', '%s'", newDocument.TaskId, err.Error())).Error())
+
+		return
+	}
+
+	//обновление информации в БД
+	bodyUpdate := strings.NewReader(fmt.Sprintf("{\"doc\": %s}", string(request)))
+	res, err := dbs.client.Update(indexCurrent, underlineId, bodyUpdate)
+	if err != nil {
+		dbs.logger.Send("error", supportingfunctions.CustomError(fmt.Errorf("'rootId:'%s', '%s'", newDocument.TaskId, err.Error())).Error())
+
+		return
+	}
+	defer res.Body.Close()
+
+	if res != nil && res.StatusCode != http.StatusOK {
+		dbs.logger.Send("error", supportingfunctions.CustomError(fmt.Errorf("'rootId:'%s', '%s'", newDocument.TaskId, err.Error())).Error())
+	}
 }
 
 // addSensorInformation дополнительная информация о местоположении и принадлежности сенсоров

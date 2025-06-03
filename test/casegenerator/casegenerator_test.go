@@ -1,4 +1,4 @@
-package casegenerator
+package casegenerator_test
 
 import (
 	"context"

@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	"runtime"
 	"strings"
@@ -114,7 +115,7 @@ func (dbs *DatabaseStorage) SetIndexSetting(ctx context.Context, indexes []strin
 	return false, nil
 }
 
-// DelIndexSetting
+// DelIndexSetting удаление индекса и его настроек
 func (dbs *DatabaseStorage) DelIndexSetting(ctx context.Context, indexes []string) error {
 	req := esapi.IndicesDeleteRequest{Index: indexes}
 	res, err := req.Do(ctx, dbs.client.Transport)
@@ -270,7 +271,6 @@ func (dbs *DatabaseStorage) SearchUnderlineIdAlert(ctx context.Context, indexNam
 
 // SearchUnderlineIdCase поиск объекта типа 'case' по его _id
 func (dbs *DatabaseStorage) SearchUnderlineIdCase(ctx context.Context, indexName, rootId string) (string, error) {
-	var underlineId string
 	query := strings.NewReader(fmt.Sprintf("{\"query\": {\"bool\": {\"must\": [{\"match\": {\"event.rootId\": \"%s\"}}]}}}", rootId))
 
 	//выполняем поиск _id индекса
@@ -280,34 +280,31 @@ func (dbs *DatabaseStorage) SearchUnderlineIdCase(ctx context.Context, indexName
 		dbs.client.Search.WithBody(query),
 	)
 	if err != nil {
-		return underlineId, err
+		return "", err
 	}
 	defer responseClose(res)
 
 	if res.StatusCode != http.StatusOK {
-		return underlineId, fmt.Errorf("%s", res.Status())
+		return "", fmt.Errorf("%s", res.Status())
 	}
 
-	var bodyRes map[string]any
-	if err = json.NewDecoder(res.Body).Decode(&bodyRes); err != nil {
-		return underlineId, err
+	bodyRes, err := io.ReadAll(res.Body)
+	if err != nil {
+		return "", err
 	}
 
-	fmt.Println("Body response:")
-	for k, v := range bodyRes {
-		fmt.Printf("%s:\n%+v\n", k, v)
+	data, err := supportingfunctions.GetElementsFromJSON(ctx, bodyRes)
+	if err != nil {
+		return "", err
 	}
 
-	tmp := CaseDBResponse{}
-	if err = json.NewDecoder(res.Body).Decode(&tmp); err != nil {
-		return underlineId, err
-	}
+	for k, v := range data.Result {
+		fmt.Println(k)
 
-	for _, v := range tmp.Options.Hits {
-		if v.ID != "" {
-			return v.ID, nil
+		if k == "hits.hits._id" {
+			return fmt.Sprint(v.Value), nil
 		}
 	}
 
-	return underlineId, nil
+	return "", nil
 }
