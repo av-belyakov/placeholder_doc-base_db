@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"net/http"
 	"strings"
 	"time"
 
@@ -15,12 +14,18 @@ import (
 
 // addAlert добавление объекта типа 'alert'
 func (dbs *DatabaseStorage) addAlert(ctx context.Context, data any) {
-	newDocument, ok := data.(documentgenerator.VerifiedAlert)
+	t := time.Now()
+
+	fmt.Println("func 'DatabaseStorage.addAlert' START")
+
+	newDocument, ok := data.(*documentgenerator.VerifiedAlert)
 	if !ok {
 		dbs.logger.Send("error", supportingfunctions.CustomError(errors.New("type conversion error")).Error())
 
 		return
 	}
+
+	fmt.Println("func 'DatabaseStorage.addAlert' выполняем приведенние типа")
 
 	//получаем наименование хранилища
 	indexName, isExist := dbs.settings.storages["alert"]
@@ -30,17 +35,20 @@ func (dbs *DatabaseStorage) addAlert(ctx context.Context, data any) {
 		return
 	}
 
-	t := time.Now()
+	fmt.Println("func 'DatabaseStorage.addAlert' получаем наименование хранилища")
+
 	//формируем наименование индекса
 	currentIndex := fmt.Sprintf("%s_%s_%d_%d", indexName, newDocument.GetSource(), t.Year(), int(t.Month()))
 
-	tag := fmt.Sprintf("alert rootId: '%s'", newDocument.GetEvent().GetRootId())
+	//tag := fmt.Sprintf("alert rootId: '%s'", newDocument.GetEvent().GetRootId())
 	newDocumentBinary, err := json.Marshal(newDocument.Get())
 	if err != nil {
 		dbs.logger.Send("error", supportingfunctions.CustomError(err).Error())
 
 		return
 	}
+
+	fmt.Println("func 'DatabaseStorage.addAlert' json marshal")
 
 	//получаем существующие индексы
 	existingIndexes, err := dbs.GetExistingIndexes(ctx, indexName)
@@ -49,6 +57,11 @@ func (dbs *DatabaseStorage) addAlert(ctx context.Context, data any) {
 
 		return
 	}
+
+	fmt.Println("func 'DatabaseStorage.addAlert' получаем существующие индексы")
+
+	fmt.Println("RootId:", newDocument.Event.RootId)
+	//fmt.Printf("Verify ALert:'%+v'\n", newDocument)
 
 	//будет выполнятся поиск по индексам только в текущем году так как при
 	//накоплении большого количества индексов, поиск по всем серьезно замедлит работу
@@ -61,16 +74,27 @@ func (dbs *DatabaseStorage) addAlert(ctx context.Context, data any) {
 
 	// если похожих индексов нет
 	if len(indexesOnlyCurrentYear) == 0 {
-		res, err := dbs.InsertDocument(tag, currentIndex, newDocumentBinary)
+		fmt.Println("func 'DatabaseStorage.addAlert' если похожих индексов нет")
+
+		//
+		//вставка документа
+		statusCode, err := dbs.InsertDocument(ctx, currentIndex, newDocumentBinary)
 		if err != nil {
 			dbs.logger.Send("error", supportingfunctions.CustomError(err).Error())
 
 			return
 		}
-		defer responseClose(res)
+
+		existingIndexes = append(existingIndexes, currentIndex)
+		//устанавливаем максимальный лимит количества полей для всех индексов которые
+		//содержат значение по умолчанию в 1000 полей
+		if err := dbs.SetMaxTotalFieldsLimit(ctx, existingIndexes); err != nil {
+			dbs.logger.Send("error", supportingfunctions.CustomError(err).Error())
+		}
 
 		//счетчик
 		dbs.counter.SendMessage("update count insert subject alert to db", 1)
+		dbs.logger.Send("info", fmt.Sprintf("insert new document 'alert' type, with rootId:'%s', status code:'%d'", newDocument.GetEvent().GetRootId(), statusCode))
 
 		existingIndexes = append(existingIndexes, currentIndex)
 		//устанавливаем максимальный лимит количества полей для всех индексов которые
@@ -99,7 +123,7 @@ func (dbs *DatabaseStorage) addAlert(ctx context.Context, data any) {
 
 		return
 	}
-	defer responseClose(res)
+	defer res.Body.Close()
 
 	response := AlertDBResponse{}
 	err = json.NewDecoder(res.Body).Decode(&response)
@@ -111,16 +135,18 @@ func (dbs *DatabaseStorage) addAlert(ctx context.Context, data any) {
 
 	//вставка выполняется только когда не найден искомый документ
 	if response.Options.Total.Value == 0 {
-		res, err := dbs.InsertDocument(tag, currentIndex, newDocumentBinary)
+		//
+		//вставка документа
+		statusCode, err := dbs.InsertDocument(ctx, currentIndex, newDocumentBinary)
 		if err != nil {
 			dbs.logger.Send("error", supportingfunctions.CustomError(err).Error())
 
 			return
 		}
-		defer responseClose(res)
 
 		//счетчик
-		dbs.counter.SendMessage("update count insert subject alert to db", 1)
+		dbs.counter.SendMessage("update count insert subject case to db", 1)
+		dbs.logger.Send("info", fmt.Sprintf("insert new document 'alert' type, with rootId:'%s', status code:'%d'", newDocument.GetEvent().GetRootId(), statusCode))
 
 		return
 	}
@@ -131,7 +157,6 @@ func (dbs *DatabaseStorage) addAlert(ctx context.Context, data any) {
 	listDeleting := []ServiseOption(nil)
 	updateVerified := documentgenerator.NewVerifiedAlert()
 	for _, v := range response.Options.Hits {
-
 		count, err := updateVerified.Event.ReplacingOldValues(*v.Source.GetEvent())
 		if err != nil {
 			dbs.logger.Send("error", supportingfunctions.CustomError(err).Error())
@@ -179,16 +204,14 @@ func (dbs *DatabaseStorage) addAlert(ctx context.Context, data any) {
 		return
 	}
 
-	res, countDel, err := dbs.UpdateDocument(tag, currentIndex, listDeleting, nvbyte)
+	//обновление уже существующего документа
+	statusCode, countDel, err := dbs.UpdateDocument(ctx, currentIndex, listDeleting, nvbyte)
 	if err != nil {
 		dbs.logger.Send("error", supportingfunctions.CustomError(fmt.Errorf("rootId '%s' '%s'", newDocument.GetEvent().GetRootId(), err.Error())).Error())
 
 		return
 	}
-	defer responseClose(res)
 
-	if res != nil && res.StatusCode == http.StatusCreated {
-		dbs.counter.SendMessage("update count insert subject alert to db", 1)
-		dbs.logger.Send("info", fmt.Sprintf("count delete:'%d', count replacing fields:'%d' for alert with rootId:'%s'", countDel, countReplacingFields, newDocument.GetEvent().GetRootId()))
-	}
+	dbs.counter.SendMessage("update count insert subject case to db", 1)
+	dbs.logger.Send("info", fmt.Sprintf("update document 'alert' type, count delete:'%d', count replacing fields:'%d' for case with rootId:'%s', status code:'%d'", countDel, countReplacingFields, newDocument.GetEvent().GetRootId(), statusCode))
 }

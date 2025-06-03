@@ -65,14 +65,12 @@ func AlertGenerator(chInput <-chan interfaces.CustomJsonDecoder) (string, *Verif
 		var handlerIsExist bool
 		verifiedAlert.SetID(data.GetUUID())
 
-		if source, ok := searchEventSource(data.GetFieldBranch(), data.GetValue()); ok {
-			verifiedAlert.SetSource(source)
-
-			continue
-		}
-
 		if data.GetFieldBranch() == "event.rootId" {
 			rootId = fmt.Sprint(data.GetValue())
+		}
+
+		if source, ok := searchEventSource(data.GetFieldBranch(), data.GetValue()); ok {
+			verifiedAlert.SetSource(source)
 
 			continue
 		}
@@ -198,21 +196,6 @@ func AlertGenerator(chInput <-chan interfaces.CustomJsonDecoder) (string, *Verif
 
 	verifiedAlert.SetEvent(*event)
 	verifiedAlert.SetAlert(*alert)
-
-	//это если надо будеть обогащать alerts информацией по ip и сенсорам
-	//objectElement := newDocument.Get().GetEvent().GetObject()
-	//if listSensorId, ok := objectElement.GetTags()["sensor:id"]; ok {
-	//	for _, v := range listSensorId {
-	//		sensorsId.addElem(v)
-	//	}
-	//}
-
-	//detailElem := newDocument.Get().GetEvent().GetDetails()
-	//if listSensorId, ok := detailElem.GetTags()["sensor:id"]; ok {
-	//	for _, v := range listSensorId {
-	//		sensorsId.addElem(v)
-	//	}
-	//}
 
 	return rootId, verifiedAlert, listRawFields
 }

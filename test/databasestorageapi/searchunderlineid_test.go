@@ -34,22 +34,9 @@ func TestSearchUnderlineId(t *testing.T) {
 
 	underlineId, err := apiDBS.SearchUnderlineIdCase(ctx, "module_placeholder_new_case_2025_5", "~1402712072")
 	assert.NoError(t, err)
-
-	/*
-			Тест не проходит!!!
-
-		По причине не верного анмаршалинга полученного, из эластика, объекта.
-		Навеное надо написать функцию которая с помощью рефлексии разбирала json.
-		На вход получала []byte (json) и список имён объектов которые нужно найти
-		в этом jsone. На выходе был бы
-		map[<имя искомого объекта>]struct{
-		 Type string //наименование типа
-		 Data any //значение которое можно было бы привести к типу из Type
-		}
-	*/
+	assert.Equal(t, underlineId, "4g0WIJcBRHX25kGeUOOR")
 
 	t.Log("underlineId:", underlineId)
-
 	t.Cleanup(func() {
 		os.Unsetenv("GO_PHDOCBASEDB_DBWLOGPASSWD")
 		os.Unsetenv("GO_PHDOCBASEDB_DBSTORAGEPASSWD")

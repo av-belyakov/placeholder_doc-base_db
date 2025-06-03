@@ -3,6 +3,7 @@ package databasestorageapi
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/av-belyakov/placeholder_doc-base_db/internal/supportingfunctions"
 )
@@ -28,6 +29,8 @@ func (dbs *DatabaseStorage) router(ctx context.Context) {
 
 		case msg := <-dbs.chInput:
 			strErr := "the handler for the accepted request was not found"
+
+			fmt.Printf("func 'DatabaseStorage.router' received new message, section:'%s', command:'%s'\n", msg.Section, msg.Command)
 
 			if _, ok := handlersList[msg.Section]; !ok {
 				dbs.logger.Send("error", supportingfunctions.CustomError(errors.New(strErr)).Error())

@@ -166,7 +166,8 @@ func server(ctx context.Context) {
 	r.Router(ctx)
 
 	//информационное сообщение
-	getInformationMessage()
+	infoMsg := getInformationMessage()
+	_ = simpleLogger.Write("info", infoMsg)
 
 	<-ctx.Done()
 }

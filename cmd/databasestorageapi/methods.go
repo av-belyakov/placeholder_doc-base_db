@@ -1,6 +1,11 @@
 package databasestorageapi
 
-import "errors"
+import (
+	"errors"
+	"strings"
+
+	"github.com/elastic/go-elasticsearch/v8/esapi"
+)
 
 // GetChanDataToModule канал для передачи данных в модуль
 func (dbs *DatabaseStorage) GetChanDataToModule() chan SettingsChanInput {
@@ -10,6 +15,11 @@ func (dbs *DatabaseStorage) GetChanDataToModule() chan SettingsChanInput {
 // GetChanDataFromModule канал для приёма данных из модуля
 func (dbs *DatabaseStorage) GetChanDataFromModule() chan SettingsChanOutput {
 	return dbs.chOutput
+}
+
+// Update обёртка для обновления документа
+func (dbs *DatabaseStorage) Update(index, underlineId string, bodyUpdate *strings.Reader) (*esapi.Response, error) {
+	return dbs.client.Update(index, underlineId, bodyUpdate)
 }
 
 //******************* функции настройки опций databasestorageapi ***********************

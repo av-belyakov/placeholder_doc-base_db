@@ -1,4 +1,4 @@
-package alertgenerator
+package alertgenerator_test
 
 import (
 	"context"

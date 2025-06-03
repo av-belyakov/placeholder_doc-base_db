@@ -15,7 +15,12 @@ import (
 
 // New настраивает новый модуль взаимодействия с API Database
 func New(counter interfaces.Counter, logger interfaces.Logger, opts ...DatabaseStorageOptions) (*DatabaseStorage, error) {
-	dbs := &DatabaseStorage{counter: counter, logger: logger}
+	dbs := &DatabaseStorage{
+		counter:  counter,
+		logger:   logger,
+		chInput:  make(chan SettingsChanInput),
+		chOutput: make(chan SettingsChanOutput),
+	}
 
 	for _, opt := range opts {
 		if err := opt(dbs); err != nil {

@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	"runtime"
 	"strings"
@@ -17,6 +18,10 @@ import (
 
 // GetExistingIndexes проверка наличия индексов соответствующих определенному шаблону
 func (dbs *DatabaseStorage) GetExistingIndexes(ctx context.Context, pattern string) ([]string, error) {
+	if dbs.client == nil {
+		return []string{}, supportingfunctions.CustomError(errors.New("the client parameters for connecting to the Elasticsearch database are not set correctly"))
+	}
+
 	listIndexes := []string(nil)
 	msg := []struct {
 		Index string `json:"index"`
@@ -29,7 +34,7 @@ func (dbs *DatabaseStorage) GetExistingIndexes(ctx context.Context, pattern stri
 	if err != nil {
 		return nil, err
 	}
-	defer responseClose(res)
+	defer res.Body.Close()
 
 	if err = json.NewDecoder(res.Body).Decode(&msg); err != nil {
 		return nil, err
@@ -47,7 +52,7 @@ func (dbs *DatabaseStorage) GetExistingIndexes(ctx context.Context, pattern stri
 }
 
 // GetIndexSetting настройки выбранного индекса
-func (dbs *DatabaseStorage) GetIndexSetting(ctx context.Context, index, query string) (
+func (dbs *DatabaseStorage) GetIndexSetting(ctx context.Context, index string) (
 	settings map[string]struct {
 		Settings struct {
 			Index struct {
@@ -69,6 +74,7 @@ func (dbs *DatabaseStorage) GetIndexSetting(ctx context.Context, index, query st
 	if err != nil {
 		return
 	}
+	defer res.Body.Close()
 
 	if res.StatusCode != http.StatusOK {
 		err = fmt.Errorf("the server response when executing an index search query is equal to '%s'", res.Status())
@@ -95,7 +101,7 @@ func (dbs *DatabaseStorage) SetIndexSetting(ctx context.Context, indexes []strin
 	if err != nil {
 		return false, err
 	}
-	defer responseClose(res)
+	defer res.Body.Close()
 
 	if res.StatusCode == http.StatusCreated || res.StatusCode == http.StatusOK {
 		return true, nil
@@ -114,64 +120,65 @@ func (dbs *DatabaseStorage) SetIndexSetting(ctx context.Context, indexes []strin
 	return false, nil
 }
 
-// DelIndexSetting
+// DelIndexSetting удаление индекса и его настроек
 func (dbs *DatabaseStorage) DelIndexSetting(ctx context.Context, indexes []string) error {
 	req := esapi.IndicesDeleteRequest{Index: indexes}
 	res, err := req.Do(ctx, dbs.client.Transport)
 	if err != nil {
 		return err
 	}
-	defer responseClose(res)
+	defer res.Body.Close()
 
 	return err
 }
 
 // InsertDocument добавить новый документ в заданный индекс
-func (dbs *DatabaseStorage) InsertDocument(tag, index string, b []byte) (*esapi.Response, error) {
-	var res *esapi.Response
-
+func (dbs *DatabaseStorage) InsertDocument(ctx context.Context, index string, b []byte) (int, error) {
 	if dbs.client == nil {
-		return res, supportingfunctions.CustomError(errors.New("the client parameters for connecting to the Elasticsearch database are not set correctly"))
+		return 0, supportingfunctions.CustomError(errors.New("the client parameters for connecting to the Elasticsearch database are not set correctly"))
 	}
 
 	buf := bytes.NewReader(b)
 	res, err := dbs.client.Index(index, buf)
-	defer responseClose(res)
 	if err != nil {
-		return res, supportingfunctions.CustomError(err)
+		return 0, supportingfunctions.CustomError(err)
+	}
+	defer res.Body.Close()
+
+	bodyRes, err := io.ReadAll(res.Body)
+	if err != nil {
+		return res.StatusCode, err
 	}
 
-	if res.StatusCode == http.StatusCreated || res.StatusCode == http.StatusOK {
-		return res, nil
+	data, err := supportingfunctions.GetElementsFromJSON(ctx, bodyRes)
+	if err != nil {
+		return res.StatusCode, err
 	}
 
-	r := map[string]any{}
-	if err = json.NewDecoder(res.Body).Decode(&r); err != nil {
-		return res, supportingfunctions.CustomError(err)
+	for k, v := range data.Result {
+		if strings.Contains(k, "error") {
+			return res.StatusCode, errors.New(fmt.Sprint(v.Value))
+		}
 	}
 
-	if err, ok := r["error"]; ok {
-		return res, supportingfunctions.CustomError(fmt.Errorf("received from database: %s (%s), %v", tag, res.Status(), err))
-	}
-
-	return res, nil
+	return res.StatusCode, nil
 }
 
 // UpdateDocument поиск и обновление документов
-func (dbs *DatabaseStorage) UpdateDocument(tag, currentIndex string, list []ServiseOption, document []byte) (res *esapi.Response, countDel int, err error) {
+func (dbs *DatabaseStorage) UpdateDocument(ctx context.Context, currentIndex string, list []ServiseOption, document []byte) (statusCode, countDel int, err error) {
 	for _, v := range list {
 		res, errDel := dbs.client.Delete(v.Index, v.ID)
-		responseClose(res)
 		if errDel != nil {
 			err = fmt.Errorf("%v, %v", err, errDel)
 		}
+		res.Body.Close()
 
 		countDel++
 	}
 
-	res, err = dbs.InsertDocument(tag, currentIndex, document)
+	statusCode, err = dbs.InsertDocument(ctx, currentIndex, document)
 
-	return res, countDel, err
+	return statusCode, countDel, err
 }
 
 // SetMaxTotalFieldsLimit устанавливает максимальный лимит полей для
@@ -186,7 +193,7 @@ func (dbs *DatabaseStorage) SetMaxTotalFieldsLimit(ctx context.Context, indexes 
 	}
 
 	getIndexLimit := func(ctx context.Context, indexName string) (string, bool, error) {
-		indexSettings, err := dbs.GetIndexSetting(ctx, indexName, "")
+		indexSettings, err := dbs.GetIndexSetting(ctx, indexName)
 		if err != nil {
 			return "", false, err
 		}
@@ -235,10 +242,9 @@ func (dbs *DatabaseStorage) SetMaxTotalFieldsLimit(ctx context.Context, indexes 
 	return errList
 }
 
-// SearchUnderlineIdAlert поиск объекта типа 'alert' по его _id
+// SearchUnderlineIdAlert поиск объекта типа 'alert' по его rootId
+// возвращает _id объекта под которым он находится в БД
 func (dbs *DatabaseStorage) SearchUnderlineIdAlert(ctx context.Context, indexName, rootId, source string) (string, error) {
-	var alertId string
-
 	query := strings.NewReader(fmt.Sprintf("{\"query\": {\"bool\": {\"must\": [{\"match\": {\"source\": \"%s\"}}, {\"match\": {\"event.rootId\": \"%s\"}}]}}}", source, rootId))
 
 	//выполняем поиск _id индекса
@@ -248,29 +254,29 @@ func (dbs *DatabaseStorage) SearchUnderlineIdAlert(ctx context.Context, indexNam
 		dbs.client.Search.WithBody(query),
 	)
 	if err != nil {
-		return alertId, err
+		return "", err
 	}
-	defer responseClose(res)
+	defer res.Body.Close()
 
 	if res.StatusCode != http.StatusOK {
-		return alertId, fmt.Errorf("%s", res.Status())
+		return "", fmt.Errorf("%s", res.Status())
 	}
 
 	tmp := AlertDBResponse{}
 	if err = json.NewDecoder(res.Body).Decode(&tmp); err != nil {
-		return alertId, err
+		return "", err
 	}
 
 	for _, v := range tmp.Options.Hits {
-		alertId = v.ID
+		return v.ID, nil
 	}
 
-	return alertId, nil
+	return "", nil
 }
 
-// SearchUnderlineIdCase поиск объекта типа 'case' по его _id
+// SearchUnderlineIdCase поиск объекта типа 'case' по его rootId
+// возвращает _id объекта под которым он находится в БД
 func (dbs *DatabaseStorage) SearchUnderlineIdCase(ctx context.Context, indexName, rootId string) (string, error) {
-	var underlineId string
 	query := strings.NewReader(fmt.Sprintf("{\"query\": {\"bool\": {\"must\": [{\"match\": {\"event.rootId\": \"%s\"}}]}}}", rootId))
 
 	//выполняем поиск _id индекса
@@ -280,34 +286,25 @@ func (dbs *DatabaseStorage) SearchUnderlineIdCase(ctx context.Context, indexName
 		dbs.client.Search.WithBody(query),
 	)
 	if err != nil {
-		return underlineId, err
+		return "", err
 	}
-	defer responseClose(res)
+	defer res.Body.Close()
 
-	if res.StatusCode != http.StatusOK {
-		return underlineId, fmt.Errorf("%s", res.Status())
-	}
-
-	var bodyRes map[string]any
-	if err = json.NewDecoder(res.Body).Decode(&bodyRes); err != nil {
-		return underlineId, err
+	bodyRes, err := io.ReadAll(res.Body)
+	if err != nil {
+		return "", err
 	}
 
-	fmt.Println("Body response:")
-	for k, v := range bodyRes {
-		fmt.Printf("%s:\n%+v\n", k, v)
+	data, err := supportingfunctions.GetElementsFromJSON(ctx, bodyRes)
+	if err != nil {
+		return "", err
 	}
 
-	tmp := CaseDBResponse{}
-	if err = json.NewDecoder(res.Body).Decode(&tmp); err != nil {
-		return underlineId, err
-	}
-
-	for _, v := range tmp.Options.Hits {
-		if v.ID != "" {
-			return v.ID, nil
+	for k, v := range data.Result {
+		if k == "hits.hits._id" {
+			return fmt.Sprint(v.Value), nil
 		}
 	}
 
-	return underlineId, nil
+	return "", nil
 }

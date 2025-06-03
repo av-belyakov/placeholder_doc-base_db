@@ -1,7 +1,7 @@
 package constants
 
 const (
-	Root_Dir = "thehivehook_go_package"
+	Root_Dir = "placeholder_doc-base_db"
 
 	Ansi_Reset                 = "\033[0m"
 	Ansi_White                 = "\033[97m"

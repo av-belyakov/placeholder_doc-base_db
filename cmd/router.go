@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/av-belyakov/placeholder_doc-base_db/cmd/databasestorageapi"
 	"github.com/av-belyakov/placeholder_doc-base_db/cmd/decoderjsondocuments"
@@ -38,6 +39,9 @@ func (r *ApplicationRouter) Router(ctx context.Context) {
 				case "alert":
 					go func() {
 						rootId, verifyAlert, listRawFields := documentgenerator.AlertGenerator(decoder.Start(msg.Data, msg.TaskId))
+
+						fmt.Println("func 'ApplicationRouter.Router', RootId:", rootId)
+						fmt.Println("func 'ApplicationRouter.Router', Verify Alert RootId:", verifyAlert.GetEvent().GetRootId())
 
 						if len(listRawFields) > 0 {
 							r.logger.Send("alert_raw_fields", supportingfunctions.JoinRawFieldsToString(listRawFields, "rootId", rootId))

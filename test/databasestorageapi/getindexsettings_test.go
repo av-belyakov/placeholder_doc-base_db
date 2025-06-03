@@ -32,7 +32,7 @@ func TestGetIndexSettings(t *testing.T) {
 	)
 	assert.NoError(t, err)
 
-	indexSettings, err := apiDBS.GetIndexSetting(ctx, "module_placeholder_new_case_2025_4", "")
+	indexSettings, err := apiDBS.GetIndexSetting(ctx, "module_placeholder_new_case_2025_4")
 	assert.NoError(t, err)
 	assert.NotEmpty(t, len(indexSettings))
 

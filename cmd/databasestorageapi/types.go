@@ -91,6 +91,37 @@ type ServiseOption struct {
 	Index string `json:"_index"`
 }
 
+// AdditionalInformationIpAddress дополнительная информация добавляемая к информации по кейсам
+type AdditionalInformationIpAddress struct {
+	IpAddresses []IpAddressesInformation `json:"@ipAddressAdditionalInformation"`
+}
+
+// AdditionalInformationSensors дополнительная информация добавляемая к информации по кейсам
+type AdditionalInformationSensors struct {
+	Sensors []SensorInformation `json:"@sensorAdditionalInformation"`
+}
+
+// SensorInformation содержит дополнительную информацию о сенсоре
+type SensorInformation struct {
+	SensorId    string `json:"sensorId" bson:"sensorId"`       //идентификатор сенсора
+	HostId      string `json:"hostId" bson:"hostId"`           //идентификатор сенсора, специальный, для поиска информации в НКЦКИ
+	GeoCode     string `json:"geoCode" bson:"geoCode"`         //географический код страны
+	ObjectArea  string `json:"objectArea" bson:"objectArea"`   //сфера деятельности объекта
+	SubjectRF   string `json:"subjectRF" bson:"subjectRF"`     //субъект Российской Федерации
+	INN         string `json:"inn" bson:"inn"`                 //налоговый идентификатор
+	HomeNet     string `json:"homeNet" bson:"homeNet"`         //перечень домашних сетей
+	OrgName     string `json:"orgName" bson:"orgName"`         //наименование организации
+	FullOrgName string `json:"fullOrgName" bson:"fullOrgName"` //полное наименование организации
+}
+
+// IpAddressesInformation дополнительная информация об ip адресе
+type IpAddressesInformation struct {
+	Ip          string `json:"ip"`          //ip адрес по которомы выполнялся поиск
+	City        string `json:"city"`        //город
+	Country     string `json:"country"`     //страна
+	CountryCode string `json:"countryCode"` //код страны
+}
+
 type listSensorId struct {
 	sensors []string
 }

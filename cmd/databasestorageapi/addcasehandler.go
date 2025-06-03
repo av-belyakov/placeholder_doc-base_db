@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"net/http"
 	"strings"
 	"time"
 
@@ -15,7 +14,11 @@ import (
 
 // addCase добавление объекта типа 'case'
 func (dbs *DatabaseStorage) addCase(ctx context.Context, data any) {
-	newDocument, ok := data.(documentgenerator.VerifiedCase)
+	fmt.Println("func 'DatabaseStorage.addCase' START")
+
+	t := time.Now()
+
+	newDocument, ok := data.(*documentgenerator.VerifiedCase)
 	if !ok {
 		dbs.logger.Send("error", supportingfunctions.CustomError(errors.New("type conversion error")).Error())
 
@@ -30,11 +33,10 @@ func (dbs *DatabaseStorage) addCase(ctx context.Context, data any) {
 		return
 	}
 
-	t := time.Now()
 	//формируем наименование индекса
 	currentIndex := fmt.Sprintf("%s_%d_%d", indexName, t.Year(), int(t.Month()))
-	caseId := fmt.Sprint(newDocument.GetEvent().GetObject().CaseId)
 
+	caseId := fmt.Sprint(newDocument.GetEvent().GetObject().CaseId)
 	reqSetTag := fmt.Appendf(nil, `{
 						  "service": "placeholder_doc-base_db",
 						  "command": "add_case_tag",
@@ -65,7 +67,7 @@ func (dbs *DatabaseStorage) addCase(ctx context.Context, data any) {
 		newDocument.GetEvent().GetRootId(),
 		documentgenerator.GetListSensorId(sensorIdObjects))
 
-	tag := fmt.Sprintf("case rootId: '%s'", newDocument.GetEvent().GetRootId())
+	//tag := fmt.Sprintf("case rootId: '%s'", newDocument.GetEvent().GetRootId())
 	newDocumentBinary, err := json.Marshal(newDocument.Get())
 	if err != nil {
 		dbs.logger.Send("error", supportingfunctions.CustomError(err).Error())
@@ -94,13 +96,12 @@ func (dbs *DatabaseStorage) addCase(ctx context.Context, data any) {
 	if len(indexesOnlyCurrentYear) == 0 {
 		//
 		//вставка документа
-		res, err := dbs.InsertDocument(tag, currentIndex, newDocumentBinary)
+		statusCode, err := dbs.InsertDocument(ctx, currentIndex, newDocumentBinary)
 		if err != nil {
 			dbs.logger.Send("error", supportingfunctions.CustomError(err).Error())
 
 			return
 		}
-		defer responseClose(res)
 
 		existingIndexes = append(existingIndexes, currentIndex)
 		//устанавливаем максимальный лимит количества полей для всех индексов которые
@@ -111,7 +112,7 @@ func (dbs *DatabaseStorage) addCase(ctx context.Context, data any) {
 
 		//счетчик
 		dbs.counter.SendMessage("update count insert subject case to db", 1)
-		dbs.logger.Send("info", fmt.Sprintf("insert new document to caseId:'%s' with rootId:'%s'", caseId, newDocument.GetEvent().GetRootId()))
+		dbs.logger.Send("info", fmt.Sprintf("insert new document to caseId:'%s' with rootId:'%s', status code:'%d'", caseId, newDocument.GetEvent().GetRootId(), statusCode))
 
 		//запрос на отправку сообщения для установки тега
 		dbs.GetChanDataFromModule() <- SettingsChanOutput{
@@ -161,7 +162,7 @@ func (dbs *DatabaseStorage) addCase(ctx context.Context, data any) {
 
 		return
 	}
-	defer responseClose(res)
+	defer res.Body.Close()
 
 	response := CaseDBResponse{}
 	err = json.NewDecoder(res.Body).Decode(&response)
@@ -175,17 +176,16 @@ func (dbs *DatabaseStorage) addCase(ctx context.Context, data any) {
 	if response.Options.Total.Value == 0 {
 		//
 		//вставка документа
-		res, err := dbs.InsertDocument(tag, currentIndex, newDocumentBinary)
+		statusCode, err := dbs.InsertDocument(ctx, currentIndex, newDocumentBinary)
 		if err != nil {
 			dbs.logger.Send("error", supportingfunctions.CustomError(err).Error())
 
 			return
 		}
-		defer responseClose(res)
 
 		//счетчик
 		dbs.counter.SendMessage("update count insert subject case to db", 1)
-		dbs.logger.Send("info", fmt.Sprintf("insert new document to caseId:'%s' with rootId:'%s'", caseId, newDocument.GetEvent().GetRootId()))
+		dbs.logger.Send("info", fmt.Sprintf("insert new document to caseId:'%s' with rootId:'%s', status code:'%d'", caseId, newDocument.GetEvent().GetRootId(), statusCode))
 
 		//запрос на отправку сообщения для установки тега
 		dbs.GetChanDataFromModule() <- SettingsChanOutput{
@@ -263,16 +263,13 @@ func (dbs *DatabaseStorage) addCase(ctx context.Context, data any) {
 	}
 
 	//обновление уже существующего документа
-	res, countDel, err := dbs.UpdateDocument(tag, currentIndex, listDeleting, nvbyte)
+	statusCode, countDel, err := dbs.UpdateDocument(ctx, currentIndex, listDeleting, nvbyte)
 	if err != nil {
 		dbs.logger.Send("error", supportingfunctions.CustomError(fmt.Errorf("rootId '%s' '%s'", newDocument.GetEvent().GetRootId(), err.Error())).Error())
 
 		return
 	}
-	defer responseClose(res)
 
-	if res != nil && res.StatusCode == http.StatusCreated {
-		dbs.counter.SendMessage("update count insert subject case to db", 1)
-		dbs.logger.Send("info", fmt.Sprintf("update document, count delete:'%d', count replacing fields:'%d' for alert with rootId:'%s'", countDel, countReplacingFields, newDocument.GetEvent().GetRootId()))
-	}
+	dbs.counter.SendMessage("update count insert subject case to db", 1)
+	dbs.logger.Send("info", fmt.Sprintf("update document 'case' type, count delete:'%d', count replacing fields:'%d' for case with rootId:'%s', status code:'%d'", countDel, countReplacingFields, newDocument.GetEvent().GetRootId(), statusCode))
 }
