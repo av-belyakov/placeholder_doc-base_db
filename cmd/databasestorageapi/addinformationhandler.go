@@ -20,9 +20,16 @@ func (dbs *DatabaseStorage) addGeoIPInformation(ctx context.Context, data any) {
 	time.Sleep(3 * time.Second)
 	//***************************************************************
 
-	newDocument, ok := data.(response.ResponseGeoIpInformation)
+	newData, ok := data.([]byte)
 	if !ok {
 		dbs.logger.Send("error", supportingfunctions.CustomError(errors.New("type conversion error")).Error())
+
+		return
+	}
+
+	var newDocument response.ResponseGeoIpInformation
+	if err := json.Unmarshal(newData, &newDocument); err != nil {
+		dbs.logger.Send("error", supportingfunctions.CustomError(err).Error())
 
 		return
 	}

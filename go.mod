@@ -1,9 +1,9 @@
 module github.com/av-belyakov/placeholder_doc-base_db
 
-go 1.24.1
+go 1.24.3
 
 require (
-	github.com/av-belyakov/objectsthehiveformat v0.0.0-20250424074030-bb10c13cc5d2
+	github.com/av-belyakov/objectsthehiveformat v0.0.0-20250605090021-15430a110359
 	github.com/av-belyakov/simplelogger v0.0.0-20250225125610-1e1723ce15ea
 	github.com/av-belyakov/zabbixapicommunicator v0.0.0-20250123120502-11e9e7cc85ed
 	github.com/elastic/go-elasticsearch/v8 v8.18.0
@@ -37,6 +37,7 @@ require (
 	github.com/spf13/cast v1.7.1 // indirect
 	github.com/spf13/pflag v1.0.6 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
+	go.mongodb.org/mongo-driver v1.17.3 // indirect
 	go.opentelemetry.io/auto/sdk v1.1.0 // indirect
 	go.opentelemetry.io/otel v1.35.0 // indirect
 	go.opentelemetry.io/otel/metric v1.35.0 // indirect

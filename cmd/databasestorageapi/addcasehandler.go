@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/av-belyakov/placeholder_doc-base_db/cmd/documentgenerator"
+	"github.com/av-belyakov/placeholder_doc-base_db/internal/request"
 	"github.com/av-belyakov/placeholder_doc-base_db/internal/supportingfunctions"
 )
 
@@ -49,25 +50,23 @@ func (dbs *DatabaseStorage) addCase(ctx context.Context, data any) {
 
 	//получаем список ip адресов
 	ipAddrObjects := newDocument.GetAdditionalInformation().GetIpAddressesInformation()
-	reqGeoIP := fmt.Appendf(nil, `{
-			  "source": "placeholder_doc-base_db",
-  			  "task_id": "%s",
-  			  "list_ip_addresses": "%v"
-			}`,
-		newDocument.GetEvent().GetRootId(),
-		documentgenerator.GetListIPAddr(ipAddrObjects))
+	reqGeoIP, err := json.Marshal(request.RequestGeoIP{
+		Source:          "placeholder_doc-base_db",
+		TaskId:          newDocument.GetEvent().GetRootId(),
+		ListIpAddresses: documentgenerator.GetListIPAddr(ipAddrObjects),
+	})
+	if err != nil {
+		dbs.logger.Send("error", supportingfunctions.CustomError(err).Error())
+	}
 
 	//получаем список сенсоров
 	sensorIdObjects := newDocument.GetAdditionalInformation().GetSensorsInformation()
-	reqSensorId := fmt.Appendf(nil, `{
-			  "source": "placeholder_doc-base_db",
-  			  "task_id": "%s",
-  			  "list_sensors": "%v"
-			}`,
-		newDocument.GetEvent().GetRootId(),
-		documentgenerator.GetListSensorId(sensorIdObjects))
+	reqSensorId, err := json.Marshal(request.RequestSensorInformation{
+		Source:      "placeholder_doc-base_db",
+		TaskId:      newDocument.GetEvent().GetRootId(),
+		ListSensors: documentgenerator.GetListSensorId(sensorIdObjects),
+	})
 
-	//tag := fmt.Sprintf("case rootId: '%s'", newDocument.GetEvent().GetRootId())
 	newDocumentBinary, err := json.Marshal(newDocument.Get())
 	if err != nil {
 		dbs.logger.Send("error", supportingfunctions.CustomError(err).Error())

@@ -65,14 +65,12 @@ func CaseGenerator(chInput <-chan interfaces.CustomJsonDecoder) (string, *Verifi
 		var handlerIsExist bool
 		verifiedCase.SetID(data.GetUUID())
 
-		if source, ok := searchEventSource(data.GetFieldBranch(), data.GetValue()); ok {
-			verifiedCase.SetSource(source)
-
-			continue
-		}
-
 		if data.GetFieldBranch() == "event.rootId" {
 			rootId = fmt.Sprint(data.GetValue())
+		}
+
+		if source, ok := searchEventSource(data.GetFieldBranch(), data.GetValue()); ok {
+			verifiedCase.SetSource(source)
 
 			continue
 		}
