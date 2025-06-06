@@ -1,5 +1,9 @@
 github.com/av-belyakov/objectsthehiveformat v0.0.0-20250605090021-15430a110359 h1:F/QWr6x3W5t95mapghzDeO9gv/YVxWpqdZHnaJ1D0C8=
 github.com/av-belyakov/objectsthehiveformat v0.0.0-20250605090021-15430a110359/go.mod h1:bYZcuuXziq4I3pKHYwVgEws3Rj1EQ+DD8x0D4bHWWQA=
+github.com/av-belyakov/objectsthehiveformat v0.0.0-20250605140417-69b0cf68c0b8 h1:6nVrdcRyaihHy9juEgb4HGc97SD3DEnBAXSYqIU00Dc=
+github.com/av-belyakov/objectsthehiveformat v0.0.0-20250605140417-69b0cf68c0b8/go.mod h1:bYZcuuXziq4I3pKHYwVgEws3Rj1EQ+DD8x0D4bHWWQA=
+github.com/av-belyakov/objectsthehiveformat v0.0.0-20250606102826-eb7e88c1d921 h1:HDrIsf+8FBBalks3eNtN06ak6Z7hrVIMY0kX+UuoYkc=
+github.com/av-belyakov/objectsthehiveformat v0.0.0-20250606102826-eb7e88c1d921/go.mod h1:D7TNfu6woBkCanC7R58UYN+ktLO72yaeiRzAsewH18Y=
 github.com/av-belyakov/simplelogger v0.0.0-20250225125610-1e1723ce15ea h1:9W5uTWHkUg+ywlcvQoG0eZwXkpraHk54DK7miel6AtU=
 github.com/av-belyakov/simplelogger v0.0.0-20250225125610-1e1723ce15ea/go.mod h1:yW2ev3nXPP3WY8svBWJpg4PQRl67MTGIaaiXJ0ULRZ8=
 github.com/av-belyakov/zabbixapicommunicator v0.0.0-20250123120502-11e9e7cc85ed h1:xx02TuPAsjRbQvsyhj2Wh99aD8tswToWT9RPNFP4/bE=

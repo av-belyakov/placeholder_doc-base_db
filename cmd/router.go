@@ -40,8 +40,7 @@ func (r *ApplicationRouter) Router(ctx context.Context) {
 					go func() {
 						rootId, verifyAlert, listRawFields := documentgenerator.AlertGenerator(decoder.Start(msg.Data, msg.TaskId))
 
-						fmt.Println("func 'ApplicationRouter.Router', RootId:", rootId)
-						fmt.Println("func 'ApplicationRouter.Router', Verify Alert RootId:", verifyAlert.GetEvent().GetRootId())
+						r.logger.Send("info", fmt.Sprintf("an 'alert' document has been generated, and the document has been transferred to the database (root id document '%s')", rootId))
 
 						if len(listRawFields) > 0 {
 							r.logger.Send("alert_raw_fields", supportingfunctions.JoinRawFieldsToString(listRawFields, "rootId", rootId))
@@ -57,6 +56,8 @@ func (r *ApplicationRouter) Router(ctx context.Context) {
 				case "case":
 					go func() {
 						rootId, verifyCase, listRawFields := documentgenerator.CaseGenerator(decoder.Start(msg.Data, msg.TaskId))
+
+						r.logger.Send("info", fmt.Sprintf("an 'case' document has been generated, and the document has been transferred to the database (root id document '%s')", rootId))
 
 						if len(listRawFields) > 0 {
 							r.logger.Send("case_raw_fields", supportingfunctions.JoinRawFieldsToString(listRawFields, "rootId", rootId))

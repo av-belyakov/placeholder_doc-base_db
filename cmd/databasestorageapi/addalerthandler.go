@@ -16,16 +16,12 @@ import (
 func (dbs *DatabaseStorage) addAlert(ctx context.Context, data any) {
 	t := time.Now()
 
-	fmt.Println("func 'DatabaseStorage.addAlert' START")
-
 	newDocument, ok := data.(*documentgenerator.VerifiedAlert)
 	if !ok {
 		dbs.logger.Send("error", supportingfunctions.CustomError(errors.New("type conversion error")).Error())
 
 		return
 	}
-
-	fmt.Println("func 'DatabaseStorage.addAlert' выполняем приведенние типа")
 
 	//получаем наименование хранилища
 	indexName, isExist := dbs.settings.storages["alert"]
@@ -34,8 +30,6 @@ func (dbs *DatabaseStorage) addAlert(ctx context.Context, data any) {
 
 		return
 	}
-
-	fmt.Println("func 'DatabaseStorage.addAlert' получаем наименование хранилища")
 
 	//формируем наименование индекса
 	currentIndex := fmt.Sprintf("%s_%s_%d_%d", indexName, newDocument.GetSource(), t.Year(), int(t.Month()))
@@ -47,8 +41,6 @@ func (dbs *DatabaseStorage) addAlert(ctx context.Context, data any) {
 		return
 	}
 
-	fmt.Println("func 'DatabaseStorage.addAlert' json marshal")
-
 	//получаем существующие индексы
 	existingIndexes, err := dbs.GetExistingIndexes(ctx, indexName)
 	if err != nil {
@@ -56,10 +48,6 @@ func (dbs *DatabaseStorage) addAlert(ctx context.Context, data any) {
 
 		return
 	}
-
-	fmt.Println("func 'DatabaseStorage.addAlert' получаем существующие индексы")
-	fmt.Println("RootId:", newDocument.GetEvent().GetRootId())
-	//fmt.Printf("Verify ALert:'%+v'\n", newDocument)
 
 	//будет выполнятся поиск по индексам только в текущем году так как при
 	//накоплении большого количества индексов, поиск по всем серьезно замедлит работу
@@ -72,8 +60,6 @@ func (dbs *DatabaseStorage) addAlert(ctx context.Context, data any) {
 
 	// если похожих индексов нет
 	if len(indexesOnlyCurrentYear) == 0 {
-		fmt.Println("func 'DatabaseStorage.addAlert' если похожих индексов нет")
-
 		//
 		//вставка документа
 		statusCode, err := dbs.InsertDocument(ctx, currentIndex, newDocumentBinary)
@@ -82,8 +68,6 @@ func (dbs *DatabaseStorage) addAlert(ctx context.Context, data any) {
 
 			return
 		}
-
-		//existingIndexes = append(existingIndexes, currentIndex)
 
 		//устанавливаем максимальный лимит количества полей для всех индексов которые
 		//содержат значение по умолчанию в 1000 полей
@@ -103,8 +87,6 @@ func (dbs *DatabaseStorage) addAlert(ctx context.Context, data any) {
 	if err := dbs.SetMaxTotalFieldsLimit(ctx, existingIndexes); err != nil {
 		dbs.logger.Send("error", supportingfunctions.CustomError(err).Error())
 	}
-
-	fmt.Println("func 'DatabaseStorage.addAlert' ищем alert с таким же rootId:", newDocument.GetEvent().GetRootId())
 
 	//ищем alert с таким же rootId
 	res, err := dbs.client.Search(
@@ -128,16 +110,8 @@ func (dbs *DatabaseStorage) addAlert(ctx context.Context, data any) {
 	if err != nil {
 		dbs.logger.Send("error", supportingfunctions.CustomError(err).Error())
 
-		/*
-		 ERR - placeholder_doc-base_db - json: cannot unmarshal object into Go
-		 struct field EventAlertObject.hits.hits._source.event.object.customFields
-		 of type interfaces.CustomerFields /home/artemij/go/src/placeholder_doc-base_db/cmd/databasestorageapi/addalerthandler.go:131
-		*/
-
 		return
 	}
-
-	fmt.Println("func 'DatabaseStorage.addAlert' будем выполнять вставку только если response.Options.Total.Value == 0:", response.Options.Total.Value)
 
 	//вставка выполняется только когда не найден искомый документ
 	if response.Options.Total.Value == 0 {
@@ -156,8 +130,6 @@ func (dbs *DatabaseStorage) addAlert(ctx context.Context, data any) {
 
 		return
 	}
-
-	fmt.Println("func 'DatabaseStorage.addAlert' при наличие искомого документа будем выполнять его замену, response.Options.Hits:", response.Options.Hits)
 
 	//*** при наличие искомого документа выполняем его замену ***
 	//***********************************************************

@@ -23,7 +23,7 @@ func NewVerifiedAlert() *VerifiedAlert {
 	return &VerifiedAlert{
 		Alert:           *alert.NewTypeAlert(),
 		Event:           *eventalert.NewTypeEventForAlert(),
-		CreateTimestamp: supportingfunctions.GetDateTimeFormatRFC3339(time.Now().UnixMilli()),
+		CreateTimestamp: time.Now().Format(time.RFC3339),
 	}
 }
 
@@ -99,7 +99,9 @@ func (va *VerifiedAlert) ToStringBeautiful(num int) string {
 
 // NewVerifiedCase новый элемент содержащий проверенный объект типа 'case'
 func NewVerifiedCase() *VerifiedCase {
-	return &VerifiedCase{}
+	return &VerifiedCase{
+		CreateTimestamp: time.Now().Format(time.RFC3339),
+	}
 }
 
 func (c *VerifiedCase) Get() *VerifiedCase {

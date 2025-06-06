@@ -15,8 +15,6 @@ import (
 
 // addCase добавление объекта типа 'case'
 func (dbs *DatabaseStorage) addCase(ctx context.Context, data any) {
-	fmt.Println("func 'DatabaseStorage.addCase' START")
-
 	t := time.Now()
 
 	newDocument, ok := data.(*documentgenerator.VerifiedCase)
@@ -150,7 +148,11 @@ func (dbs *DatabaseStorage) addCase(ctx context.Context, data any) {
 		dbs.logger.Send("error", supportingfunctions.CustomError(err).Error())
 	}
 
-	currentQuery := strings.NewReader(fmt.Sprintf("{\"query\": {\"bool\": {\"must\": [{\"match\": {\"source\": \"%s\"}}, {\"match\": {\"event.rootId\": \"%s\"}}]}}}", newDocument.GetSource(), newDocument.GetEvent().GetRootId()))
+	currentQuery := strings.NewReader(
+		fmt.Sprintf(
+			"{\"query\": {\"bool\": {\"must\": [{\"match\": {\"source\": \"%s\"}}, {\"match\": {\"event.rootId\": \"%s\"}}]}}}",
+			newDocument.GetSource(),
+			newDocument.GetEvent().GetRootId()))
 	res, err := dbs.client.Search(
 		dbs.client.Search.WithContext(context.Background()),
 		dbs.client.Search.WithIndex(indexesOnlyCurrentYear...),
