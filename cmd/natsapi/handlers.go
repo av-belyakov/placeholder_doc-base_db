@@ -2,7 +2,6 @@ package natsapi
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -59,8 +58,6 @@ func (api *apiNatsModule) incomingInformationHandler(ctx context.Context) {
 						return
 					}
 
-					fmt.Printf("func 'apiNatsModule.incomingInformationHandler' - get_geoip_info: RESPONSE.DATA = %s\n", string(res.Data))
-
 					api.chFromModule <- SettingsChanOutput{
 						SubjectType: "geoip information",
 						Data:        res.Data,
@@ -76,8 +73,6 @@ func (api *apiNatsModule) incomingInformationHandler(ctx context.Context) {
 					if err != nil {
 						api.logger.Send("error", supportingfunctions.CustomError(err).Error())
 					}
-
-					fmt.Printf("func 'apiNatsModule.incomingInformationHandler' - get_sensor_info: RESPONSE.DATA = %s\n", string(res.Data))
 
 					api.chFromModule <- SettingsChanOutput{
 						SubjectType: "sensor information",

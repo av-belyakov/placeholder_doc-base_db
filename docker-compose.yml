@@ -1,0 +1,21 @@
+version: "3.4"
+
+services:
+  app:
+    container_name: placeholder_doc-base_db.prod
+    environment:
+      - GO_PHDOCBASEDB_DBWLOGPASSWD=$PHDOCBASEDB_DBWLOGPASSWD
+      - GO_PHDOCBASEDB_DBSTORAGEPASSWD=$PROD_PHDOCBASEDB_DBSTORAGEPASSWD
+    image: gitlab.cloud.gcm:5050/a.belyakov/placeholder_doc-base_db:latest
+    restart: unless-stopped
+    #пробрасываем user ID для корректной записи в логов
+    user: root
+    command: chmod 777 /opt/placeholder_doc-base_db/logs && \
+             chown 1500:1500 /opt/placeholder_doc-base_db/logs
+    volumes:
+      - /var/log/placeholder_doc-base_db.prod:/opt/placeholder_doc-base_db/logs:rw
+      - ./config:/opt/placeholder_doc-base_db/config:rw
+      #выполняем для корректного отображения даты с учетом временной зоны
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    network_mode: "host"
