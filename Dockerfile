@@ -30,7 +30,7 @@ RUN echo -e "build_image" && \
 
 FROM ${IMAGE_NAME}
 LABEL author="Artemij Belyakov"
-#аргумент STATUS содержит режим запуска приложения prod или development
+# аргумент STATUS содержит режим запуска приложения prod или development
 #если значение содержит запись development, то в таком режиме и будет
 #работать приложение, во всех остальных случаях режим работы prod
 ARG STATUS=""

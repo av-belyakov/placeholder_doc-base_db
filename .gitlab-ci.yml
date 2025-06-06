@@ -46,14 +46,14 @@ stages:
 .is-branch-master-commit: &master-commit
   - if: $CI_COMMIT_BRANCH == $BRANCH_MAJOR || $CI_COMMIT_REF_NAME == $BRANCH_MAJOR
 
-#выводим версию приложения
+# выводим версию приложения
 get_version:
   stage: .pre
   <<: *deploy-prod-tags
   script:
     - 'V=`awk ''/[0-9].[0-9].[0-9]/; {print $2}'' $CI_PROJECT_DIR/version`; echo "version $V"'
 
-#сборка тестового образа
+# сборка тестового образа
 build-test:
   stage: build
   <<: *build-tags
@@ -76,7 +76,7 @@ build-test:
     - docker push $CI_REGISTRY_IMAGE:test
     - docker rmi $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA || true
 
-#сборка основного образа
+# сборка основного образа
 build-prod:
   stage: build
   <<: *build-tags
@@ -96,7 +96,7 @@ build-prod:
     - docker push $CI_REGISTRY_IMAGE:latest
     - docker rmi $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA || true
 
-#развёртывание тестовой сборки (GCM.test)
+# развёртывание тестовой сборки (GCM.test)
 deploy-test:
   stage: deploy
   <<: *deploy-test-tags
@@ -111,7 +111,7 @@ deploy-test:
     - docker rmi gitlab.cloud.gcm:5050/a.belyakov/placeholder_doc-base_db:test || true
     - docker-compose -f $CI_PROJECT_DIR/docker-compose.test.yml up -d --force-recreate --build
 
-#развёртывание основной сборки (GCM)
+# развёртывание основной сборки (GCM)
 deploy-prod-gcm:
   stage: deploy
   <<: *deploy-prod-tags
