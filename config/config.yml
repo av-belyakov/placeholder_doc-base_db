@@ -86,3 +86,6 @@ ZABBIX:
       handshake:
         timeInterval: 1
         message: "0"
+PROFILING:
+  host:
+  port: 6162
