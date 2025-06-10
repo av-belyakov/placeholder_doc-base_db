@@ -28,7 +28,7 @@ func getInformationMessage(conf *confighandler.ConfigApp) string {
 		port := conf.Common.Profiling.Port
 
 		if port > 0 {
-			profiling = fmt.Sprintf("%v%vProfiling: %v'%s:%d/debug/pprof'%v\n", constants.Underlining, constants.Ansi_Bright_Green, constants.Ansi_Bright_Blue, host, port, constants.Ansi_Reset)
+			profiling = fmt.Sprintf("%vProfiling: %v'%s:%d/debug/pprof'%v\n", constants.Ansi_Bright_Green, constants.Ansi_Bright_Blue, host, port, constants.Ansi_Reset)
 		}
 	}
 
