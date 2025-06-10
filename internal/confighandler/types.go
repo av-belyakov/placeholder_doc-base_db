@@ -8,8 +8,9 @@ type ConfigApp struct {
 }
 
 type CfgCommon struct {
-	Logs   []*LogSet
-	Zabbix ZabbixOptions
+	Logs      []*LogSet
+	Zabbix    ZabbixOptions
+	Profiling ProfilingOptions
 }
 
 type Logs struct {
@@ -46,6 +47,15 @@ type EventType struct {
 type Handshake struct {
 	Message      string `validate:"required" yaml:"message"`
 	TimeInterval int    `yaml:"timeInterval"`
+}
+
+type ProfilingSet struct {
+	Profiling ProfilingOptions
+}
+
+type ProfilingOptions struct {
+	Host string `yaml:"host"`
+	Port int    `yaml:"port"`
 }
 
 type CfgNats struct {

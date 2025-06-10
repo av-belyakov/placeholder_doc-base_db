@@ -119,6 +119,11 @@ func TestConfigHandler(t *testing.T) {
 		})
 	})
 
+	t.Run("Тест 4. Проверка настройки профилирования из файла config.yml", func(t *testing.T) {
+		assert.Equal(t, conf.Common.Profiling.Host, "")
+		assert.Equal(t, conf.Common.Profiling.Port, 6162)
+	})
+
 	t.Run("Тест чтения переменных окружения", func(t *testing.T) {
 		t.Run("Тест 1. Проверка настройки NATS", func(t *testing.T) {
 			os.Setenv("GO_PHDOCBASEDB_NHOST", "127.0.0.1")

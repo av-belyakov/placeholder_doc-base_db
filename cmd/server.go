@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 	_ "net/http/pprof"
@@ -168,7 +169,7 @@ func server(ctx context.Context) {
 	r.Router(ctx)
 
 	//информационное сообщение
-	infoMsg := getInformationMessage()
+	infoMsg := getInformationMessage(conf)
 	_ = simpleLogger.Write("info", infoMsg)
 
 	//для отладки через pprof (только для теста)
@@ -177,9 +178,11 @@ func server(ctx context.Context) {
 	//go tool pprof http://confWebHook.Host:confWebHook.Port/debug/pprof/allocs
 	//go tool pprof http://confWebHook.Host:confWebHook.Port/debug/pprof/goroutine
 	if os.Getenv("GO_PHDOCBASEDB_MAIN") == "test" || os.Getenv("GO_PHDOCBASEDB_MAIN") == "development" {
-		go func() {
-			log.Println(http.ListenAndServe("localhost:6162", nil))
-		}()
+		if conf.Common.Profiling.Port > 0 {
+			go func() {
+				log.Println(http.ListenAndServe(fmt.Sprintf("%s:%d", conf.Common.Profiling.Host, conf.Common.Profiling.Port), nil))
+			}()
+		}
 	}
 
 	<-ctx.Done()

@@ -94,6 +94,18 @@ func New(rootDir string) (*ConfigApp, error) {
 			}
 		}
 
+		p := ProfilingSet{}
+		if ok := viper.IsSet("PROFILING"); ok {
+			if err := viper.GetViper().Unmarshal(&p); err != nil {
+				return err
+			}
+
+			conf.Common.Profiling = ProfilingOptions{
+				Host: p.Profiling.Host,
+				Port: p.Profiling.Port,
+			}
+		}
+
 		return nil
 	}
 
