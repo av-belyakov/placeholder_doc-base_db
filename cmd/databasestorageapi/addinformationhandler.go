@@ -15,11 +15,6 @@ import (
 
 // addGeoIPInformation дополнительная информация о географическом местоположении ip адресов
 func (dbs *DatabaseStorage) addGeoIPInformation(ctx context.Context, data any) {
-	//добавляем небольшую задержку что бы СУБД успела добавить индекс
-	//***************************************************************
-	time.Sleep(3 * time.Second)
-	//***************************************************************
-
 	newData, ok := data.([]byte)
 	if !ok {
 		dbs.logger.Send("error", supportingfunctions.CustomError(errors.New("type conversion error")).Error())
@@ -30,6 +25,14 @@ func (dbs *DatabaseStorage) addGeoIPInformation(ctx context.Context, data any) {
 	var newDocument response.ResponseGeoIpInformation
 	if err := json.Unmarshal(newData, &newDocument); err != nil {
 		dbs.logger.Send("error", supportingfunctions.CustomError(err).Error())
+
+		return
+	}
+
+	//если в принятом ответе от модуля обогащения информацией л географическом местоположении
+	//ip адресов есть глобальная ошибка
+	if newDocument.Error != "" {
+		dbs.logger.Send("error", supportingfunctions.CustomError(errors.New(newDocument.Error)).Error())
 
 		return
 	}
@@ -47,6 +50,11 @@ func (dbs *DatabaseStorage) addGeoIPInformation(ctx context.Context, data any) {
 	//текущий индекс
 	indexCurrent := fmt.Sprintf("%s_%d_%d", indexName, t.Year(), month)
 
+	//добавляем небольшую задержку что бы СУБД успела добавить индекс
+	//***************************************************************
+	time.Sleep(3 * time.Second)
+	//***************************************************************
+
 	//поиск _id объекта типа 'case' по его rootId (что в передается в newDocument.TaskId)
 	underlineId, err := dbs.SearchUnderlineIdCase(ctx, indexCurrent, newDocument.TaskId)
 	if err != nil {
@@ -58,6 +66,16 @@ func (dbs *DatabaseStorage) addGeoIPInformation(ctx context.Context, data any) {
 	//формируется список с информацией по ip адресам
 	var ipInfoList []IpAddressesInformation
 	for _, ipAddress := range newDocument.Informations {
+		if ipAddress.Error != "" {
+			dbs.logger.Send("error", supportingfunctions.CustomError(errors.New(ipAddress.Error)).Error())
+
+			ipInfoList = append(ipInfoList, IpAddressesInformation{
+				Ip: ipAddress.IpAddr,
+			})
+
+			continue
+		}
+
 		ipInfoList = append(ipInfoList, IpAddressesInformation{
 			Ip:          ipAddress.IpAddr,
 			City:        ipAddress.City,
@@ -96,11 +114,6 @@ func (dbs *DatabaseStorage) addGeoIPInformation(ctx context.Context, data any) {
 
 // addSensorInformation дополнительная информация о местоположении и принадлежности сенсоров
 func (dbs *DatabaseStorage) addSensorInformation(ctx context.Context, data any) {
-	//добавляем небольшую задержку что бы СУБД успела добавить индекс
-	//***************************************************************
-	time.Sleep(3 * time.Second)
-	//***************************************************************
-
 	newData, ok := data.([]byte)
 	if !ok {
 		dbs.logger.Send("error", supportingfunctions.CustomError(errors.New("type conversion error")).Error())
@@ -111,6 +124,14 @@ func (dbs *DatabaseStorage) addSensorInformation(ctx context.Context, data any) 
 	var newDocument response.ResponseSensorsInformation
 	if err := json.Unmarshal(newData, &newDocument); err != nil {
 		dbs.logger.Send("error", supportingfunctions.CustomError(err).Error())
+
+		return
+	}
+
+	//если в принятом ответе от модуля обогащения информацией л географическом местоположении
+	//ip адресов есть глобальная ошибка
+	if newDocument.Error != "" {
+		dbs.logger.Send("error", supportingfunctions.CustomError(errors.New(newDocument.Error)).Error())
 
 		return
 	}
@@ -128,6 +149,11 @@ func (dbs *DatabaseStorage) addSensorInformation(ctx context.Context, data any) 
 	//текущий индекс
 	indexCurrent := fmt.Sprintf("%s_%d_%d", indexName, t.Year(), month)
 
+	//добавляем небольшую задержку что бы СУБД успела добавить индекс
+	//***************************************************************
+	time.Sleep(3 * time.Second)
+	//***************************************************************
+
 	//поиск _id объекта типа 'case' по его rootId (что в передается в newDocument.TaskId)
 	underlineId, err := dbs.SearchUnderlineIdCase(ctx, indexCurrent, newDocument.TaskId)
 	if err != nil {
@@ -139,6 +165,16 @@ func (dbs *DatabaseStorage) addSensorInformation(ctx context.Context, data any) 
 	//формируется список с информацией по сенсорам
 	var sensorInfoList []SensorInformation
 	for _, sensor := range newDocument.Informations {
+		if sensor.Error != "" {
+			dbs.logger.Send("error", supportingfunctions.CustomError(errors.New(sensor.Error)).Error())
+
+			sensorInfoList = append(sensorInfoList, SensorInformation{
+				SensorId: sensor.SensorID,
+			})
+
+			continue
+		}
+
 		sensorInfoList = append(sensorInfoList, SensorInformation{
 			SensorId:    sensor.SensorID,
 			GeoCode:     sensor.GeoCode,

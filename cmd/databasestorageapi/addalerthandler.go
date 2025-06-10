@@ -193,5 +193,5 @@ func (dbs *DatabaseStorage) addAlert(ctx context.Context, data any) {
 	}
 
 	dbs.counter.SendMessage("update count insert subject case to db", 1)
-	dbs.logger.Send("info", fmt.Sprintf("update document 'alert' type, count delete:'%d', count replacing fields:'%d' for case with rootId:'%s', status code:'%d'", countDel, countReplacingFields, newDocument.GetEvent().GetRootId(), statusCode))
+	dbs.logger.Send("info", fmt.Sprintf("update document 'alert' type, count delete:'%d', count replacing fields:'%d' for alert with rootId:'%s', status code:'%d'", countDel, countReplacingFields, newDocument.GetEvent().GetRootId(), statusCode))
 }

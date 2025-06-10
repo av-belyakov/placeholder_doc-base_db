@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"log"
+	"net/http"
+	_ "net/http/pprof"
 	"os"
 
 	"github.com/av-belyakov/placeholder_doc-base_db/cmd/databasestorageapi"
@@ -168,6 +170,17 @@ func server(ctx context.Context) {
 	//информационное сообщение
 	infoMsg := getInformationMessage()
 	_ = simpleLogger.Write("info", infoMsg)
+
+	//для отладки через pprof (только для теста)
+	//http://confWebHook.Host:confWebHook.Port/debug/pprof/
+	//go tool pprof http://confWebHook.Host:confWebHook.Port/debug/pprof/heap
+	//go tool pprof http://confWebHook.Host:confWebHook.Port/debug/pprof/allocs
+	//go tool pprof http://confWebHook.Host:confWebHook.Port/debug/pprof/goroutine
+	if os.Getenv("GO_PHDOCBASEDB_MAIN") == "test" || os.Getenv("GO_PHDOCBASEDB_MAIN") == "development" {
+		go func() {
+			log.Println(http.ListenAndServe("localhost:6161", nil))
+		}()
+	}
 
 	<-ctx.Done()
 }
