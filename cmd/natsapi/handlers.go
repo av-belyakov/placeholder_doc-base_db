@@ -74,6 +74,10 @@ func (api *apiNatsModule) incomingInformationHandler(ctx context.Context) {
 						api.logger.Send("error", supportingfunctions.CustomError(err).Error())
 					}
 
+					if res == nil {
+						return
+					}
+
 					api.chFromModule <- SettingsChanOutput{
 						SubjectType: "sensor information",
 						Data:        res.Data,

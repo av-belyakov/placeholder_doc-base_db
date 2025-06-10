@@ -5,7 +5,7 @@ go 1.24.4
 require (
 	github.com/av-belyakov/objectsthehiveformat v0.0.0-20250606102826-eb7e88c1d921
 	github.com/av-belyakov/simplelogger v0.0.0-20250225125610-1e1723ce15ea
-	github.com/av-belyakov/zabbixapicommunicator v0.0.0-20250123120502-11e9e7cc85ed
+	github.com/av-belyakov/zabbixapicommunicator v0.0.0-20250512120600-9940a6578ff4
 	github.com/elastic/go-elasticsearch/v8 v8.18.0
 	github.com/go-playground/validator/v10 v10.26.0
 	github.com/google/uuid v1.6.0
