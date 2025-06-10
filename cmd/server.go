@@ -178,7 +178,7 @@ func server(ctx context.Context) {
 	//go tool pprof http://confWebHook.Host:confWebHook.Port/debug/pprof/goroutine
 	if os.Getenv("GO_PHDOCBASEDB_MAIN") == "test" || os.Getenv("GO_PHDOCBASEDB_MAIN") == "development" {
 		go func() {
-			log.Println(http.ListenAndServe("localhost:6161", nil))
+			log.Println(http.ListenAndServe("localhost:6162", nil))
 		}()
 	}
 
