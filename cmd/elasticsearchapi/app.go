@@ -11,11 +11,11 @@ import (
 	"time"
 
 	"github.com/elastic/go-elasticsearch/v8"
-	"github.com/elastic/go-elasticsearch/v8/esapi"
 
 	"github.com/av-belyakov/placeholder_doc-base_db/internal/supportingfunctions"
 )
 
+// NewElasticsearchConnect соединение с базой данных
 func NewElasticsearchConnect(settings Settings) (*ElasticsearchDB, error) {
 	edb := &ElasticsearchDB{settings: settings}
 
@@ -45,6 +45,7 @@ func NewElasticsearchConnect(settings Settings) (*ElasticsearchDB, error) {
 	return edb, err
 }
 
+// Write запись сообщений
 func (edb *ElasticsearchDB) Write(msgType, msg string) error {
 	if edb.client == nil {
 		return errors.New("the client parameters for connecting to the Elasticsearch database are not set correctly")
@@ -66,10 +67,10 @@ func (edb *ElasticsearchDB) Write(msgType, msg string) error {
 	))
 
 	res, err := edb.client.Index(fmt.Sprintf("logs.%s_%s_%d", edb.settings.IndexDB, strings.ToLower(tn.Month().String()), tn.Year()), buf)
-	defer responseClose(res)
 	if err != nil {
 		return supportingfunctions.CustomError(err)
 	}
+	defer res.Body.Close()
 
 	if res.StatusCode == http.StatusCreated || res.StatusCode == http.StatusOK {
 		return nil
@@ -85,12 +86,4 @@ func (edb *ElasticsearchDB) Write(msgType, msg string) error {
 	}
 
 	return nil
-}
-
-func responseClose(res *esapi.Response) {
-	if res == nil || res.Body == nil {
-		return
-	}
-
-	res.Body.Close()
 }
