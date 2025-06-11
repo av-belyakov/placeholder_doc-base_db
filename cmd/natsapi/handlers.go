@@ -2,6 +2,7 @@ package natsapi
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -49,6 +50,8 @@ func (api *apiNatsModule) incomingInformationHandler(ctx context.Context) {
 					ctxTimeout, cancel := context.WithTimeout(ctx, 15*time.Second)
 					defer cancel()
 
+					api.logger.Send("info", fmt.Sprintf("a request has been sent to get geoip information for an object with rootId:'%s'", incomingData.RootId))
+
 					res, err := api.natsConn.RequestWithContext(ctxTimeout, api.requests["get_geoip_info"], incomingData.Data)
 					if err != nil {
 						api.logger.Send("error", supportingfunctions.CustomError(err).Error())
@@ -57,6 +60,8 @@ func (api *apiNatsModule) incomingInformationHandler(ctx context.Context) {
 					if res == nil {
 						return
 					}
+
+					api.logger.Send("info", fmt.Sprintf("a response was received to a request for geoip information for an object with rootId:'%s'", incomingData.RootId))
 
 					api.chFromModule <- SettingsChanOutput{
 						SubjectType: "geoip information",
@@ -69,6 +74,8 @@ func (api *apiNatsModule) incomingInformationHandler(ctx context.Context) {
 					ctxTimeout, cancel := context.WithTimeout(ctx, 15*time.Second)
 					defer cancel()
 
+					api.logger.Send("info", fmt.Sprintf("a request has been sent to get sensor information for an object with rootId:'%s'", incomingData.RootId))
+
 					res, err := api.natsConn.RequestWithContext(ctxTimeout, api.requests["get_sensor_info"], incomingData.Data)
 					if err != nil {
 						api.logger.Send("error", supportingfunctions.CustomError(err).Error())
@@ -77,6 +84,8 @@ func (api *apiNatsModule) incomingInformationHandler(ctx context.Context) {
 					if res == nil {
 						return
 					}
+
+					api.logger.Send("info", fmt.Sprintf("a response was received to a request for sensor information for an object with rootId:'%s'", incomingData.RootId))
 
 					api.chFromModule <- SettingsChanOutput{
 						SubjectType: "sensor information",
