@@ -14,7 +14,7 @@ func main() {
 	go func() {
 		<-ctx.Done()
 
-		fmt.Println("Placeholder_doc-base_db module is stop")
+		fmt.Println("placeholder_doc-base_db module is stop")
 
 		stop()
 	}()
