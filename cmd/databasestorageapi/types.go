@@ -50,8 +50,8 @@ type AlertDBResponse struct {
 // AlertDBResponseOptions информация о кейсах
 type AlertDBResponseOptions struct {
 	Total    OptionsTotal           `json:"total"`
-	MaxScore float64                `json:"max_score"`
 	Hits     []PatternVerifiedAlert `json:"hits"`
+	MaxScore float64                `json:"max_score"`
 }
 
 // PatternVerifiedAlert шаблон
@@ -69,8 +69,8 @@ type CaseDBResponse struct {
 // CaseDBResponseOptions информация о кейсах
 type CaseDBResponseOptions struct {
 	Total    OptionsTotal          `json:"total"`
-	MaxScore float64               `json:"max_score"`
 	Hits     []PatternVerifiedCase `json:"hits"`
+	MaxScore float64               `json:"max_score"`
 }
 
 // PatternVerifiedCase шаблон

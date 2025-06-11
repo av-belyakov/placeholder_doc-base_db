@@ -20,7 +20,7 @@ func (api *apiNatsModule) subscriptionHandler() {
 				Data:        m.Data,
 			}
 
-			//счетчик принятых кейсов
+			//счетчик принятых событий
 			api.counter.SendMessage("update accepted events", 1)
 		})
 		if err != nil {
