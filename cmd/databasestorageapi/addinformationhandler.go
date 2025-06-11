@@ -29,6 +29,8 @@ func (dbs *DatabaseStorage) addGeoIPInformation(ctx context.Context, data any) {
 		return
 	}
 
+	dbs.logger.Send("info", fmt.Sprintf("section:'information handling', command:'add geoip information', accepted object:'%+v'", newDocument))
+
 	//если в принятом ответе от модуля обогащения информацией л географическом местоположении
 	//ip адресов есть глобальная ошибка
 	if newDocument.Error != "" {
@@ -127,6 +129,8 @@ func (dbs *DatabaseStorage) addSensorInformation(ctx context.Context, data any) 
 
 		return
 	}
+
+	dbs.logger.Send("info", fmt.Sprintf("section:'information handling', command:'add sensor information', accepted object:'%+v'", newDocument))
 
 	//если в принятом ответе от модуля обогащения информацией л географическом местоположении
 	//ip адресов есть глобальная ошибка
