@@ -2,6 +2,7 @@ package documentgenerator
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 	"time"
 
@@ -10,8 +11,6 @@ import (
 	casettps "github.com/av-belyakov/objectsthehiveformat/casettps"
 	eventalert "github.com/av-belyakov/objectsthehiveformat/eventalert"
 	objectsthehiveformat "github.com/av-belyakov/objectsthehiveformat/eventcase"
-
-	"slices"
 
 	"github.com/av-belyakov/placeholder_doc-base_db/internal/supportingfunctions"
 )

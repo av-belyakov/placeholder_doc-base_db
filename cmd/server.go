@@ -8,6 +8,8 @@ import (
 	_ "net/http/pprof"
 	"os"
 
+	"github.com/av-belyakov/simplelogger"
+
 	"github.com/av-belyakov/placeholder_doc-base_db/cmd/databasestorageapi"
 	"github.com/av-belyakov/placeholder_doc-base_db/cmd/elasticsearchapi"
 	"github.com/av-belyakov/placeholder_doc-base_db/cmd/natsapi"
@@ -18,7 +20,6 @@ import (
 	"github.com/av-belyakov/placeholder_doc-base_db/internal/countermessage"
 	"github.com/av-belyakov/placeholder_doc-base_db/internal/logginghandler"
 	"github.com/av-belyakov/placeholder_doc-base_db/internal/supportingfunctions"
-	"github.com/av-belyakov/simplelogger"
 )
 
 func server(ctx context.Context) {
@@ -173,10 +174,10 @@ func server(ctx context.Context) {
 	_ = simpleLogger.Write("info", infoMsg)
 
 	//для отладки через pprof (только для теста)
-	//http://confWebHook.Host:confWebHook.Port/debug/pprof/
-	//go tool pprof http://confWebHook.Host:confWebHook.Port/debug/pprof/heap
-	//go tool pprof http://confWebHook.Host:confWebHook.Port/debug/pprof/allocs
-	//go tool pprof http://confWebHook.Host:confWebHook.Port/debug/pprof/goroutine
+	//http://conf.Common.Profiling.Host:conf.Common.Profiling.Port/debug/pprof/
+	//go tool pprof http://host:port/debug/pprof/heap
+	//go tool pprof http://host:port/debug/pprof/allocs
+	//go tool pprof http://host:port/debug/pprof/goroutine
 	if os.Getenv("GO_PHDOCBASEDB_MAIN") == "test" || os.Getenv("GO_PHDOCBASEDB_MAIN") == "development" {
 		if conf.Common.Profiling.Port > 0 {
 			go func() {
