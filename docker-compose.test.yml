@@ -13,7 +13,7 @@ services:
     command: chmod 777 /opt/placeholder_doc-base_db/logs && \
              chown 1500:1500 /opt/placeholder_doc-base_db/logs
     volumes:
-      - /var/log/placeholder_doc-base_db.prod:/opt/placeholder_doc-base_db/logs:rw
+      - /var/log/placeholder_doc-base_db.test:/opt/placeholder_doc-base_db/logs:rw
       - ./config:/opt/placeholder_doc-base_db/config:rw
       #выполняем для корректного отображения даты с учетом временной зоны
       - /etc/timezone:/etc/timezone:ro
