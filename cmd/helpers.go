@@ -55,7 +55,6 @@ func getInformationMessage(conf *confighandler.ConfigApp) string {
 		strings.Join(subscriptions, ", "),
 		constants.Ansi_Reset,
 	)
-
 	fmt.Printf("%vConnect to Database with address %v'%s:%d'%v\n", constants.Ansi_Bright_Green, constants.Ansi_Dark_Gray, conf.StorageDB.Host, conf.StorageDB.Port, constants.Ansi_Reset)
 	fmt.Println(profiling)
 
