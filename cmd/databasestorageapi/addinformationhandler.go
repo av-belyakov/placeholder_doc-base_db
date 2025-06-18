@@ -132,7 +132,7 @@ func (dbs *DatabaseStorage) addSensorInformation(ctx context.Context, data any) 
 
 	dbs.logger.Send("info", fmt.Sprintf("section:'information handling', command:'add sensor information', accepted object:'%+v'", newDocument))
 
-	//если в принятом ответе от модуля обогащения информацией о сенсорах
+	//если в принятом ответе от модуля обогащения информацией о сенсорах есть глобальная ошибка
 	if newDocument.Error != "" {
 		dbs.logger.Send("error", supportingfunctions.CustomError(errors.New(newDocument.Error)).Error())
 
@@ -184,9 +184,7 @@ func (dbs *DatabaseStorage) addSensorInformation(ctx context.Context, data any) 
 		})
 	}
 
-	request, err := json.MarshalIndent(AdditionalInformationSensors{
-		Sensors: sensorInfoList,
-	}, "", " ")
+	request, err := json.MarshalIndent(AdditionalInformationSensors{Sensors: sensorInfoList}, "", " ")
 	if err != nil {
 		dbs.logger.Send("error", supportingfunctions.CustomError(fmt.Errorf("'rootId:'%s', '%w'", newDocument.TaskId, err)).Error())
 
