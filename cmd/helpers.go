@@ -44,7 +44,7 @@ func getInformationMessage(conf *confighandler.ConfigApp) string {
 	fmt.Printf("\n%v%v%s.%v\n", constants.Bold_Font, constants.Ansi_Bright_Green, msg, constants.Ansi_Reset)
 	fmt.Printf("%vApplication status is '%v%s%v%v'%v\n", constants.Ansi_Bright_Green, constants.Underlining, appStatus, constants.Ansi_Reset, constants.Ansi_Bright_Green, constants.Ansi_Reset)
 	fmt.Printf("%vConnect to NATS with address %v'%s:%d'%v\n", constants.Ansi_Bright_Green, constants.Ansi_Dark_Gray, conf.NATS.Host, conf.NATS.Port, constants.Ansi_Reset)
-	log.Printf(
+	fmt.Printf(
 		"%vConnect to NATS with address %v%s:%d%v%v, subscriptions: %v%s%v\n",
 		constants.Ansi_Bright_Green,
 		constants.Ansi_Dark_Gray,
