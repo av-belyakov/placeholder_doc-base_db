@@ -31,7 +31,7 @@ func (dbs *DatabaseStorage) addGeoIPInformation(ctx context.Context, data any) {
 
 	dbs.logger.Send("info", fmt.Sprintf("section:'information handling', command:'add geoip information', accepted object:'%+v'", newDocument))
 
-	//если в принятом ответе от модуля обогащения информацией л географическом местоположении
+	//если в принятом ответе от модуля обогащения информацией о географическом местоположении
 	//ip адресов есть глобальная ошибка
 	if newDocument.Error != "" {
 		dbs.logger.Send("error", supportingfunctions.CustomError(errors.New(newDocument.Error)).Error())
@@ -132,8 +132,7 @@ func (dbs *DatabaseStorage) addSensorInformation(ctx context.Context, data any) 
 
 	dbs.logger.Send("info", fmt.Sprintf("section:'information handling', command:'add sensor information', accepted object:'%+v'", newDocument))
 
-	//если в принятом ответе от модуля обогащения информацией л географическом местоположении
-	//ip адресов есть глобальная ошибка
+	//если в принятом ответе от модуля обогащения информацией о сенсорах есть глобальная ошибка
 	if newDocument.Error != "" {
 		dbs.logger.Send("error", supportingfunctions.CustomError(errors.New(newDocument.Error)).Error())
 
@@ -171,12 +170,6 @@ func (dbs *DatabaseStorage) addSensorInformation(ctx context.Context, data any) 
 	for _, sensor := range newDocument.Informations {
 		if sensor.Error != "" {
 			dbs.logger.Send("error", supportingfunctions.CustomError(errors.New(sensor.Error)).Error())
-
-			sensorInfoList = append(sensorInfoList, SensorInformation{
-				SensorId: sensor.SensorID,
-			})
-
-			continue
 		}
 
 		sensorInfoList = append(sensorInfoList, SensorInformation{
@@ -191,9 +184,7 @@ func (dbs *DatabaseStorage) addSensorInformation(ctx context.Context, data any) 
 		})
 	}
 
-	request, err := json.MarshalIndent(AdditionalInformationSensors{
-		Sensors: sensorInfoList,
-	}, "", " ")
+	request, err := json.MarshalIndent(AdditionalInformationSensors{Sensors: sensorInfoList}, "", " ")
 	if err != nil {
 		dbs.logger.Send("error", supportingfunctions.CustomError(fmt.Errorf("'rootId:'%s', '%w'", newDocument.TaskId, err)).Error())
 
