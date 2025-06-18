@@ -71,7 +71,7 @@ func (api *apiNatsModule) incomingInformationHandler(ctx context.Context) {
 
 			case "get_sensor_info":
 				go func(ctx context.Context) {
-					ctxTimeout, cancel := context.WithTimeout(ctx, 15*time.Second)
+					ctxTimeout, cancel := context.WithTimeout(ctx, 30*time.Second)
 					defer cancel()
 
 					api.logger.Send("info", fmt.Sprintf("a request has been sent to get sensor information for an object with rootId:'%s'", incomingData.RootId))
