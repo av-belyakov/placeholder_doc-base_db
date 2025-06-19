@@ -12,7 +12,7 @@ NATS:
 DATABASESTORAGE:
   host: 192.168.9.208
   port: 9200
-  user: elastic
+  user: placeholder-docbase-db
   namedb: ""
   storage_name_db:
     alert: test.module_placeholderdb_alert
@@ -20,6 +20,6 @@ DATABASESTORAGE:
 DATABASEWRITELOG:
   host: 192.168.9.208
   port: 9200
-  user: elastic
+  user: placeholder-docbase-db
   namedb: ""
   storage_name_db: placeholder_doc-base-db
