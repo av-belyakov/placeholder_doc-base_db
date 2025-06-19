@@ -86,6 +86,8 @@ func (dbs *DatabaseStorage) addGeoIPInformation(ctx context.Context, data any) {
 		})
 	}
 
+	//обновляемый список не должен быть пустым, а то получается что пустой
+	//список с ip адресами затирается вообще пустым списком
 	if len(ipInfoList) == 0 {
 		dbs.logger.Send("error", supportingfunctions.CustomError(errors.New("the list with information on ip addresses should not be empty")).Error())
 
@@ -190,6 +192,8 @@ func (dbs *DatabaseStorage) addSensorInformation(ctx context.Context, data any) 
 		})
 	}
 
+	//обновляемый список не должен быть пустым, а то получается что пустой
+	//список с информацией по сенсорам затирается вообще пустым списком
 	if len(sensorInfoList) == 0 {
 		dbs.logger.Send("error", supportingfunctions.CustomError(errors.New("the list with information on sensors should not be empty")).Error())
 
