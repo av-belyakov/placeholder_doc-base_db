@@ -4,8 +4,8 @@ services:
   app:
     container_name: placeholder_doc-base_db.test
     environment:
-      - GO_PHDOCBASEDB_DBWLOGPASSWD=$PHDOCBASEDB_DBWLOGPASSWD
-      - GO_PHDOCBASEDB_DBSTORAGEPASSWD=$TEST_PHDOCBASEDB_DBSTORAGEPASSWD
+      - GO_PHDOCBASEDB_DBWLOGPASSWD=$DEV_PHDOCBASEDB_DBWLOGPASSWD
+      - GO_PHDOCBASEDB_DBSTORAGEPASSWD=$DEV_PHDOCBASEDB_DBSTORAGEPASSWD
     image: gitlab.cloud.gcm:5050/a.belyakov/placeholder_doc-base_db:test
     restart: unless-stopped
     #пробрасываем user ID для корректной записи в логов
