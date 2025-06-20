@@ -242,6 +242,9 @@ func (dbs *DatabaseStorage) addCase(ctx context.Context, data any) {
 
 		//устанавливаем время создания первой записи о кейсе
 		updateVerified.SetCreateTimestamp(v.Source.CreateTimestamp)
+
+		//заполняем новый объект информацией о сенсорах и геопренадлежности ip адресов
+		updateVerified.SetAdditionalInformation(*v.Source.GetAdditionalInformation())
 	}
 
 	//выполняем обновление объекта типа Event
