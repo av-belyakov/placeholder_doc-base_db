@@ -60,3 +60,19 @@ func (dbs *DatabaseStorage) Start(ctx context.Context) error {
 
 	return nil
 }
+
+/*
+fatal error: concurrent map iteration and map write
+
+goroutine 122881 [running]:
+internal/runtime/maps.fatal({0xe1f153?, 0x474d6f?})
+	/usr/local/go/src/runtime/panic.go:1058 +0x18
+internal/runtime/maps.(*Iter).Next(0xc0002f3308?)
+	/usr/local/go/src/internal/runtime/maps/table.go:683 +0x86
+github.com/av-belyakov/placeholder_doc-base_db/cmd/databasestorageapi.(*DatabaseStorage).InsertDocument(0xc000398000, {0xf27108, 0xc0000adbc0}, {0xc0000d9200, 0x28}, {0xc0002f4000, 0x136c, 0x1500})
+	/go/src/c27a435c/cmd/databasestorageapi/requestshandlers.go:158 +0x365
+github.com/av-belyakov/placeholder_doc-base_db/cmd/databasestorageapi.(*DatabaseStorage).addAlert(0xc000398000, {0xf27108, 0xc0000adbc0}, {0xd73f20, 0xc000004808})
+	/go/src/c27a435c/cmd/databasestorageapi/addalerthandler.go:120 +0xcca
+created by github.com/av-belyakov/placeholder_doc-base_db/cmd/databasestorageapi.(*DatabaseStorage).router in goroutine 38
+	/go/src/c27a435c/cmd/databasestorageapi/routers.go:44 +0x60a
+*/
