@@ -184,13 +184,11 @@ func (ai *AdditionalInformation) GetSensorsInformation() []SensorInformation {
 
 // AddSensorInformation добавляет информацию о сенсоре
 func (ai *AdditionalInformation) AddSensorInformation(v SensorInformation) {
-	if slices.ContainsFunc(ai.Sensors, func(obj SensorInformation) bool {
+	if len(ai.Sensors) == 0 || !slices.ContainsFunc(ai.Sensors, func(obj SensorInformation) bool {
 		return obj.SensorId == v.SensorId
 	}) {
-		return
+		ai.Sensors = append(ai.Sensors, v)
 	}
-
-	ai.Sensors = append(ai.Sensors, v)
 }
 
 // GetIpAddressesInformation объекты с информацией об ip адресах
@@ -200,13 +198,11 @@ func (ai *AdditionalInformation) GetIpAddressesInformation() []IpAddressInformat
 
 // AddGetIpAddressInformation добавляет информацию об ip адресе
 func (ai *AdditionalInformation) AddGetIpAddressInformation(v IpAddressInformation) {
-	if slices.ContainsFunc(ai.IpAddresses, func(obj IpAddressInformation) bool {
+	if len(ai.IpAddresses) == 0 || !slices.ContainsFunc(ai.IpAddresses, func(obj IpAddressInformation) bool {
 		return obj.Ip == v.Ip
 	}) {
-		return
+		ai.IpAddresses = append(ai.IpAddresses, v)
 	}
-
-	ai.IpAddresses = append(ai.IpAddresses, v)
 }
 
 // GetIpAddrString ip адрес в виде строки
