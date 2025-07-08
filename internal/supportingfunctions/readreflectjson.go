@@ -6,14 +6,16 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+	"sync"
 )
 
-// ResultElementsFromJSON
-type ResultElementsFromJSON struct {
-	Result map[string]Element
+// ElementsFromJSON элементы полученные при обработки JSON объекта
+type ElementsFromJSON struct {
+	mutex sync.Mutex
+	Data  map[string]Element
 }
 
-// CommonValues общие значения
+// CommonValues общие, для типов, значения
 type CommonValues struct {
 	Value     any    //любые передаваемые данные
 	FieldName string //наименование поля
@@ -33,14 +35,15 @@ type chResult struct {
 // GetElementsFromJSON читает JSON объект методом рефлексии, возвращает результат,
 // содержащий перечень путей до элемента и значение элемента с указанием его имени
 // и типа
-func GetElementsFromJSON(ctx context.Context, data []byte) (ResultElementsFromJSON, error) {
-	result := ResultElementsFromJSON{
-		Result: map[string]Element{},
-	}
+func GetElementsFromJSON(ctx context.Context, data []byte) (map[string]Element, error) {
 	chRes := make(chan chResult)
+	result := ElementsFromJSON{Data: map[string]Element{}}
 
 	//обработчик входящих данных
-	go func(ctx context.Context, res *ResultElementsFromJSON, ch <-chan chResult) {
+	go func(ctx context.Context, rst *ElementsFromJSON, ch <-chan chResult) {
+		rst.mutex.Lock()
+		defer rst.mutex.Unlock()
+
 		for {
 			select {
 			case <-ctx.Done():
@@ -51,14 +54,13 @@ func GetElementsFromJSON(ctx context.Context, data []byte) (ResultElementsFromJS
 					return
 				}
 
-				result.Result[data.FieldBranch] = Element{
+				rst.Data[data.FieldBranch] = Element{
 					CommonValues{
 						FieldName: data.FieldName,
 						ValueType: data.ValueType,
 						Value:     data.Value,
 					},
 				}
-
 			}
 		}
 	}(ctx, &result, chRes)
@@ -67,7 +69,7 @@ func GetElementsFromJSON(ctx context.Context, data []byte) (ResultElementsFromJS
 	listMap := map[string]any{}
 	if err := json.Unmarshal(data, &listMap); err == nil {
 		if len(listMap) == 0 {
-			return result, errors.New("error decoding the json file, it may be empty")
+			return result.Data, errors.New("error decoding the json file, it may be empty")
 		}
 
 		_ = processingReflectMap(chRes, listMap, "")
@@ -76,11 +78,11 @@ func GetElementsFromJSON(ctx context.Context, data []byte) (ResultElementsFromJS
 		// для срезов
 		listSlice := []any{}
 		if err = json.Unmarshal(data, &listSlice); err != nil {
-			return result, err
+			return result.Data, err
 		}
 
 		if len(listSlice) == 0 {
-			return result, errors.New("error decoding the json message, it may be empty")
+			return result.Data, errors.New("error decoding the json message, it may be empty")
 		}
 
 		_ = processingReflectSlice(chRes, listSlice, "")
@@ -88,7 +90,7 @@ func GetElementsFromJSON(ctx context.Context, data []byte) (ResultElementsFromJS
 
 	close(chRes)
 
-	return result, nil
+	return result.Data, nil
 }
 
 func processingReflectMap(ch chan<- chResult, list map[string]any, fieldBranch string) map[string]any {
