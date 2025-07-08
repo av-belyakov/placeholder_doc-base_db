@@ -150,12 +150,12 @@ func (dbs *DatabaseStorage) InsertDocument(ctx context.Context, index string, b 
 		return res.StatusCode, err
 	}
 
-	data, err := supportingfunctions.GetElementsFromJSON(ctx, bodyRes)
+	result, err := supportingfunctions.GetElementsFromJSON(ctx, bodyRes)
 	if err != nil {
 		return res.StatusCode, err
 	}
 
-	for k, v := range data.Result {
+	for k, v := range result {
 		if strings.Contains(k, "error") {
 			return res.StatusCode, errors.New(fmt.Sprint(v.Value))
 		}
@@ -295,12 +295,12 @@ func (dbs *DatabaseStorage) SearchUnderlineIdCase(ctx context.Context, indexName
 		return "", err
 	}
 
-	data, err := supportingfunctions.GetElementsFromJSON(ctx, bodyRes)
+	result, err := supportingfunctions.GetElementsFromJSON(ctx, bodyRes)
 	if err != nil {
 		return "", err
 	}
 
-	for k, v := range data.Result {
+	for k, v := range result {
 		if k == "hits.hits._id" {
 			return fmt.Sprint(v.Value), nil
 		}
