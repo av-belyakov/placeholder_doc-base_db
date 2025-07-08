@@ -65,9 +65,9 @@ func GetElementsFromJSON(ctx context.Context, data []byte) (map[string]Element, 
 		}
 	}(ctx, &result, chRes)
 
-	//для карт
 	listMap := map[string]any{}
 	if err := json.Unmarshal(data, &listMap); err == nil {
+		//для карт
 		if len(listMap) == 0 {
 			return result.Data, errors.New("error decoding the json file, it may be empty")
 		}
