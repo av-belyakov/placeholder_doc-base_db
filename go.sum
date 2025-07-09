@@ -2,8 +2,6 @@ github.com/av-belyakov/objectsthehiveformat v0.0.0-20250606102826-eb7e88c1d921 h
 github.com/av-belyakov/objectsthehiveformat v0.0.0-20250606102826-eb7e88c1d921/go.mod h1:D7TNfu6woBkCanC7R58UYN+ktLO72yaeiRzAsewH18Y=
 github.com/av-belyakov/simplelogger v0.0.0-20250225125610-1e1723ce15ea h1:9W5uTWHkUg+ywlcvQoG0eZwXkpraHk54DK7miel6AtU=
 github.com/av-belyakov/simplelogger v0.0.0-20250225125610-1e1723ce15ea/go.mod h1:yW2ev3nXPP3WY8svBWJpg4PQRl67MTGIaaiXJ0ULRZ8=
-github.com/av-belyakov/zabbixapicommunicator v0.0.0-20250512120600-9940a6578ff4 h1:N5if8Y1ogfUijqehXQQZAunqUtULi7OWlXedxeRgA58=
-github.com/av-belyakov/zabbixapicommunicator v0.0.0-20250512120600-9940a6578ff4/go.mod h1:PVChkORj00O8/xSQ0UrJihm/dU+9gvdRddi+DtwAnOs=
 github.com/av-belyakov/zabbixapicommunicator v0.0.0-20250618124251-10a4a23cd7ca h1:10CiLYaxxDD9524HYACXxEIjQY/UzochnUi0vGiL3ao=
 github.com/av-belyakov/zabbixapicommunicator v0.0.0-20250618124251-10a4a23cd7ca/go.mod h1:PVChkORj00O8/xSQ0UrJihm/dU+9gvdRddi+DtwAnOs=
 github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc h1:U9qPSI2PIWSS1VwoXQT9A3Wy9MM3WgvqSxFWenqJduM=
@@ -33,6 +31,8 @@ github.com/go-playground/validator/v10 v10.26.0 h1:SP05Nqhjcvz81uJaRfEV0YBSSSGMc
 github.com/go-playground/validator/v10 v10.26.0/go.mod h1:I5QpIEbmr8On7W0TktmJAumgzX4CA1XNl4ZmDuVHKKo=
 github.com/go-viper/mapstructure/v2 v2.2.1 h1:ZAaOCxANMuZx5RCeg0mBdEZk7DZasvvZIxtHqx8aGss=
 github.com/go-viper/mapstructure/v2 v2.2.1/go.mod h1:oJDH3BJKyqBA2TXFhDsKDGDTlndYOZ6rGS0BRZIxGhM=
+github.com/goforj/godump v1.5.0 h1:QALI7uJkpiwAW3Anko+vOFQzLlWvB7YviYCJpE1sFIE=
+github.com/goforj/godump v1.5.0/go.mod h1:lCaXaxNTozTNAMJTPY91/ntMqw3JF8FOL93jCNKpNW0=
 github.com/google/go-cmp v0.7.0 h1:wk8382ETsv4JYUZwIsn6YpYiWiBsYLSJiTsyBybVuN8=
 github.com/google/go-cmp v0.7.0/go.mod h1:pXiqmnSA92OHEEa9HXL2W4E7lf9JzCmGVUdgjX3N/iU=
 github.com/google/uuid v1.6.0 h1:NIvaJDMOsjHA8n1jAhLSgzrAzy1Hgr+hNrb57e+94F0=

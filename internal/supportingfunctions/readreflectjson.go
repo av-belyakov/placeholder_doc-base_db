@@ -37,7 +37,10 @@ type chResult struct {
 // и типа
 func GetElementsFromJSON(ctx context.Context, data []byte) (map[string]Element, error) {
 	chRes := make(chan chResult)
+	defer close(chRes)
+
 	result := ElementsFromJSON{Data: map[string]Element{}}
+	ctxCancel, cancel := context.WithCancel(ctx)
 
 	//обработчик входящих данных
 	go func(ctx context.Context, rst *ElementsFromJSON, ch <-chan chResult) {
@@ -63,12 +66,14 @@ func GetElementsFromJSON(ctx context.Context, data []byte) (map[string]Element, 
 				}
 			}
 		}
-	}(ctx, &result, chRes)
+	}(ctxCancel, &result, chRes)
 
 	listMap := map[string]any{}
 	if err := json.Unmarshal(data, &listMap); err == nil {
 		//для карт
 		if len(listMap) == 0 {
+			cancel()
+
 			return result.Data, errors.New("error decoding the json file, it may be empty")
 		}
 
@@ -78,17 +83,21 @@ func GetElementsFromJSON(ctx context.Context, data []byte) (map[string]Element, 
 		// для срезов
 		listSlice := []any{}
 		if err = json.Unmarshal(data, &listSlice); err != nil {
+			cancel()
+
 			return result.Data, err
 		}
 
 		if len(listSlice) == 0 {
+			cancel()
+
 			return result.Data, errors.New("error decoding the json message, it may be empty")
 		}
 
 		_ = processingReflectSlice(chRes, listSlice, "")
 	}
 
-	close(chRes)
+	cancel()
 
 	return result.Data, nil
 }

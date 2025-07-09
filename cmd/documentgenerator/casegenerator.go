@@ -2,6 +2,7 @@ package documentgenerator
 
 import (
 	"fmt"
+	"os"
 	"reflect"
 
 	casedetails "github.com/av-belyakov/objectsthehiveformat/casedetails"
@@ -262,6 +263,12 @@ func CaseGenerator(chInput <-chan interfaces.CustomJsonDecoder) (string, *Verifi
 	}
 
 	verifiedCase.SetAdditionalInformation(additionalInformation)
+
+	envmain := os.Getenv("GO_PHDOCBASEDB_MAIN")
+
+	if envmain == "development" || envmain == "test" {
+		fmt.Printf("func 'CaseGenerator', AdditionalInformation:\n%#v\n", additionalInformation)
+	}
 
 	return rootId, verifiedCase, listRawFields
 }

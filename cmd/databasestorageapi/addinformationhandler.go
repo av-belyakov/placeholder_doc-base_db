@@ -94,9 +94,7 @@ func (dbs *DatabaseStorage) addGeoIPInformation(ctx context.Context, data any) {
 		return
 	}
 
-	request, err := json.MarshalIndent(AdditionalInformationIpAddress{
-		IpAddresses: ipInfoList,
-	}, "", " ")
+	request, err := json.MarshalIndent(AdditionalInformationIpAddress{IpAddresses: ipInfoList}, "", " ")
 	if err != nil {
 		dbs.logger.Send("error", supportingfunctions.CustomError(fmt.Errorf("'rootId:'%s', '%w'", newDocument.TaskId, err)).Error())
 

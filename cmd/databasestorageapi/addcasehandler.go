@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/av-belyakov/placeholder_doc-base_db/cmd/documentgenerator"
-	"github.com/av-belyakov/placeholder_doc-base_db/internal/request"
+	"github.com/av-belyakov/placeholder_doc-base_db/interfaces"
 	"github.com/av-belyakov/placeholder_doc-base_db/internal/supportingfunctions"
 )
 
@@ -24,6 +24,13 @@ func (dbs *DatabaseStorage) addCase(ctx context.Context, data any) {
 		return
 	}
 
+	newDocumentBinary, err := json.Marshal(newDocument.Get())
+	if err != nil {
+		dbs.logger.Send("error", supportingfunctions.CustomError(err).Error())
+
+		return
+	}
+
 	//получаем наименование хранилища
 	indexName, isExist := dbs.settings.storages["case"]
 	if !isExist {
@@ -31,6 +38,38 @@ func (dbs *DatabaseStorage) addCase(ctx context.Context, data any) {
 
 		return
 	}
+
+	//получаем существующие индексы
+	existingIndexes, err := dbs.GetExistingIndexes(ctx, indexName)
+	if err != nil {
+		dbs.logger.Send("error", supportingfunctions.CustomError(err).Error())
+
+		return
+	}
+
+	defer func(document *documentgenerator.VerifiedCase, getChan func() chan SettingsChanOutput, logger interfaces.Logger) {
+		rootId := newDocument.GetEvent().GetRootId()
+
+		//обогащение кейса дополнительной информацией о локальном место положении ip адресов
+		listIp := documentgenerator.GetListIPAddr(document.GetAdditionalInformation().GetIpAddressesInformation())
+		ok, err := sendGeoIpRequest(rootId, listIp, getChan)
+		if err != nil {
+			logger.Send("error", supportingfunctions.CustomError(err).Error())
+		}
+		if ok {
+			logger.Send("info", fmt.Sprintf("we are sending a request to search for information on the following list of ip addresses: %+v", listIp))
+		}
+
+		//обогащение кейса дополнительной информацией по расположению сенсоров
+		listSensor := documentgenerator.GetListSensorId(newDocument.GetAdditionalInformation().GetSensorsInformation())
+		ok, err = sendSensorInformationRequest(rootId, listSensor, getChan)
+		if err != nil {
+			logger.Send("error", supportingfunctions.CustomError(err).Error())
+		}
+		if ok {
+			logger.Send("info", fmt.Sprintf("we are sending a request to search for information on the following list of sensors: %+v", listSensor))
+		}
+	}(newDocument, dbs.GetChanDataFromModule, dbs.logger)
 
 	//формируем наименование индекса
 	currentIndex := fmt.Sprintf("%s_%d_%d", indexName, t.Year(), int(t.Month()))
@@ -45,40 +84,6 @@ func (dbs *DatabaseStorage) addCase(ctx context.Context, data any) {
 						}`,
 		newDocument.GetEvent().GetRootId(),
 		caseId)
-
-	//получаем список ip адресов
-	ipAddrObjects := newDocument.GetAdditionalInformation().GetIpAddressesInformation()
-	reqGeoIP, err := json.Marshal(request.RequestGeoIP{
-		Source:          "placeholder_doc-base_db",
-		TaskId:          newDocument.GetEvent().GetRootId(),
-		ListIpAddresses: documentgenerator.GetListIPAddr(ipAddrObjects),
-	})
-	if err != nil {
-		dbs.logger.Send("error", supportingfunctions.CustomError(err).Error())
-	}
-
-	//получаем список сенсоров
-	sensorIdObjects := newDocument.GetAdditionalInformation().GetSensorsInformation()
-	reqSensorId, err := json.Marshal(request.RequestSensorInformation{
-		Source:      "placeholder_doc-base_db",
-		TaskId:      newDocument.GetEvent().GetRootId(),
-		ListSensors: documentgenerator.GetListSensorId(sensorIdObjects),
-	})
-
-	newDocumentBinary, err := json.Marshal(newDocument.Get())
-	if err != nil {
-		dbs.logger.Send("error", supportingfunctions.CustomError(err).Error())
-
-		return
-	}
-
-	//получаем существующие индексы
-	existingIndexes, err := dbs.GetExistingIndexes(ctx, indexName)
-	if err != nil {
-		dbs.logger.Send("error", supportingfunctions.CustomError(err).Error())
-
-		return
-	}
 
 	//будет выполнятся поиск по индексам только в текущем году так как при
 	//накоплении большого количества индексов, поиск по всем серьезно замедлит работу
@@ -117,26 +122,6 @@ func (dbs *DatabaseStorage) addCase(ctx context.Context, data any) {
 			CaseId:  caseId,
 			RootId:  newDocument.GetEvent().GetRootId(),
 			Data:    reqSetTag,
-		}
-
-		if len(ipAddrObjects) > 0 {
-			//запросы для обогащения кейса дополнительной информацией геопозиционирование
-			// ip адресов
-			dbs.GetChanDataFromModule() <- SettingsChanOutput{
-				Command: "get_geoip_info",
-				RootId:  newDocument.GetEvent().GetRootId(),
-				Data:    reqGeoIP,
-			}
-		}
-
-		if len(sensorIdObjects) > 0 {
-			//запросы для обогащения кейса дополнительной информацией информация о
-			// принадлежности и месте установки сенсора
-			dbs.GetChanDataFromModule() <- SettingsChanOutput{
-				Command: "get_sensor_info",
-				RootId:  newDocument.GetEvent().GetRootId(),
-				Data:    reqSensorId,
-			}
 		}
 
 		return
@@ -196,26 +181,6 @@ func (dbs *DatabaseStorage) addCase(ctx context.Context, data any) {
 			Data:    reqSetTag,
 		}
 
-		if len(ipAddrObjects) > 0 {
-			//запросы для обогащения кейса дополнительной информацией геопозиционирование
-			// ip адресов
-			dbs.GetChanDataFromModule() <- SettingsChanOutput{
-				Command: "get_geoip_info",
-				RootId:  newDocument.GetEvent().GetRootId(),
-				Data:    reqGeoIP,
-			}
-		}
-
-		if len(sensorIdObjects) > 0 {
-			//запросы для обогащения кейса дополнительной информацией информация о
-			// принадлежности и месте установки сенсора
-			dbs.GetChanDataFromModule() <- SettingsChanOutput{
-				Command: "get_sensor_info",
-				RootId:  newDocument.GetEvent().GetRootId(),
-				Data:    reqSensorId,
-			}
-		}
-
 		return
 	}
 
@@ -243,7 +208,7 @@ func (dbs *DatabaseStorage) addCase(ctx context.Context, data any) {
 		//устанавливаем время создания первой записи о кейсе
 		updateVerified.SetCreateTimestamp(v.Source.CreateTimestamp)
 
-		//заполняем новый объект информацией о сенсорах и геопренадлежности ip адресов
+		//заполняем новый объект информацией о сенсорах и геопринадлежности ip адресов
 		updateVerified.SetAdditionalInformation(*v.Source.GetAdditionalInformation())
 	}
 

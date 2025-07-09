@@ -8,6 +8,7 @@ require (
 	github.com/av-belyakov/zabbixapicommunicator v0.0.0-20250618124251-10a4a23cd7ca
 	github.com/elastic/go-elasticsearch/v8 v8.18.0
 	github.com/go-playground/validator/v10 v10.26.0
+	github.com/goforj/godump v1.5.0
 	github.com/google/uuid v1.6.0
 	github.com/joho/godotenv v1.5.1
 	github.com/nats-io/nats.go v1.41.2
