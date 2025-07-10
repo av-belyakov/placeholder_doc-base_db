@@ -12,7 +12,6 @@ import (
 	"strings"
 
 	"github.com/elastic/go-elasticsearch/v8/esapi"
-	"github.com/goforj/godump"
 
 	"github.com/av-belyakov/placeholder_doc-base_db/internal/supportingfunctions"
 )
@@ -300,9 +299,6 @@ func (dbs *DatabaseStorage) SearchUnderlineIdCase(ctx context.Context, indexName
 	if err != nil {
 		return "", err
 	}
-
-	fmt.Println("func 'SearchUnderlineIdCase'")
-	godump.Dump(result)
 
 	for k, v := range result {
 		if k == "hits.hits._id" {
