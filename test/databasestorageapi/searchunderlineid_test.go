@@ -10,6 +10,8 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/av-belyakov/placeholder_doc-base_db/cmd/databasestorageapi"
+	"github.com/av-belyakov/placeholder_doc-base_db/cmd/documentgenerator"
+	"github.com/av-belyakov/placeholder_doc-base_db/internal/supportingfunctions"
 )
 
 func TestSearchUnderlineId(t *testing.T) {
@@ -40,13 +42,46 @@ func TestSearchUnderlineId(t *testing.T) {
 	   для "module_placeholder_case_2024_7", "~86803587072" нет
 	*/
 
+	newGeoIpList := []documentgenerator.IpAddressInformation{
+		{Ip: "45.13.191.34", City: "Oslolo", Country: "Норвегия", CountryCode: "NO"},
+		{Ip: "45.13.191.28", City: "Oslolo", Country: "Норвегия", CountryCode: "NO"},
+		{Ip: "45.13.191.18", City: "Oslo", Country: "Норвегия", CountryCode: "NO"},
+		{Ip: "45.13.191.47", City: "Oslo", Country: "Норвегия", CountryCode: "NO"},
+		{Ip: "98.113.101.17", City: "Xmu", Country: "Нигерия", CountryCode: "NG"},
+	}
+
 	//underlineId, err := apiDBS.SearchUnderlineIdCase(ctx, "module_placeholderdb_case_2025_7", "~88190333152")
-	underlineId, listGeoIp, err := apiDBS.SearchGeoIPInformationCase(ctx, "module_placeholderdb_case_2025_7", "~88190333152")
+	underlineId, geoIpList, err := apiDBS.SearchGeoIPInformationCase(ctx, "module_placeholderdb_case_2025_7", "~1665007800")
 	assert.NoError(t, err)
 	assert.Equal(t, underlineId, "4g0WIJcBRHX25kGeUOOR")
 
 	t.Log("underlineId:", underlineId)
-	fmt.Printf("@ipAddressAdditionalInformation:\n%#v\n", listGeoIp)
+	fmt.Println("BEFORE @ipAddressAdditionalInformation:")
+	for k, v := range geoIpList {
+		fmt.Printf("%d. %#v\n", k, v)
+	}
+
+	for k, v := range newGeoIpList {
+		num, ok := supportingfunctions.SliceContainsElementFunc(geoIpList, func(num int) bool {
+			if v.Ip == geoIpList[num].Ip {
+				return true
+			}
+
+			return false
+		})
+		if ok {
+			geoIpList[num] = v
+		} else {
+			geoIpList = append(geoIpList, v)
+		}
+
+		t.Logf("ok:%t, k:%d, num:%d\n", ok, k, num)
+	}
+
+	fmt.Println("AFTER @ipAddressAdditionalInformation:")
+	for k, v := range geoIpList {
+		fmt.Printf("%d. %#v\n", k, v)
+	}
 
 	t.Cleanup(func() {
 		os.Unsetenv("GO_PHDOCBASEDB_DBWLOGPASSWD")

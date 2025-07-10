@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"maps"
 	"reflect"
 	"sync"
 )
@@ -36,11 +37,13 @@ type chResult struct {
 // содержащий перечень путей до элемента и значение элемента с указанием его имени
 // и типа
 func GetElementsFromJSON(ctx context.Context, data []byte) (map[string]Element, error) {
+	ctxCancel, cancel := context.WithCancel(ctx)
+
 	chRes := make(chan chResult)
 	defer close(chRes)
 
 	result := ElementsFromJSON{Data: map[string]Element{}}
-	ctxCancel, cancel := context.WithCancel(ctx)
+	copyResult := map[string]Element{}
 
 	//обработчик входящих данных
 	go func(ctx context.Context, rst *ElementsFromJSON, ch <-chan chResult) {
@@ -74,7 +77,7 @@ func GetElementsFromJSON(ctx context.Context, data []byte) (map[string]Element, 
 		if len(listMap) == 0 {
 			cancel()
 
-			return result.Data, errors.New("error decoding the json file, it may be empty")
+			return copyResult, errors.New("error decoding the json file, it may be empty")
 		}
 
 		_ = processingReflectMap(chRes, listMap, "")
@@ -85,13 +88,13 @@ func GetElementsFromJSON(ctx context.Context, data []byte) (map[string]Element, 
 		if err = json.Unmarshal(data, &listSlice); err != nil {
 			cancel()
 
-			return result.Data, err
+			return copyResult, err
 		}
 
 		if len(listSlice) == 0 {
 			cancel()
 
-			return result.Data, errors.New("error decoding the json message, it may be empty")
+			return copyResult, errors.New("error decoding the json message, it may be empty")
 		}
 
 		_ = processingReflectSlice(chRes, listSlice, "")
@@ -99,7 +102,9 @@ func GetElementsFromJSON(ctx context.Context, data []byte) (map[string]Element, 
 
 	cancel()
 
-	return result.Data, nil
+	maps.Copy(copyResult, result.Data)
+
+	return copyResult, nil
 }
 
 func processingReflectMap(ch chan<- chResult, list map[string]any, fieldBranch string) map[string]any {

@@ -57,14 +57,6 @@ func (dbs *DatabaseStorage) addGeoIPInformation(ctx context.Context, data any) {
 	time.Sleep(3 * time.Second)
 	//***************************************************************
 
-	//поиск _id объекта типа 'case' по его rootId (что в передается в newDocument.TaskId)
-	underlineId, err := dbs.SearchUnderlineIdCase(ctx, indexCurrent, newDocument.TaskId)
-	if err != nil {
-		dbs.logger.Send("error", supportingfunctions.CustomError(errors.New("the identifier of the index name was not found")).Error())
-
-		return
-	}
-
 	//формируется список с информацией по ip адресам
 	var ipInfoList []IpAddressesInformation
 	for _, ipAddress := range newDocument.Informations {
@@ -94,14 +86,40 @@ func (dbs *DatabaseStorage) addGeoIPInformation(ctx context.Context, data any) {
 		return
 	}
 
-	request, err := json.MarshalIndent(AdditionalInformationIpAddress{IpAddresses: ipInfoList}, "", " ")
+	//поиск _id объекта типа 'case' по его rootId (что передается в newDocument.TaskId)
+	underlineId, geoIpInfo, err := dbs.SearchGeoIPInformationCase(ctx, indexCurrent, newDocument.TaskId)
+	//underlineId, err := dbs.SearchUnderlineIdCase(ctx, indexCurrent, newDocument.TaskId)
+	if err != nil {
+		dbs.logger.Send("error", supportingfunctions.CustomError(errors.New("the identifier of the index name was not found")).Error())
+
+		return
+	}
+
+	//выполняем сравнение принятого списка со списком из БД и добавляем недостающие
+	//ip адреса или заменяем информацию по уже имеющимся ip адресам на более свежую
+	for _, v := range ipInfoList {
+		num, ok := supportingfunctions.SliceContainsElementFunc(geoIpInfo, func(num int) bool {
+			if v.Ip == geoIpInfo[num].Ip {
+				return true
+			}
+
+			return false
+		})
+		if ok {
+			geoIpInfo[num] = v
+		} else {
+			geoIpInfo = append(geoIpInfo, v)
+		}
+	}
+
+	request, err := json.MarshalIndent(AdditionalInformationIpAddress{IpAddresses: geoIpInfo}, "", " ")
 	if err != nil {
 		dbs.logger.Send("error", supportingfunctions.CustomError(fmt.Errorf("'rootId:'%s', '%w'", newDocument.TaskId, err)).Error())
 
 		return
 	}
 
-	//обновление информации в БД
+	//выплняется обновление информации в БД
 	bodyUpdate := strings.NewReader(fmt.Sprintf("{\"doc\": %s}", string(request)))
 	res, err := dbs.client.Update(indexCurrent, underlineId, bodyUpdate)
 	if err != nil {
