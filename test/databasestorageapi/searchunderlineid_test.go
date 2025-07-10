@@ -10,7 +10,6 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/av-belyakov/placeholder_doc-base_db/cmd/databasestorageapi"
-	"github.com/av-belyakov/placeholder_doc-base_db/cmd/documentgenerator"
 	"github.com/av-belyakov/placeholder_doc-base_db/internal/supportingfunctions"
 )
 
@@ -42,7 +41,7 @@ func TestSearchUnderlineId(t *testing.T) {
 	   для "module_placeholder_case_2024_7", "~86803587072" нет
 	*/
 
-	newGeoIpList := []documentgenerator.IpAddressInformation{
+	newGeoIpList := []databasestorageapi.IpAddressesInformation{
 		{Ip: "45.13.191.34", City: "Oslolo", Country: "Норвегия", CountryCode: "NO"},
 		{Ip: "45.13.191.28", City: "Oslolo", Country: "Норвегия", CountryCode: "NO"},
 		{Ip: "45.13.191.18", City: "Oslo", Country: "Норвегия", CountryCode: "NO"},
