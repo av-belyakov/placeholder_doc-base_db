@@ -116,7 +116,7 @@ type SensorInformation struct {
 
 // IpAddressesInformation дополнительная информация об ip адресе
 type IpAddressesInformation struct {
-	Ip          string `json:"ip"`          //ip адрес по которомы выполнялся поиск
+	Ip          string `json:"ip"`          //ip адрес по которому выполнялся поиск
 	City        string `json:"city"`        //город
 	Country     string `json:"country"`     //страна
 	CountryCode string `json:"countryCode"` //код страны

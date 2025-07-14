@@ -308,3 +308,54 @@ func (dbs *DatabaseStorage) SearchUnderlineIdCase(ctx context.Context, indexName
 
 	return "", nil
 }
+
+// SearchGeoIPInformationCase поиск объекта типа 'case' по его rootId
+// возвращает _id объекта под которым он находится в БД и объект типа
+func (dbs *DatabaseStorage) SearchGeoIPInformationCase(ctx context.Context, indexName, rootId string) (string, []IpAddressesInformation, error) {
+	geoIpInformation := make([]IpAddressesInformation, 0)
+	query := strings.NewReader(fmt.Sprintf("{\"query\": {\"bool\": {\"must\": [{\"match\": {\"event.rootId\": \"%s\"}}]}}}", rootId))
+
+	//выполняем поиск _id индекса
+	res, err := dbs.client.Search(
+		dbs.client.Search.WithContext(ctx),
+		dbs.client.Search.WithIndex(indexName),
+		dbs.client.Search.WithBody(query),
+	)
+	if err != nil {
+		return "", geoIpInformation, err
+	}
+	defer res.Body.Close()
+
+	bodyRes, err := io.ReadAll(res.Body)
+	if err != nil {
+		return "", geoIpInformation, err
+	}
+
+	result, err := supportingfunctions.GetElementsFromJSON(ctx, bodyRes)
+	if err != nil {
+		return "", geoIpInformation, err
+	}
+
+	resTmp := CaseDBResponse{}
+	if err = json.Unmarshal(bodyRes, &resTmp); err != nil {
+		return "", geoIpInformation, err
+	}
+
+	var underlineId string
+	for k, v := range result {
+		if k == "hits.hits._id" {
+			underlineId = fmt.Sprint(v.Value)
+		}
+	}
+
+	for _, v := range resTmp.Options.Hits[0].Source.AdditionalInformation.IpAddresses {
+		geoIpInformation = append(geoIpInformation, IpAddressesInformation{
+			Ip:          v.Ip,
+			City:        v.City,
+			Country:     v.Country,
+			CountryCode: v.CountryCode,
+		})
+	}
+
+	return underlineId, geoIpInformation, nil
+}

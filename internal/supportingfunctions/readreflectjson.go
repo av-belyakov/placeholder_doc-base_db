@@ -5,13 +5,14 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"maps"
 	"reflect"
 	"sync"
 )
 
 // ElementsFromJSON элементы полученные при обработки JSON объекта
 type ElementsFromJSON struct {
-	mutex sync.Mutex
+	mutex sync.RWMutex
 	Data  map[string]Element
 }
 
@@ -36,8 +37,13 @@ type chResult struct {
 // содержащий перечень путей до элемента и значение элемента с указанием его имени
 // и типа
 func GetElementsFromJSON(ctx context.Context, data []byte) (map[string]Element, error) {
+	ctxCancel, cancel := context.WithCancel(ctx)
+
 	chRes := make(chan chResult)
+	defer close(chRes)
+
 	result := ElementsFromJSON{Data: map[string]Element{}}
+	copyResult := map[string]Element{}
 
 	//обработчик входящих данных
 	go func(ctx context.Context, rst *ElementsFromJSON, ch <-chan chResult) {
@@ -63,13 +69,15 @@ func GetElementsFromJSON(ctx context.Context, data []byte) (map[string]Element, 
 				}
 			}
 		}
-	}(ctx, &result, chRes)
+	}(ctxCancel, &result, chRes)
 
 	listMap := map[string]any{}
 	if err := json.Unmarshal(data, &listMap); err == nil {
 		//для карт
 		if len(listMap) == 0 {
-			return result.Data, errors.New("error decoding the json file, it may be empty")
+			cancel()
+
+			return copyResult, errors.New("error decoding the json file, it may be empty")
 		}
 
 		_ = processingReflectMap(chRes, listMap, "")
@@ -78,19 +86,27 @@ func GetElementsFromJSON(ctx context.Context, data []byte) (map[string]Element, 
 		// для срезов
 		listSlice := []any{}
 		if err = json.Unmarshal(data, &listSlice); err != nil {
-			return result.Data, err
+			cancel()
+
+			return copyResult, err
 		}
 
 		if len(listSlice) == 0 {
-			return result.Data, errors.New("error decoding the json message, it may be empty")
+			cancel()
+
+			return copyResult, errors.New("error decoding the json message, it may be empty")
 		}
 
 		_ = processingReflectSlice(chRes, listSlice, "")
 	}
 
-	close(chRes)
+	cancel()
 
-	return result.Data, nil
+	result.mutex.RLock()
+	maps.Copy(copyResult, result.Data)
+	result.mutex.RUnlock()
+
+	return copyResult, nil
 }
 
 func processingReflectMap(ch chan<- chResult, list map[string]any, fieldBranch string) map[string]any {

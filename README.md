@@ -24,6 +24,12 @@
 
 - GO_PHDOCBASEDB_MAIN
 
+Например:
+
+```bash
+export GO_PHDOCBASEDB_MAIN=test
+```
+
 #### Переменные окружения отвечающие за подключение к NATS
 
 - GO_PHDOCBASEDB_NHOST - ip или доменное имя;

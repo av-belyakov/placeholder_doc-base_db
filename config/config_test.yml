@@ -10,16 +10,16 @@ NATS:
     get_geoip_info: object.geoip-request.test
     get_sensor_info: object.sensor-info-request.test
 DATABASESTORAGE:
-  host: datahook.cloud.gcm
+  host: 192.168.9.208
   port: 9200
-  user: writer
+  user: placeholder-docbase-db
   namedb: ""
   storage_name_db:
-    alert: test.module_placeholderdb_alert
-    case: test.module_placeholderdb_case
+    alert: testtt.module_placeholderdb_alert
+    case: testtt.module_placeholderdb_case
 DATABASEWRITELOG:
-  host: datahook.cloud.gcm
+  host: 192.168.9.208
   port: 9200
-  user: log_writer
+  user: placeholder-docbase-db
   namedb: ""
   storage_name_db: placeholder_doc-base-db
