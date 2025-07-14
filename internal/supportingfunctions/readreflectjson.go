@@ -12,7 +12,7 @@ import (
 
 // ElementsFromJSON элементы полученные при обработки JSON объекта
 type ElementsFromJSON struct {
-	mutex sync.Mutex
+	mutex sync.RWMutex
 	Data  map[string]Element
 }
 
@@ -102,7 +102,9 @@ func GetElementsFromJSON(ctx context.Context, data []byte) (map[string]Element, 
 
 	cancel()
 
+	result.mutex.RLock()
 	maps.Copy(copyResult, result.Data)
+	result.mutex.RUnlock()
 
 	return copyResult, nil
 }
