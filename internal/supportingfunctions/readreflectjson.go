@@ -104,7 +104,7 @@ func GetElementsFromJSON(ctx context.Context, data []byte) (map[string]Element, 
 
 	result.mutex.RLock()
 	maps.Copy(copyResult, result.Data)
-	result.mutex.Unlock()
+	result.mutex.RUnlock()
 
 	return copyResult, nil
 }
