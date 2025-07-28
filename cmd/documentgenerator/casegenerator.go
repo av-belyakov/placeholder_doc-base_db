@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"reflect"
+	"strings"
 
 	casedetails "github.com/av-belyakov/objectsthehiveformat/casedetails"
 	caseobjects "github.com/av-belyakov/objectsthehiveformat/caseobject"
@@ -249,19 +250,28 @@ func CaseGenerator(chInput <-chan interfaces.CustomJsonDecoder) (string, *Verifi
 	//формируется список ip адресов
 	if ipObservables, ok := verifiedCase.GetKeyObservables("ip"); ok {
 		for _, v := range ipObservables {
+			ip := v.Data
+			if strings.Contains(ip, "[.]") {
+				ip = strings.ReplaceAll(ip, "[.]", ".")
+			}
+
 			additionalInformation.AddGetIpAddressInformation(IpAddressInformation{
-				Ip: v.Data,
+				Ip: ip,
 			})
 		}
 	}
 	if listIpAddresses, ok := objectElem.GetTags()["ip"]; ok {
 		for _, v := range listIpAddresses {
+			ip := v
+			if strings.Contains(ip, "[.]") {
+				ip = strings.ReplaceAll(v, "[.]", ".")
+			}
+
 			additionalInformation.AddGetIpAddressInformation(IpAddressInformation{
-				Ip: v,
+				Ip: strings.ReplaceAll(v, "[.]", "."),
 			})
 		}
 	}
-
 	verifiedCase.SetAdditionalInformation(additionalInformation)
 
 	envmain := os.Getenv("GO_PHDOCBASEDB_MAIN")
