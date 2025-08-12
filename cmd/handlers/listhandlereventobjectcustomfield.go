@@ -9,11 +9,11 @@ import (
 )
 
 // NewListHandlerEventObjectCustomFields обработчик событий 'event.object.customField.*' типа для объектов 'alert' или 'case'
-func NewListHandlerEventObjectCustomFields(customFields commonhf.CustomFields) map[string][]func(interface{}) {
+func NewListHandlerEventObjectCustomFields(customFields commonhf.CustomFields) map[string][]func(any) {
 	return map[string][]func(any){
 		//------------- для обработки тегов содержащих geoip -------------
-		"event.object.tags": {func(i any) {
-			s := fmt.Sprint(i)
+		"event.object.tags": {func(a any) {
+			s := fmt.Sprint(a)
 			if !strings.Contains(s, "geoip") {
 				return
 			}
@@ -29,259 +29,259 @@ func NewListHandlerEventObjectCustomFields(customFields commonhf.CustomFields) m
 		}},
 
 		//------------------ attack-type ------------------
-		"event.object.customFields.attack-type.order": {func(i any) {
+		"event.object.customFields.attack-type.order": {func(a any) {
 			//создаем элемент "attack-type" если его нет
 			NewCustomFieldsElement("attack-type", "string", &customFields)
 			_, _, _, str := customFields["attack-type"].Get()
-			customFields["attack-type"].Set(i, supportingfunctions.TrimIsNotLetter(str))
+			customFields["attack-type"].Set(a, supportingfunctions.TrimIsNotLetter(str))
 		}},
-		"event.object.customFields.attack-type.string": {func(i any) {
+		"event.object.customFields.attack-type.string": {func(a any) {
 			NewCustomFieldsElement("attack-type", "string", &customFields)
 			_, order, _, _ := customFields["attack-type"].Get()
-			customFields["attack-type"].Set(order, i)
+			customFields["attack-type"].Set(order, a)
 		}},
 		//------------------ class-attack ------------------
-		"event.object.customFields.class-attack.order": {func(i any) {
+		"event.object.customFields.class-attack.order": {func(a any) {
 			NewCustomFieldsElement("class-attack", "string", &customFields)
 			_, _, _, str := customFields["class-attack"].Get()
-			customFields["class-attack"].Set(i, supportingfunctions.TrimIsNotLetter(str))
+			customFields["class-attack"].Set(a, supportingfunctions.TrimIsNotLetter(str))
 		}},
-		"event.object.customFields.class-attack.string": {func(i any) {
+		"event.object.customFields.class-attack.string": {func(a any) {
 			NewCustomFieldsElement("class-attack", "string", &customFields)
 			_, order, _, _ := customFields["class-attack"].Get()
-			customFields["class-attack"].Set(order, i)
+			customFields["class-attack"].Set(order, a)
 		}},
 		//------------------ class-ca ------------------
-		"event.object.customFields.class-ca.order": {func(i any) {
+		"event.object.customFields.class-ca.order": {func(a any) {
 			NewCustomFieldsElement("class-ca", "string", &customFields)
 			_, _, _, str := customFields["class-ca"].Get()
-			customFields["class-ca"].Set(i, supportingfunctions.TrimIsNotLetter(str))
+			customFields["class-ca"].Set(a, supportingfunctions.TrimIsNotLetter(str))
 		}},
-		"event.object.customFields.class-ca.string": {func(i any) {
+		"event.object.customFields.class-ca.string": {func(a any) {
 			NewCustomFieldsElement("class-ca", "string", &customFields)
 			_, order, _, _ := customFields["class-ca"].Get()
-			customFields["class-ca"].Set(order, i)
+			customFields["class-ca"].Set(order, a)
 		}},
 		//--------------- count-of-files ------------------
-		"event.object.customFields.count-of-files.order": {func(i any) {
+		"event.object.customFields.count-of-files.order": {func(a any) {
 			NewCustomFieldsElement("count-of-files", "integer", &customFields)
 			_, _, _, str := customFields["count-of-files"].Get()
-			customFields["count-of-files"].Set(i, str)
+			customFields["count-of-files"].Set(a, str)
 		}},
-		"event.object.customFields.count-of-files.integer": {func(i any) {
+		"event.object.customFields.count-of-files.integer": {func(a any) {
 			NewCustomFieldsElement("count-of-files", "integer", &customFields)
 			_, order, _, _ := customFields["count-of-files"].Get()
-			customFields["count-of-files"].Set(order, i)
+			customFields["count-of-files"].Set(order, a)
 		}},
 		//--------------- count-of-malwares ------------------
-		"event.object.customFields.count-of-malwares.order": {func(i any) {
+		"event.object.customFields.count-of-malwares.order": {func(a any) {
 			NewCustomFieldsElement("count-of-malwares", "integer", &customFields)
 			_, _, _, str := customFields["count-of-malwares"].Get()
-			customFields["count-of-malwares"].Set(i, str)
+			customFields["count-of-malwares"].Set(a, str)
 		}},
-		"event.object.customFields.count-of-malwares.integer": {func(i any) {
+		"event.object.customFields.count-of-malwares.integer": {func(a any) {
 			NewCustomFieldsElement("count-of-malwares", "integer", &customFields)
 			_, order, _, _ := customFields["count-of-malwares"].Get()
-			customFields["count-of-malwares"].Set(order, i)
+			customFields["count-of-malwares"].Set(order, a)
 		}},
 		//--------------- event-number ------------------
-		"event.object.customFields.event-number.order": {func(i any) {
+		"event.object.customFields.event-number.order": {func(a any) {
 			NewCustomFieldsElement("event-number", "integer", &customFields)
 			_, _, _, str := customFields["event-number"].Get()
-			customFields["event-number"].Set(i, str)
+			customFields["event-number"].Set(a, str)
 		}},
-		"event.object.customFields.event-number.integer": {func(i any) {
+		"event.object.customFields.event-number.integer": {func(a any) {
 			NewCustomFieldsElement("event-number", "integer", &customFields)
 			_, order, _, _ := customFields["event-number"].Get()
-			customFields["event-number"].Set(order, i)
+			customFields["event-number"].Set(order, a)
 		}},
 		//--------------- external-letter ------------------
-		"event.object.customFields.external-letter.order": {func(i any) {
+		"event.object.customFields.external-letter.order": {func(a any) {
 			NewCustomFieldsElement("external-letter", "integer", &customFields)
 			_, _, _, str := customFields["external-letter"].Get()
-			customFields["external-letter"].Set(i, str)
+			customFields["external-letter"].Set(a, str)
 		}},
-		"event.object.customFields.external-letter.integer": {func(i any) {
+		"event.object.customFields.external-letter.integer": {func(a any) {
 			NewCustomFieldsElement("external-letter", "integer", &customFields)
 			_, order, _, _ := customFields["external-letter"].Get()
-			customFields["external-letter"].Set(order, i)
+			customFields["external-letter"].Set(order, a)
 		}},
 		//--------------- misp-event-id ------------------
-		"event.object.customFields.misp-event-id.order": {func(i any) {
+		"event.object.customFields.misp-event-id.order": {func(a any) {
 			NewCustomFieldsElement("misp-event-id", "string", &customFields)
 			_, _, _, str := customFields["misp-event-id"].Get()
-			customFields["misp-event-id"].Set(i, str)
+			customFields["misp-event-id"].Set(a, str)
 		}},
-		"event.object.customFields.misp-event-id.string": {func(i any) {
+		"event.object.customFields.misp-event-id.string": {func(a any) {
 			NewCustomFieldsElement("misp-event-id", "string", &customFields)
 			_, order, _, _ := customFields["misp-event-id"].Get()
-			customFields["misp-event-id"].Set(order, i)
+			customFields["misp-event-id"].Set(order, a)
 		}},
 		// --------------- verdict ------------------
-		"event.object.customFields.verdict.order": {func(i any) {
+		"event.object.customFields.verdict.order": {func(a any) {
 			NewCustomFieldsElement("verdict", "string", &customFields)
 			_, _, _, str := customFields["verdict"].Get()
-			customFields["verdict"].Set(i, str)
+			customFields["verdict"].Set(a, str)
 		}},
-		"event.object.customFields.verdict.string": {func(i any) {
+		"event.object.customFields.verdict.string": {func(a any) {
 			NewCustomFieldsElement("verdict", "string", &customFields)
 			_, order, _, _ := customFields["verdict"].Get()
-			customFields["verdict"].Set(order, i)
+			customFields["verdict"].Set(order, a)
 		}},
 		// --------------- classification ------------------
-		"event.object.customFields.classification.order": {func(i any) {
+		"event.object.customFields.classification.order": {func(a any) {
 			NewCustomFieldsElement("classification", "string", &customFields)
 			_, _, _, str := customFields["classification"].Get()
-			customFields["classification"].Set(i, str)
+			customFields["classification"].Set(a, str)
 		}},
-		"event.object.customFields.classification.string": {func(i any) {
+		"event.object.customFields.classification.string": {func(a any) {
 			NewCustomFieldsElement("classification", "string", &customFields)
 			_, order, _, _ := customFields["classification"].Get()
-			customFields["classification"].Set(order, i)
+			customFields["classification"].Set(order, a)
 		}},
 		//--------------- gratitude ------------------ номер благодарственного письма ????
-		"event.object.customFields.gratitude.order": {func(i any) {
+		"event.object.customFields.gratitude.order": {func(a any) {
 			NewCustomFieldsElement("gratitude", "integer", &customFields)
 			_, _, _, str := customFields["gratitude"].Get()
-			customFields["gratitude"].Set(i, str)
+			customFields["gratitude"].Set(a, str)
 		}},
-		"event.object.customFields.gratitude.integer": {func(i any) {
+		"event.object.customFields.gratitude.integer": {func(a any) {
 			NewCustomFieldsElement("gratitude", "integer", &customFields)
 			_, order, _, _ := customFields["gratitude"].Get()
-			customFields["gratitude"].Set(order, i)
+			customFields["gratitude"].Set(order, a)
 		}},
 		//------------------ ncircc-class-attack ------------------
-		"event.object.customFields.ncircc-class-attack.order": {func(i any) {
+		"event.object.customFields.ncircc-class-attack.order": {func(a any) {
 			NewCustomFieldsElement("ncircc-class-attack", "string", &customFields)
 			_, _, _, str := customFields["ncircc-class-attack"].Get()
-			customFields["ncircc-class-attack"].Set(i, supportingfunctions.TrimIsNotLetter(str))
+			customFields["ncircc-class-attack"].Set(a, supportingfunctions.TrimIsNotLetter(str))
 		}},
-		"event.object.customFields.ncircc-class-attack.string": {func(i any) {
+		"event.object.customFields.ncircc-class-attack.string": {func(a any) {
 			NewCustomFieldsElement("ncircc-class-attack", "string", &customFields)
 			_, order, _, _ := customFields["ncircc-class-attack"].Get()
-			customFields["ncircc-class-attack"].Set(order, i)
+			customFields["ncircc-class-attack"].Set(order, a)
 		}},
 		//------------------ inbox1 ------------------
-		"event.object.customFields.inbox1.order": {func(i any) {
+		"event.object.customFields.inbox1.order": {func(a any) {
 			NewCustomFieldsElement("inbox1", "string", &customFields)
 			_, _, _, str := customFields["inbox1"].Get()
-			customFields["inbox1"].Set(i, supportingfunctions.TrimIsNotLetter(str))
+			customFields["inbox1"].Set(a, supportingfunctions.TrimIsNotLetter(str))
 		}},
-		"event.object.customFields.inbox1.string": {func(i any) {
+		"event.object.customFields.inbox1.string": {func(a any) {
 			NewCustomFieldsElement("inbox1", "string", &customFields)
 			_, order, _, _ := customFields["inbox1"].Get()
-			customFields["inbox1"].Set(order, i)
+			customFields["inbox1"].Set(order, a)
 		}},
 		//------------------ inner-letter ------------------
-		"event.object.customFields.inner-letter.order": {func(i any) {
+		"event.object.customFields.inner-letter.order": {func(a any) {
 			NewCustomFieldsElement("inner-letter", "string", &customFields)
 			_, _, _, str := customFields["inner-letter"].Get()
-			customFields["inner-letter"].Set(i, supportingfunctions.TrimIsNotLetter(str))
+			customFields["inner-letter"].Set(a, supportingfunctions.TrimIsNotLetter(str))
 		}},
-		"event.object.customFields.inner-letter.string": {func(i any) {
+		"event.object.customFields.inner-letter.string": {func(a any) {
 			NewCustomFieldsElement("inner-letter", "string", &customFields)
 			_, order, _, _ := customFields["inner-letter"].Get()
-			customFields["inner-letter"].Set(order, i)
+			customFields["inner-letter"].Set(order, a)
 		}},
 		//------------------ notification ------------------
-		"event.object.customFields.notification.order": {func(i any) {
+		"event.object.customFields.notification.order": {func(a any) {
 			NewCustomFieldsElement("notification", "string", &customFields)
 			_, _, _, str := customFields["notification"].Get()
-			customFields["notification"].Set(i, supportingfunctions.TrimIsNotLetter(str))
+			customFields["notification"].Set(a, supportingfunctions.TrimIsNotLetter(str))
 		}},
 		//------------------ report ------------------
-		"event.object.customFields.report.order": {func(i any) {
+		"event.object.customFields.report.order": {func(a any) {
 			NewCustomFieldsElement("report", "string", &customFields)
 			_, _, _, str := customFields["report"].Get()
-			customFields["report"].Set(i, supportingfunctions.TrimIsNotLetter(str))
+			customFields["report"].Set(a, supportingfunctions.TrimIsNotLetter(str))
 		}},
 		//------------------ first-time ------------------
-		"event.object.customFields.first-time.order": {func(i any) {
+		"event.object.customFields.first-time.order": {func(a any) {
 			NewCustomFieldsElement("first-time", "date", &customFields)
 			_, _, _, str := customFields["first-time"].Get()
-			customFields["first-time"].Set(i, str)
+			customFields["first-time"].Set(a, str)
 		}},
-		"event.object.customFields.first-time.date": {func(i any) {
+		"event.object.customFields.first-time.date": {func(a any) {
 			NewCustomFieldsElement("first-time", "date", &customFields)
 			_, order, _, _ := customFields["first-time"].Get()
-			customFields["first-time"].Set(order, i)
+			customFields["first-time"].Set(order, a)
 		}},
 		//------------------ last-time ------------------
-		"event.object.customFields.last-time.order": {func(i any) {
+		"event.object.customFields.last-time.order": {func(a any) {
 			NewCustomFieldsElement("last-time", "date", &customFields)
 			_, _, _, str := customFields["last-time"].Get()
-			customFields["last-time"].Set(i, str)
+			customFields["last-time"].Set(a, str)
 		}},
-		"event.object.customFields.last-time.date": {func(i any) {
+		"event.object.customFields.last-time.date": {func(a any) {
 			NewCustomFieldsElement("last-time", "date", &customFields)
 			_, order, _, _ := customFields["last-time"].Get()
-			customFields["last-time"].Set(order, i)
+			customFields["last-time"].Set(order, a)
 		}},
 		//------------------ sphere ------------------
-		"event.object.customFields.sphere.order": {func(i any) {
+		"event.object.customFields.sphere.order": {func(a any) {
 			NewCustomFieldsElement("sphere", "string", &customFields)
 			_, _, _, str := customFields["sphere"].Get()
-			customFields["sphere"].Set(i, supportingfunctions.TrimIsNotLetter(str))
+			customFields["sphere"].Set(a, supportingfunctions.TrimIsNotLetter(str))
 		}},
-		"event.object.customFields.sphere.string": {func(i any) {
+		"event.object.customFields.sphere.string": {func(a any) {
 			NewCustomFieldsElement("sphere", "string", &customFields)
 			_, order, _, _ := customFields["sphere"].Get()
-			customFields["sphere"].Set(order, i)
+			customFields["sphere"].Set(order, a)
 		}},
 		//------------------ state ------------------
-		"event.object.customFields.state.order": {func(i any) {
+		"event.object.customFields.state.order": {func(a any) {
 			NewCustomFieldsElement("state", "string", &customFields)
 			_, _, _, str := customFields["state"].Get()
-			customFields["state"].Set(i, supportingfunctions.TrimIsNotLetter(str))
+			customFields["state"].Set(a, supportingfunctions.TrimIsNotLetter(str))
 		}},
-		"event.object.customFields.state.string": {func(i any) {
+		"event.object.customFields.state.string": {func(a any) {
 			NewCustomFieldsElement("state", "string", &customFields)
 			_, order, _, _ := customFields["state"].Get()
-			customFields["state"].Set(order, i)
+			customFields["state"].Set(order, a)
 		}},
 		//------------------ ir-name ------------------
-		"event.object.customFields.ir-name.order": {func(i any) {
+		"event.object.customFields.ir-name.order": {func(a any) {
 			NewCustomFieldsElement("ir-name", "string", &customFields)
 			_, _, _, str := customFields["ir-name"].Get()
-			customFields["ir-name"].Set(i, supportingfunctions.TrimIsNotLetter(str))
+			customFields["ir-name"].Set(a, supportingfunctions.TrimIsNotLetter(str))
 		}},
-		"event.object.customFields.ir-name.string": {func(i any) {
+		"event.object.customFields.ir-name.string": {func(a any) {
 			NewCustomFieldsElement("ir-name", "string", &customFields)
 			_, order, _, _ := customFields["ir-name"].Get()
-			customFields["ir-name"].Set(order, i)
+			customFields["ir-name"].Set(order, a)
 		}},
 		//------------------ id-soa ------------------
-		"event.object.customFields.id-soa.order": {func(i any) {
+		"event.object.customFields.id-soa.order": {func(a any) {
 			NewCustomFieldsElement("id-soa", "string", &customFields)
 			_, _, _, str := customFields["id-soa"].Get()
-			customFields["id-soa"].Set(i, supportingfunctions.TrimIsNotLetter(str))
+			customFields["id-soa"].Set(a, supportingfunctions.TrimIsNotLetter(str))
 		}},
-		"event.object.customFields.id-soa.string": {func(i any) {
+		"event.object.customFields.id-soa.string": {func(a any) {
 			NewCustomFieldsElement("id-soa", "string", &customFields)
 			_, order, _, _ := customFields["id-soa"].Get()
-			customFields["id-soa"].Set(order, i)
+			customFields["id-soa"].Set(order, a)
 		}},
 		//--------------- is-incident ------------------
-		"event.object.customFields.is-incident.order": {func(i any) {
+		"event.object.customFields.is-incident.order": {func(a any) {
 			NewCustomFieldsElement("is-incident", "boolen", &customFields)
 			_, _, _, str := customFields["is-incident"].Get()
-			customFields["is-incident"].Set(i, supportingfunctions.TrimIsNotLetter(str))
+			customFields["is-incident"].Set(a, supportingfunctions.TrimIsNotLetter(str))
 		}},
-		"event.object.customFields.is-incident.boolean": {func(i any) {
+		"event.object.customFields.is-incident.boolean": {func(a any) {
 			NewCustomFieldsElement("is-incident", "boolean", &customFields)
 			_, order, _, _ := customFields["is-incident"].Get()
-			customFields["is-incident"].Set(order, i)
+			customFields["is-incident"].Set(order, a)
 		}},
 		//--------------- work-admin ------------------
-		"event.object.customFields.work-admin.order": {func(i any) {
+		"event.object.customFields.work-admin.order": {func(a any) {
 			NewCustomFieldsElement("work-admin", "boolen", &customFields)
 			_, _, _, str := customFields["work-admin"].Get()
-			customFields["work-admin"].Set(i, supportingfunctions.TrimIsNotLetter(str))
+			customFields["work-admin"].Set(a, supportingfunctions.TrimIsNotLetter(str))
 		}},
-		"event.object.customFields.work-admin.boolean": {func(i any) {
+		"event.object.customFields.work-admin.boolean": {func(a any) {
 			NewCustomFieldsElement("work-admin", "boolean", &customFields)
 			_, order, _, _ := customFields["work-admin"].Get()
-			customFields["work-admin"].Set(order, i)
+			customFields["work-admin"].Set(order, a)
 		}},
 	}
 }

@@ -14,8 +14,8 @@ func NewListHandlerEventAlertDetails(details *alertdetailshf.EventAlertDetails) 
 		"event.details.title":       {details.SetAnyTitle},
 		"event.details.description": {details.SetAnyDescription},
 		"event.details.tags": {
-			func(i any) {
-				key, value := supportingfunctions.HandlerTag(i)
+			func(a any) {
+				key, value := supportingfunctions.HandlerTag(a)
 				if value == "" {
 					return
 				}

@@ -27,8 +27,8 @@ func NewListHandlerEventAlertObject(object *alertobjecthf.EventAlertObject) map[
 		"event.object.case":         {object.SetAnyCase},
 		"event.object.caseTemplate": {object.SetAnyCaseTemplate},
 		"event.object.tags": {
-			func(i any) {
-				key, value := supportingfunctions.HandlerTag(i)
+			func(a any) {
+				key, value := supportingfunctions.HandlerTag(a)
 				if value == "" {
 					return
 				}
