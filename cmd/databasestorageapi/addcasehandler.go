@@ -16,6 +16,8 @@ import (
 // addCase добавление объекта типа 'case'
 func (dbs *DatabaseStorage) addCase(ctx context.Context, data any) {
 	t := time.Now()
+	ctxTimeout, ctxCancel := context.WithTimeout(ctx, time.Second*15)
+	defer ctxCancel()
 
 	newDocument, ok := data.(*documentgenerator.VerifiedCase)
 	if !ok {
@@ -40,7 +42,7 @@ func (dbs *DatabaseStorage) addCase(ctx context.Context, data any) {
 	}
 
 	//получаем существующие индексы
-	existingIndexes, err := dbs.GetExistingIndexes(ctx, indexName)
+	existingIndexes, err := dbs.GetExistingIndexes(ctxTimeout, indexName)
 	if err != nil {
 		dbs.logger.Send("error", supportingfunctions.CustomError(err).Error())
 
@@ -98,7 +100,7 @@ func (dbs *DatabaseStorage) addCase(ctx context.Context, data any) {
 	if len(indexesOnlyCurrentYear) == 0 {
 		//
 		//вставка документа
-		statusCode, err := dbs.InsertDocument(ctx, currentIndex, newDocumentBinary)
+		statusCode, err := dbs.InsertDocument(ctxTimeout, currentIndex, newDocumentBinary)
 		if err != nil {
 			dbs.logger.Send("error", supportingfunctions.CustomError(err).Error())
 
@@ -108,7 +110,7 @@ func (dbs *DatabaseStorage) addCase(ctx context.Context, data any) {
 		existingIndexes = append(existingIndexes, currentIndex)
 		//устанавливаем максимальный лимит количества полей для всех индексов которые
 		//содержат значение по умолчанию в 1000 полей
-		if err := dbs.SetMaxTotalFieldsLimit(ctx, existingIndexes); err != nil {
+		if err := dbs.SetMaxTotalFieldsLimit(ctxTimeout, existingIndexes); err != nil {
 			dbs.logger.Send("error", supportingfunctions.CustomError(err).Error())
 		}
 
@@ -129,7 +131,7 @@ func (dbs *DatabaseStorage) addCase(ctx context.Context, data any) {
 
 	//устанавливаем максимальный лимит количества полей для всех индексов которые
 	//содержат значение по умолчанию в 1000 полей
-	if err := dbs.SetMaxTotalFieldsLimit(ctx, existingIndexes); err != nil {
+	if err := dbs.SetMaxTotalFieldsLimit(ctxTimeout, existingIndexes); err != nil {
 		dbs.logger.Send("error", supportingfunctions.CustomError(err).Error())
 	}
 
@@ -139,7 +141,7 @@ func (dbs *DatabaseStorage) addCase(ctx context.Context, data any) {
 			newDocument.GetSource(),
 			newDocument.GetEvent().GetRootId()))
 	res, err := dbs.client.Search(
-		dbs.client.Search.WithContext(context.Background()),
+		dbs.client.Search.WithContext(ctxTimeout),
 		dbs.client.Search.WithIndex(indexesOnlyCurrentYear...),
 		dbs.client.Search.WithBody(currentQuery),
 	)
@@ -162,7 +164,7 @@ func (dbs *DatabaseStorage) addCase(ctx context.Context, data any) {
 	if response.Options.Total.Value == 0 {
 		//
 		//вставка документа
-		statusCode, err := dbs.InsertDocument(ctx, currentIndex, newDocumentBinary)
+		statusCode, err := dbs.InsertDocument(ctxTimeout, currentIndex, newDocumentBinary)
 		if err != nil {
 			dbs.logger.Send("error", supportingfunctions.CustomError(err).Error())
 
@@ -232,7 +234,7 @@ func (dbs *DatabaseStorage) addCase(ctx context.Context, data any) {
 	}
 
 	//обновление уже существующего документа
-	statusCode, countDel, err := dbs.UpdateDocument(ctx, currentIndex, listDeleting, nvbyte)
+	statusCode, countDel, err := dbs.UpdateDocument(ctxTimeout, currentIndex, listDeleting, nvbyte)
 	if err != nil {
 		dbs.logger.Send("error", supportingfunctions.CustomError(fmt.Errorf("rootId '%s' '%s'", newDocument.GetEvent().GetRootId(), err.Error())).Error())
 

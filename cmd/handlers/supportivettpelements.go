@@ -58,7 +58,7 @@ func (sttp *SupportiveTtp) GetTtpTmp() *casettps.Ttp {
 	return &sttp.ttpTmp
 }
 
-func (sttp *SupportiveTtp) HandlerValue(fieldBranch string, i interface{}, f func(interface{})) {
+func (sttp *SupportiveTtp) HandlerValue(fieldBranch string, a any, f func(any)) {
 	//если поле повторяется то считается что это уже новый объект
 	isExist := isExistFieldsRepresentedAsList(fieldBranch, fieldsRepresentedAsList)
 
@@ -70,7 +70,7 @@ func (sttp *SupportiveTtp) HandlerValue(fieldBranch string, i interface{}, f fun
 
 	sttp.listAcceptedFields = append(sttp.listAcceptedFields, fieldBranch)
 
-	f(i)
+	f(a)
 }
 
 func (sttp SupportiveTtp) isExistFieldBranch(value string) bool {

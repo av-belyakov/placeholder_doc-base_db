@@ -203,17 +203,20 @@ func New(rootDir string) (*ConfigApp, error) {
 	}
 
 	var fn string
-	if envList["GO_PHDOCBASEDB_MAIN"] == "development" {
+	switch envList["GO_PHDOCBASEDB_MAIN"] {
+	case "development":
 		fn, err = getFileName("config_dev.yml", confPath, list)
 		if err != nil {
 			return conf, err
 		}
-	} else if envList["GO_PHDOCBASEDB_MAIN"] == "test" {
+
+	case "test":
 		fn, err = getFileName("config_test.yml", confPath, list)
 		if err != nil {
 			return conf, err
 		}
-	} else {
+
+	default:
 		fn, err = getFileName("config_prod.yml", confPath, list)
 		if err != nil {
 			return conf, err

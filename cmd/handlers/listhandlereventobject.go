@@ -29,8 +29,8 @@ func NewListHandlerEventCaseObject(object *caseobjecthf.EventCaseObject) map[str
 		"event.object.summary":          {object.SetAnySummary},
 		"event.object.owner":            {object.SetAnyOwner},
 		"event.object.tags": {
-			func(i any) {
-				key, value := HandlerTag(i)
+			func(a any) {
+				key, value := HandlerTag(a)
 				if value == "" {
 					return
 				}
