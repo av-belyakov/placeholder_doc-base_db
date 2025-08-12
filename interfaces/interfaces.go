@@ -68,8 +68,8 @@ type ChannelRequester interface {
 	RootIdHandler
 	CaseIdHandler
 	OrderHandler
-	GetData() interface{}
-	SetData(interface{})
+	GetData() any
+	SetData(any)
 	GetContext() context.Context
 	SetContext(v context.Context)
 	GetChanOutput() chan ChannelResponser

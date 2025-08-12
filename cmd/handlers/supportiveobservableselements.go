@@ -53,9 +53,9 @@ func (o *SupportiveObservables) GetObservableTmp() *caseobservables.Observable {
 	return &o.observableTmp
 }
 
-func (o *SupportiveObservables) HandlerValue(fieldBranch string, i interface{}, f func(interface{})) {
+func (o *SupportiveObservables) HandlerValue(fieldBranch string, a any, f func(any)) {
 	if fieldBranch == "observables.dataType" {
-		str := fmt.Sprint(i)
+		str := fmt.Sprint(a)
 		if _, ok := o.observables[str]; !ok {
 			o.observables[str] = []caseobservables.Observable(nil)
 		}
@@ -87,7 +87,7 @@ func (o *SupportiveObservables) HandlerValue(fieldBranch string, i interface{}, 
 
 	o.listAcceptedFields = append(o.listAcceptedFields, fieldBranch)
 
-	f(i)
+	f(a)
 }
 
 func (o *SupportiveObservables) isExistFieldBranch(value string) bool {

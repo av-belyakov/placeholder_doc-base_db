@@ -19,8 +19,8 @@ func PostProcessingUserType[T interfaces.UserTypeGetter](ut T) (T, bool) {
 				return
 			}
 
-			tmp := strings.Split(utg.GetData(), ",")
-			for _, v := range tmp {
+			tmp := strings.SplitSeq(utg.GetData(), ",")
+			for v := range tmp {
 				str := strings.TrimSpace(v)
 				utg.SetValueSnortSid(str)
 				utg.SetAnySnortSidNumber(str)

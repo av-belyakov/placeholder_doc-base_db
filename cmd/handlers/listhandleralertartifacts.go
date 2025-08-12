@@ -10,101 +10,101 @@ import (
 func NewListHandlerAlertArtifacts(saa *SupportiveAlertArtifacts) map[string][]func(any) {
 	return map[string][]func(any){
 		//--- ioc ---
-		"alert.artifacts.ioc": {func(i any) {
+		"alert.artifacts.ioc": {func(a any) {
 			saa.HandlerValue(
 				"alert.artifacts.ioc",
-				i,
+				a,
 				saa.GetArtifactTmp().SetAnyIoc,
 			)
 		}},
 		//--- tlp ---
-		"alert.artifacts.tlp": {func(i any) {
+		"alert.artifacts.tlp": {func(a any) {
 			saa.HandlerValue(
 				"alert.artifacts.tlp",
-				i,
+				a,
 				saa.GetArtifactTmp().SetAnyTlp,
 			)
 		}},
 		//--- _id ---
-		"alert.artifacts._id": {func(i any) {
+		"alert.artifacts._id": {func(a any) {
 			saa.HandlerValue(
 				"alert.artifacts._id",
-				i,
+				a,
 				saa.GetArtifactTmp().SetAnyUnderliningId,
 			)
 		}},
 		//--- id ---
-		"alert.artifacts.id": {func(i any) {
+		"alert.artifacts.id": {func(a any) {
 			saa.HandlerValue(
 				"alert.artifacts.id",
-				i,
+				a,
 				saa.GetArtifactTmp().SetAnyId,
 			)
 		}},
 		//--- _type ---
-		"alert.artifacts._type": {func(i any) {
+		"alert.artifacts._type": {func(a any) {
 			saa.HandlerValue(
 				"alert.artifacts._type",
-				i,
+				a,
 				saa.GetArtifactTmp().SetAnyUnderliningType,
 			)
 		}},
 		//--- createdAt ---
-		"alert.artifacts.createdAt": {func(i any) {
+		"alert.artifacts.createdAt": {func(a any) {
 			saa.HandlerValue(
 				"alert.artifacts.createdAt",
-				i,
+				a,
 				saa.GetArtifactTmp().SetAnyCreatedAt,
 			)
 		}},
 		//--- startDate ---
-		"alert.artifacts.startDate": {func(i any) {
+		"alert.artifacts.startDate": {func(a any) {
 			saa.HandlerValue(
 				"alert.artifacts.startDate",
-				i,
+				a,
 				saa.GetArtifactTmp().SetAnyStartDate,
 			)
 		}},
 		//--- createdBy ---
-		"alert.artifacts.createdBy": {func(i any) {
+		"alert.artifacts.createdBy": {func(a any) {
 			saa.HandlerValue(
 				"alert.artifacts.createdBy",
-				i,
+				a,
 				saa.GetArtifactTmp().SetAnyCreatedBy,
 			)
 		}},
 		//--- data ---
-		"alert.artifacts.data": {func(i any) {
+		"alert.artifacts.data": {func(a any) {
 			saa.HandlerValue(
 				"alert.artifacts.data",
-				i,
+				a,
 				saa.GetArtifactTmp().SetAnyData,
 			)
 		}},
 		//--- dataType ---
-		"alert.artifacts.dataType": {func(i any) {
+		"alert.artifacts.dataType": {func(a any) {
 			saa.HandlerValue(
 				"alert.artifacts.dataType",
-				i,
+				a,
 				saa.GetArtifactTmp().SetAnyDataType,
 			)
 		}},
 		//--- message ---
-		"alert.artifacts.message": {func(i any) {
+		"alert.artifacts.message": {func(a any) {
 			saa.HandlerValue(
 				"alert.artifacts.message",
-				i,
+				a,
 				saa.GetArtifactTmp().SetAnyMessage,
 			)
 		}},
 		//--- tags ---
 		"alert.artifacts.tags": {
-			func(i any) {
+			func(a any) {
 				saa.HandlerValue(
 					"alert.artifacts.tags",
-					i,
-					func(i any) {
-						key, value := supportingfunctions.HandlerTag(i)
+					a,
+					func(a any) {
+						key, value := supportingfunctions.HandlerTag(a)
 						if value == "" {
 							return
 						}

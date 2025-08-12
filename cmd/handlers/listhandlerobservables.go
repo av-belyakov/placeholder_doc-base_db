@@ -6,126 +6,126 @@ import "strings"
 func NewListHandlerObservables(so *SupportiveObservables) map[string][]func(any) {
 	return map[string][]func(any){
 		//--- ioc ---
-		"observables.ioc": {func(i any) {
+		"observables.ioc": {func(a any) {
 			so.HandlerValue(
 				"observables.ioc",
-				i,
+				a,
 				so.GetObservableTmp().SetAnyIoc,
 			)
 		}},
 		//--- sighted ---
-		"observables.sighted": {func(i any) {
+		"observables.sighted": {func(a any) {
 			so.HandlerValue(
 				"observables.sighted",
-				i,
+				a,
 				so.GetObservableTmp().SetAnySighted,
 			)
 		}},
 		//--- ignoreSimilarity ---
-		"observables.ignoreSimilarity": {func(i any) {
+		"observables.ignoreSimilarity": {func(a any) {
 			so.HandlerValue(
 				"observables.ignoreSimilarity",
-				i,
+				a,
 				so.GetObservableTmp().SetAnyIgnoreSimilarity,
 			)
 		}},
 		//--- tlp ---
-		"observables.tlp": {func(i any) {
+		"observables.tlp": {func(a any) {
 			so.HandlerValue(
 				"observables.tlp",
-				i,
+				a,
 				so.GetObservableTmp().SetAnyTlp,
 			)
 		}},
 		//--- _createdAt ---
-		"observables._createdAt": {func(i any) {
+		"observables._createdAt": {func(a any) {
 			so.HandlerValue(
 				"observables._createdAt",
-				i,
+				a,
 				so.GetObservableTmp().SetAnyUnderliningCreatedAt,
 			)
 		}},
 		//--- _updatedAt ---
-		"observables._updatedAt": {func(i any) {
+		"observables._updatedAt": {func(a any) {
 			so.HandlerValue(
 				"observables._updatedAt",
-				i,
+				a,
 				so.GetObservableTmp().SetAnyUnderliningUpdatedAt,
 			)
 		}},
 		//--- startDate ---
-		"observables.startDate": {func(i any) {
+		"observables.startDate": {func(a any) {
 			so.HandlerValue(
 				"observables.startDate",
-				i,
+				a,
 				so.GetObservableTmp().SetAnyStartDate,
 			)
 		}},
 		//--- _createdBy ---
-		"observables._createdBy": {func(i any) {
+		"observables._createdBy": {func(a any) {
 			so.HandlerValue(
 				"observables._createdBy",
-				i,
+				a,
 				so.GetObservableTmp().SetAnyUnderliningCreatedBy,
 			)
 		}},
 		//--- _updatedBy ---
-		"observables._updatedBy": {func(i any) {
+		"observables._updatedBy": {func(a any) {
 			so.HandlerValue(
 				"observables._updatedBy",
-				i,
+				a,
 				so.GetObservableTmp().SetAnyUnderliningUpdatedBy,
 			)
 		}},
 		//--- _id ---
-		"observables._id": {func(i any) {
+		"observables._id": {func(a any) {
 			so.HandlerValue(
 				"observables._id",
-				i,
+				a,
 				so.GetObservableTmp().SetAnyUnderliningId,
 			)
 		}},
 		//--- _type ---
-		"observables._type": {func(i any) {
+		"observables._type": {func(a any) {
 			so.HandlerValue(
 				"observables._type",
-				i,
+				a,
 				so.GetObservableTmp().SetAnyUnderliningType,
 			)
 		}},
 		//--- data ---
-		"observables.data": {func(i any) {
+		"observables.data": {func(a any) {
 			so.HandlerValue(
 				"observables.data",
-				i,
+				a,
 				so.GetObservableTmp().SetAnyData,
 			)
 		}},
 		//--- dataType ---
-		"observables.dataType": {func(i any) {
+		"observables.dataType": {func(a any) {
 			so.HandlerValue(
 				"observables.dataType",
-				i,
+				a,
 				so.GetObservableTmp().SetAnyDataType,
 			)
 		}},
 		//--- message ---
-		"observables.message": {func(i any) {
+		"observables.message": {func(a any) {
 			so.HandlerValue(
 				"observables.message",
-				i,
+				a,
 				so.GetObservableTmp().SetAnyMessage,
 			)
 		}},
 
 		//--- tags ---
 		"observables.tags": {
-			func(i any) {
+			func(a any) {
 				so.HandlerValue(
 					"observables.tags",
-					i,
-					func(i any) {
-						key, value := HandlerTag(i)
+					a,
+					func(a any) {
+						key, value := HandlerTag(a)
 						if value == "" {
 							return
 						}
@@ -139,42 +139,42 @@ func NewListHandlerObservables(so *SupportiveObservables) map[string][]func(any)
 			so.GetObservableTmp().SetAnyTagsAll,
 		},
 		//--- attachment.id ---
-		"observables.attachment.id": {func(i any) {
+		"observables.attachment.id": {func(a any) {
 			so.HandlerValue(
 				"observables.attachment.id",
-				i,
+				a,
 				so.GetObservableTmp().Attachment.SetAnyId,
 			)
 		}},
 		//--- attachment.size ---
-		"observables.attachment.size": {func(i any) {
+		"observables.attachment.size": {func(a any) {
 			so.HandlerValue(
 				"observables.attachment.size",
-				i,
+				a,
 				so.GetObservableTmp().Attachment.SetAnySize,
 			)
 		}},
 		// --- attachment.name ---
-		"observables.attachment.name": {func(i any) {
+		"observables.attachment.name": {func(a any) {
 			so.HandlerValue(
 				"observables.attachment.name",
-				i,
+				a,
 				so.GetObservableTmp().Attachment.SetAnyName,
 			)
 		}},
 		// --- attachment.contentType ---
-		"observables.attachment.contentType": {func(i any) {
+		"observables.attachment.contentType": {func(a any) {
 			so.HandlerValue(
 				"observables.attachment.contentType",
-				i,
+				a,
 				so.GetObservableTmp().Attachment.SetAnyContentType,
 			)
 		}},
 		// --- attachment.hashes ---
-		"observables.attachment.hashes": {func(i any) {
+		"observables.attachment.hashes": {func(a any) {
 			so.HandlerValue(
 				"observables.attachment.hashes",
-				i,
+				a,
 				so.GetObservableTmp().Attachment.SetAnyHashes,
 			)
 		}},

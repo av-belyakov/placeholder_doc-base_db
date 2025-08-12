@@ -29,65 +29,65 @@ func NewSupportiveAlertArtifacts() *SupportiveAlertArtifacts {
 // a.artifacts, так как artifacts автоматически пополняется только при
 // совпадении значений в listAcceptedFields. Соответственно при завершении
 // JSON объекта, последние добавленные значения остаются artifactTmp
-func (a *SupportiveAlertArtifacts) GetArtifacts() map[string][]alertartifacts.Artifacts {
-	a.listAcceptedFields = []string(nil)
+func (sa *SupportiveAlertArtifacts) GetArtifacts() map[string][]alertartifacts.Artifacts {
+	sa.listAcceptedFields = []string(nil)
 
-	if a.currentKey != "" {
-		_, _ = PostProcessingUserType[*alertartifacts.Artifacts](&a.artifactTmp)
-		a.artifacts[a.currentKey] = append(a.artifacts[a.currentKey], a.artifactTmp)
+	if sa.currentKey != "" {
+		_, _ = PostProcessingUserType(&sa.artifactTmp)
+		sa.artifacts[sa.currentKey] = append(sa.artifacts[sa.currentKey], sa.artifactTmp)
 	}
 
-	a.currentKey = ""
-	a.artifactTmp = *alertartifacts.NewArtifact()
+	sa.currentKey = ""
+	sa.artifactTmp = *alertartifacts.NewArtifact()
 
-	return a.artifacts
+	return sa.artifacts
 }
 
 // GetArtifactTmp возвращает временный объект artifact
-func (a *SupportiveAlertArtifacts) GetArtifactTmp() *alertartifacts.Artifacts {
-	return &a.artifactTmp
+func (sa *SupportiveAlertArtifacts) GetArtifactTmp() *alertartifacts.Artifacts {
+	return &sa.artifactTmp
 }
 
-func (a *SupportiveAlertArtifacts) HandlerValue(fieldBranch string, i interface{}, f func(interface{})) {
+func (sa *SupportiveAlertArtifacts) HandlerValue(fieldBranch string, a any, f func(any)) {
 	if fieldBranch == "alert.artifacts.dataType" {
-		str := fmt.Sprint(i)
-		if _, ok := a.artifacts[str]; !ok {
-			a.artifacts[str] = []alertartifacts.Artifacts(nil)
+		str := fmt.Sprint(a)
+		if _, ok := sa.artifacts[str]; !ok {
+			sa.artifacts[str] = []alertartifacts.Artifacts(nil)
 		}
 
-		if a.isExistFieldBranch(fieldBranch) {
-			a.listAcceptedFields = []string(nil)
+		if sa.isExistFieldBranch(fieldBranch) {
+			sa.listAcceptedFields = []string(nil)
 
-			_, _ = PostProcessingUserType[*alertartifacts.Artifacts](&a.artifactTmp)
-			a.artifacts[a.currentKey] = append(a.artifacts[a.currentKey], a.artifactTmp)
+			_, _ = PostProcessingUserType[*alertartifacts.Artifacts](&sa.artifactTmp)
+			sa.artifacts[sa.currentKey] = append(sa.artifacts[sa.currentKey], sa.artifactTmp)
 
-			a.artifactTmp = *alertartifacts.NewArtifact()
+			sa.artifactTmp = *alertartifacts.NewArtifact()
 		}
 
-		a.currentKey = str
+		sa.currentKey = str
 	}
 
 	//если поле повторяется то считается что это уже новый объект
-	if fieldBranch != "alert.artifacts.tags" && a.isExistFieldBranch(fieldBranch) {
-		a.listAcceptedFields = []string(nil)
+	if fieldBranch != "alert.artifacts.tags" && sa.isExistFieldBranch(fieldBranch) {
+		sa.listAcceptedFields = []string(nil)
 
-		if _, ok := a.artifacts[a.currentKey]; !ok {
-			a.artifacts[a.currentKey] = []alertartifacts.Artifacts(nil)
+		if _, ok := sa.artifacts[sa.currentKey]; !ok {
+			sa.artifacts[sa.currentKey] = []alertartifacts.Artifacts(nil)
 		}
 
-		_, _ = PostProcessingUserType[*alertartifacts.Artifacts](&a.artifactTmp)
-		a.artifacts[a.currentKey] = append(a.artifacts[a.currentKey], a.artifactTmp)
+		_, _ = PostProcessingUserType[*alertartifacts.Artifacts](&sa.artifactTmp)
+		sa.artifacts[sa.currentKey] = append(sa.artifacts[sa.currentKey], sa.artifactTmp)
 
-		a.artifactTmp = *alertartifacts.NewArtifact()
+		sa.artifactTmp = *alertartifacts.NewArtifact()
 	}
 
-	a.listAcceptedFields = append(a.listAcceptedFields, fieldBranch)
+	sa.listAcceptedFields = append(sa.listAcceptedFields, fieldBranch)
 
-	f(i)
+	f(a)
 }
 
-func (a *SupportiveAlertArtifacts) isExistFieldBranch(value string) bool {
-	for _, v := range a.listAcceptedFields {
+func (sa *SupportiveAlertArtifacts) isExistFieldBranch(value string) bool {
+	for _, v := range sa.listAcceptedFields {
 		if v == value {
 			return true
 		}
@@ -95,15 +95,3 @@ func (a *SupportiveAlertArtifacts) isExistFieldBranch(value string) bool {
 
 	return false
 }
-
-/*
-// ArtifactForAlert содержит артефакт для типа 'alert'
-type ArtifactForAlert struct {
-	Tags           map[string][]string `json:"tags" bson:"tags"`                               //теги после обработки
-	SnortSid       []string            `json:"snortSid,omitempty" bson:"snortSid"`             //список snort сигнатур (строка)
-	TagsAll        []string            `json:"tagsAll" bson:"tagsAll"`                         //все теги
-	SnortSidNumber []int               `json:"SnortSidNumber,omitempty" bson:"SnortSidNumber"` //список snort сигнатур (число)
-	SensorId       string              `json:"sensorId,omitempty" bson:"sensorId"`             //сенсор id
-	common.CommonArtifactType
-}
-*/

@@ -7,17 +7,17 @@ import (
 
 // GetWhitespace возвращает необходимое количество пробелов
 func GetWhitespace(num int) string {
-	var str string
+	str := strings.Builder{}
 
 	if num == 0 {
-		return str
+		return str.String()
 	}
 
-	for i := 0; i < num; i++ {
-		str += "  "
+	for range num {
+		str.WriteString("  ")
 	}
 
-	return str
+	return str.String()
 }
 
 // JoinRawFieldsToString объединяет список необработанных полей в строку

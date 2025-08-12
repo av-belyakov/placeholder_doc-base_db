@@ -27,8 +27,8 @@ func NewListHandlerAlert(alert *alerttemplate.TypeAlert) map[string][]func(any) 
 		"alert.caseTemplate": {alert.SetAnyCaseTemplate},
 		"alert.sourceRef":    {alert.SetAnySourceRef},
 		"alert.tags": {
-			func(i any) {
-				key, value := supportingfunctions.HandlerTag(i)
+			func(a any) {
+				key, value := supportingfunctions.HandlerTag(a)
 				if value == "" {
 					return
 				}

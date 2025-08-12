@@ -52,6 +52,9 @@ func (dbs *DatabaseStorage) addGeoIPInformation(ctx context.Context, data any) {
 	//текущий индекс
 	indexCurrent := fmt.Sprintf("%s_%d_%d", indexName, t.Year(), month)
 
+	ctxTimeout, ctxCancel := context.WithTimeout(ctx, time.Second*15)
+	defer ctxCancel()
+
 	//добавляем небольшую задержку что бы СУБД успела добавить индекс
 	//***************************************************************
 	time.Sleep(3 * time.Second)
@@ -87,8 +90,7 @@ func (dbs *DatabaseStorage) addGeoIPInformation(ctx context.Context, data any) {
 	}
 
 	//поиск _id объекта типа 'case' по его rootId (что передается в newDocument.TaskId)
-	underlineId, geoIpInfo, err := dbs.SearchGeoIPInformationCase(ctx, indexCurrent, newDocument.TaskId)
-	//underlineId, err := dbs.SearchUnderlineIdCase(ctx, indexCurrent, newDocument.TaskId)
+	underlineId, geoIpInfo, err := dbs.SearchGeoIPInformationCase(ctxTimeout, indexCurrent, newDocument.TaskId)
 	if err != nil {
 		dbs.logger.Send("error", supportingfunctions.CustomError(errors.New("the identifier of the index name was not found")).Error())
 
@@ -176,13 +178,16 @@ func (dbs *DatabaseStorage) addSensorInformation(ctx context.Context, data any) 
 	//текущий индекс
 	indexCurrent := fmt.Sprintf("%s_%d_%d", indexName, t.Year(), month)
 
+	ctxTimeout, ctxCancel := context.WithTimeout(ctx, time.Second*15)
+	defer ctxCancel()
+
 	//добавляем небольшую задержку что бы СУБД успела добавить индекс
 	//***************************************************************
 	time.Sleep(3 * time.Second)
 	//***************************************************************
 
 	//поиск _id объекта типа 'case' по его rootId (что в передается в newDocument.TaskId)
-	underlineId, err := dbs.SearchUnderlineIdCase(ctx, indexCurrent, newDocument.TaskId)
+	underlineId, err := dbs.SearchUnderlineIdCase(ctxTimeout, indexCurrent, newDocument.TaskId)
 	if err != nil {
 		dbs.logger.Send("error", supportingfunctions.CustomError(errors.New("the identifier of the index name was not found")).Error())
 

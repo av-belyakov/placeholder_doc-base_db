@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"runtime"
 	"strings"
+	"time"
 
 	"github.com/elastic/go-elasticsearch/v8/esapi"
 
@@ -22,13 +23,16 @@ func (dbs *DatabaseStorage) GetExistingIndexes(ctx context.Context, pattern stri
 		return []string{}, supportingfunctions.CustomError(errors.New("the client parameters for connecting to the Elasticsearch database are not set correctly"))
 	}
 
+	ctxTimeout, ctxCancel := context.WithTimeout(ctx, time.Second*15)
+	defer ctxCancel()
+
 	listIndexes := []string(nil)
 	msg := []struct {
 		Index string `json:"index"`
 	}(nil)
 
 	res, err := dbs.client.Cat.Indices(
-		dbs.client.Cat.Indices.WithContext(ctx),
+		dbs.client.Cat.Indices.WithContext(ctxTimeout),
 		dbs.client.Cat.Indices.WithFormat("json"),
 	)
 	if err != nil {
@@ -132,6 +136,30 @@ func (dbs *DatabaseStorage) DelIndexSetting(ctx context.Context, indexes []strin
 	return err
 }
 
+// GetDocument выполняет запросы по поиску документа
+func (dbs *DatabaseStorage) GetDocument(ctx context.Context, indexes []string, query *strings.Reader) ([]byte, error) {
+	var res []byte
+
+	ctxTimeout, ctxCancel := context.WithTimeout(ctx, time.Second*15)
+	defer ctxCancel()
+
+	response, err := dbs.client.Search(
+		dbs.client.Search.WithContext(ctxTimeout),
+		dbs.client.Search.WithIndex(indexes...),
+		dbs.client.Search.WithBody(query),
+	)
+	if err != nil {
+		return res, err
+	}
+	defer response.Body.Close()
+
+	if _, err = response.Body.Read(res); err != nil {
+		return res, err
+	}
+
+	return res, nil
+}
+
 // InsertDocument добавить новый документ в заданный индекс
 func (dbs *DatabaseStorage) InsertDocument(ctx context.Context, index string, b []byte) (int, error) {
 	if dbs.client == nil {
@@ -205,10 +233,13 @@ func (dbs *DatabaseStorage) SetMaxTotalFieldsLimit(ctx context.Context, indexes 
 		return "", false, nil
 	}
 
+	ctxTimeout, ctxCancel := context.WithTimeout(ctx, time.Second*15)
+	defer ctxCancel()
+
 	var errList error
 	indexForTotalFieldsLimit := []string(nil)
 	for _, v := range indexes {
-		limit, ok, err := getIndexLimit(ctx, v)
+		limit, ok, err := getIndexLimit(ctxTimeout, v)
 		if err != nil {
 			errList = errors.Join(errList, supportingfunctions.CustomError(err))
 		}
@@ -233,7 +264,7 @@ func (dbs *DatabaseStorage) SetMaxTotalFieldsLimit(ctx context.Context, indexes 
 				}
 			}
 		}`
-	if _, err := dbs.SetIndexSetting(ctx, indexForTotalFieldsLimit, query); err != nil {
+	if _, err := dbs.SetIndexSetting(ctxTimeout, indexForTotalFieldsLimit, query); err != nil {
 		errList = errors.Join(errList, err)
 
 		return err
