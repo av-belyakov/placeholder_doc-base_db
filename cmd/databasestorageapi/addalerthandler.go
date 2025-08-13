@@ -90,14 +90,12 @@ func (dbs *DatabaseStorage) addAlert(ctx context.Context, data any) {
 		dbs.logger.Send("error", supportingfunctions.CustomError(err).Error())
 	}
 
-	//ищем alert с таким же rootId
-	res, err := dbs.client.Search(
-		dbs.client.Search.WithContext(ctxTimeout),
-		dbs.client.Search.WithIndex(indexesOnlyCurrentYear...),
-		dbs.client.Search.WithBody(
-			strings.NewReader(
-				fmt.Sprintf("{\"query\": {\"bool\": {\"must\": [{\"match\": {\"source\": \"%s\"}}, {\"match\": {\"event.rootId\": \"%s\"}}]}}}", newDocument.GetSource(), newDocument.GetEvent().GetRootId()),
-			),
+	//ищем объект с таким же идентификатором как и принятый в обработку объект
+	res, err := dbs.GetDocument(
+		ctx,
+		indexesOnlyCurrentYear,
+		strings.NewReader(
+			fmt.Sprintf("{\"query\": {\"bool\": {\"must\": [{\"match\": {\"source\": \"%s\"}}, {\"match\": {\"event.rootId\": \"%s\"}}]}}}", newDocument.GetSource(), newDocument.GetEvent().GetRootId()),
 		),
 	)
 	if err != nil {
@@ -105,11 +103,10 @@ func (dbs *DatabaseStorage) addAlert(ctx context.Context, data any) {
 
 		return
 	}
-	defer res.Body.Close()
 
+	//обрабатываем принятую от базы данных информацию
 	response := AlertDBResponse{}
-	err = json.NewDecoder(res.Body).Decode(&response)
-	if err != nil {
+	if err = json.Unmarshal(res, &response); err != nil {
 		dbs.logger.Send("error", supportingfunctions.CustomError(err).Error())
 
 		return
