@@ -88,23 +88,24 @@ func (dbs *DatabaseStorage) addAlert(ctx context.Context, data any) {
 		dbs.logger.Send("error", supportingfunctions.CustomError(err).Error())
 	}
 
-	//ищем объект с таким же идентификатором как и принятый в обработку объект
-	res, err := dbs.GetDocument(
-		ctx,
-		indexesOnlyCurrentYear,
-		strings.NewReader(
+	//ищем alert с таким же rootId
+	res, err := dbs.client.Search(
+		dbs.client.Search.WithContext(context.Background()),
+		dbs.client.Search.WithIndex(indexesOnlyCurrentYear...),
+		dbs.client.Search.WithBody(strings.NewReader(
 			fmt.Sprintf("{\"query\": {\"bool\": {\"must\": [{\"match\": {\"source\": \"%s\"}}, {\"match\": {\"event.rootId\": \"%s\"}}]}}}", newDocument.GetSource(), newDocument.GetEvent().GetRootId()),
 		),
-	)
+		))
 	if err != nil {
 		dbs.logger.Send("error", supportingfunctions.CustomError(err).Error())
 
 		return
 	}
+	defer res.Body.Close()
 
 	//обрабатываем принятую от базы данных информацию
 	response := AlertDBResponse{}
-	if err = json.Unmarshal(res, &response); err != nil {
+	if err = json.NewDecoder(res.Body).Decode(&response); err != nil {
 		dbs.logger.Send("error", supportingfunctions.CustomError(err).Error())
 
 		return
