@@ -149,7 +149,7 @@ func (dbs *DatabaseStorage) addCase(ctx context.Context, data any) {
 
 		return
 	}
-	res.Body.Close()
+	defer res.Body.Close()
 
 	//обрабатываем принятую от базы данных информацию
 	response := CaseDBResponse{}
