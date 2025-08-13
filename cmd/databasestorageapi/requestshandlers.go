@@ -153,7 +153,8 @@ func (dbs *DatabaseStorage) GetDocument(ctx context.Context, indexes []string, q
 	}
 	defer response.Body.Close()
 
-	if _, err = response.Body.Read(res); err != nil {
+	res, err = io.ReadAll(response.Body)
+	if err != nil {
 		return res, err
 	}
 

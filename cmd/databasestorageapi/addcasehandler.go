@@ -135,25 +135,18 @@ func (dbs *DatabaseStorage) addCase(ctx context.Context, data any) {
 		dbs.logger.Send("error", supportingfunctions.CustomError(err).Error())
 	}
 
-	res, err := dbs.client.Search(
-		dbs.client.Search.WithContext(context.Background()),
-		dbs.client.Search.WithIndex(indexesOnlyCurrentYear...),
-		dbs.client.Search.WithBody(strings.NewReader(
+	//пробуем найти подобный документ в БД
+	res, err := dbs.GetDocument(
+		ctx,
+		indexesOnlyCurrentYear,
+		strings.NewReader(
 			fmt.Sprintf(
 				"{\"query\": {\"bool\": {\"must\": [{\"match\": {\"source\": \"%s\"}}, {\"match\": {\"event.rootId\": \"%s\"}}]}}}",
 				newDocument.GetSource(),
 				newDocument.GetEvent().GetRootId())),
-		))
-	if err != nil {
-		dbs.logger.Send("error", supportingfunctions.CustomError(err).Error())
-
-		return
-	}
-	defer res.Body.Close()
-
-	//обрабатываем принятую от базы данных информацию
+	)
 	response := CaseDBResponse{}
-	if err = json.NewDecoder(res.Body).Decode(&response); err != nil {
+	if err = json.Unmarshal(res, &response); err != nil {
 		dbs.logger.Send("error", supportingfunctions.CustomError(err).Error())
 
 		return
