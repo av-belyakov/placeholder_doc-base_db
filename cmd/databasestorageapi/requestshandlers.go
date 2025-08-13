@@ -379,6 +379,10 @@ func (dbs *DatabaseStorage) SearchGeoIPInformationCase(ctx context.Context, inde
 		}
 	}
 
+	if len(resTmp.Options.Hits) == 0 {
+		return "", geoIpInformation, fmt.Errorf("there is no template for updating geolocation information in object with rootId:'%s'", rootId)
+	}
+
 	for _, v := range resTmp.Options.Hits[0].Source.AdditionalInformation.IpAddresses {
 		geoIpInformation = append(geoIpInformation, IpAddressesInformation{
 			Ip:          v.Ip,
