@@ -223,7 +223,7 @@ func (dbs *DatabaseStorage) addSensorInformation(ctx context.Context, data any) 
 
 	request, err := json.MarshalIndent(AdditionalInformationSensors{Sensors: sensorInfoList}, "", " ")
 	if err != nil {
-		dbs.logger.Send("error", supportingfunctions.CustomError(fmt.Errorf("'rootId:'%s', '%w'", newDocument.TaskId, err)).Error())
+		dbs.logger.Send("error", supportingfunctions.CustomError(fmt.Errorf("rootId:'%s', '%w'", newDocument.TaskId, err)).Error())
 
 		return
 	}
@@ -232,14 +232,14 @@ func (dbs *DatabaseStorage) addSensorInformation(ctx context.Context, data any) 
 	bodyUpdate := strings.NewReader(fmt.Sprintf("{\"doc\": %s}", string(request)))
 	res, err := dbs.client.Update(indexCurrent, underlineId, bodyUpdate)
 	if err != nil {
-		dbs.logger.Send("error", supportingfunctions.CustomError(fmt.Errorf("'rootId:'%s', '%w'", newDocument.TaskId, err)).Error())
+		dbs.logger.Send("error", supportingfunctions.CustomError(fmt.Errorf("rootId:'%s', '%w'", newDocument.TaskId, err)).Error())
 
 		return
 	}
 	defer res.Body.Close()
 
 	if res != nil && res.StatusCode != http.StatusOK {
-		dbs.logger.Send("error", supportingfunctions.CustomError(fmt.Errorf("'rootId:'%s', '%w'", newDocument.TaskId, err)).Error())
+		dbs.logger.Send("error", supportingfunctions.CustomError(fmt.Errorf("rootId:'%s', '%w'", newDocument.TaskId, err)).Error())
 
 		return
 	}
