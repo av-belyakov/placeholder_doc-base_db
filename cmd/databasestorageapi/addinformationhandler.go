@@ -101,11 +101,7 @@ func (dbs *DatabaseStorage) addGeoIPInformation(ctx context.Context, data any) {
 	//ip адреса или заменяем информацию по уже имеющимся ip адресам на более свежую
 	for _, v := range ipInfoList {
 		num, ok := supportingfunctions.SliceContainsElementFunc(geoIpInfo, func(num int) bool {
-			if v.Ip == geoIpInfo[num].Ip {
-				return true
-			}
-
-			return false
+			return v.Ip == geoIpInfo[num].Ip
 		})
 		if ok {
 			geoIpInfo[num] = v
@@ -129,7 +125,7 @@ func (dbs *DatabaseStorage) addGeoIPInformation(ctx context.Context, data any) {
 
 		return
 	}
-	defer res.Body.Close()
+	defer bodyClose(res)
 
 	if res != nil && res.StatusCode != http.StatusOK {
 		dbs.logger.Send("error", supportingfunctions.CustomError(fmt.Errorf("'rootId:'%s', '%w'", newDocument.TaskId, err)).Error())
@@ -236,7 +232,7 @@ func (dbs *DatabaseStorage) addSensorInformation(ctx context.Context, data any) 
 
 		return
 	}
-	defer res.Body.Close()
+	defer bodyClose(res)
 
 	if res != nil && res.StatusCode != http.StatusOK {
 		dbs.logger.Send("error", supportingfunctions.CustomError(fmt.Errorf("rootId:'%s', '%w'", newDocument.TaskId, err)).Error())

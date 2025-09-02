@@ -58,7 +58,7 @@ func (sa *SupportiveAlertArtifacts) HandlerValue(fieldBranch string, a any, f fu
 		if sa.isExistFieldBranch(fieldBranch) {
 			sa.listAcceptedFields = []string(nil)
 
-			_, _ = PostProcessingUserType[*alertartifacts.Artifacts](&sa.artifactTmp)
+			_, _ = PostProcessingUserType(&sa.artifactTmp)
 			sa.artifacts[sa.currentKey] = append(sa.artifacts[sa.currentKey], sa.artifactTmp)
 
 			sa.artifactTmp = *alertartifacts.NewArtifact()
@@ -75,7 +75,7 @@ func (sa *SupportiveAlertArtifacts) HandlerValue(fieldBranch string, a any, f fu
 			sa.artifacts[sa.currentKey] = []alertartifacts.Artifacts(nil)
 		}
 
-		_, _ = PostProcessingUserType[*alertartifacts.Artifacts](&sa.artifactTmp)
+		_, _ = PostProcessingUserType(&sa.artifactTmp)
 		sa.artifacts[sa.currentKey] = append(sa.artifacts[sa.currentKey], sa.artifactTmp)
 
 		sa.artifactTmp = *alertartifacts.NewArtifact()
