@@ -120,10 +120,11 @@ func (dbs *DatabaseStorage) addCase(ctx context.Context, data any) {
 
 		//запрос на отправку сообщения для установки тега
 		dbs.GetChanDataFromModule() <- SettingsChanOutput{
-			Command: "set_tag",
-			CaseId:  caseId,
-			RootId:  newDocument.GetEvent().GetRootId(),
-			Data:    reqSetTag,
+			RegionalObject: newDocument.GetSource(),
+			Command:        "set_tag",
+			CaseId:         caseId,
+			RootId:         newDocument.GetEvent().GetRootId(),
+			Data:           reqSetTag,
 		}
 
 		return
@@ -141,11 +142,20 @@ func (dbs *DatabaseStorage) addCase(ctx context.Context, data any) {
 		indexesOnlyCurrentYear,
 		strings.NewReader(
 			fmt.Sprintf(
-				"{\"query\": {\"bool\": {\"must\": [{\"match\": {\"source\": \"%s\"}}, {\"match\": {\"event.rootId\": \"%s\"}}]}}}",
+				`{"query": 
+				    {"bool": {
+					  "must": [
+					    {"match": {"source": "%s"}}, 
+						{"match": {"event.rootId": "%s"}}]}}}`,
 				newDocument.GetSource(),
 				newDocument.GetEvent().GetRootId())),
 	)
 	response := CaseDBResponse{}
+	if err != nil {
+		dbs.logger.Send("error", supportingfunctions.CustomError(err).Error())
+
+		return
+	}
 	if err = json.Unmarshal(res, &response); err != nil {
 		dbs.logger.Send("error", supportingfunctions.CustomError(err).Error())
 
@@ -169,10 +179,11 @@ func (dbs *DatabaseStorage) addCase(ctx context.Context, data any) {
 
 		//запрос на отправку сообщения для установки тега
 		dbs.GetChanDataFromModule() <- SettingsChanOutput{
-			Command: "set_tag",
-			CaseId:  caseId,
-			RootId:  newDocument.GetEvent().GetRootId(),
-			Data:    reqSetTag,
+			RegionalObject: newDocument.GetSource(),
+			Command:        "set_tag",
+			CaseId:         caseId,
+			RootId:         newDocument.GetEvent().GetRootId(),
+			Data:           reqSetTag,
 		}
 
 		return

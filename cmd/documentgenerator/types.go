@@ -25,9 +25,9 @@ type VerifiedCase struct {
 	casettps.Ttps
 	AdditionalInformation
 	ID              string `json:"@id" bson:"@id"`
+	Source          string `json:"source" bson:"source"`
 	ElasticsearchID string `json:"@es_id" bson:"@es_id"`
 	CreateTimestamp string `json:"@timestamp" bson:"@timestamp"`
-	Source          string `json:"source" bson:"source"`
 }
 
 // AdditionalInformation дополнительная информация добавляемая к информации по кейсам
@@ -38,14 +38,14 @@ type AdditionalInformation struct {
 
 // SensorInformation содержит дополнительную информацию о сенсоре
 type SensorInformation struct {
-	SensorId    string `json:"sensorId" bson:"sensorId"`       //идентификатор сенсора
-	HostId      string `json:"hostId" bson:"hostId"`           //идентификатор сенсора, специальный, для поиска информации в НКЦКИ
-	GeoCode     string `json:"geoCode" bson:"geoCode"`         //географический код страны
-	ObjectArea  string `json:"objectArea" bson:"objectArea"`   //сфера деятельности объекта
-	SubjectRF   string `json:"subjectRF" bson:"subjectRF"`     //субъект Российской Федерации
 	INN         string `json:"inn" bson:"inn"`                 //налоговый идентификатор
-	HomeNet     string `json:"homeNet" bson:"homeNet"`         //перечень домашних сетей
+	HostId      string `json:"hostId" bson:"hostId"`           //идентификатор сенсора, специальный, для поиска информации в НКЦКИ
 	OrgName     string `json:"orgName" bson:"orgName"`         //наименование организации
+	HomeNet     string `json:"homeNet" bson:"homeNet"`         //перечень домашних сетей
+	GeoCode     string `json:"geoCode" bson:"geoCode"`         //географический код страны
+	SensorId    string `json:"sensorId" bson:"sensorId"`       //идентификатор сенсора
+	SubjectRF   string `json:"subjectRF" bson:"subjectRF"`     //субъект Российской Федерации
+	ObjectArea  string `json:"objectArea" bson:"objectArea"`   //сфера деятельности объекта
 	FullOrgName string `json:"fullOrgName" bson:"fullOrgName"` //полное наименование организации
 }
 

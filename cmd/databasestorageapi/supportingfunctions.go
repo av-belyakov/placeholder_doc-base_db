@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 
 	"github.com/av-belyakov/placeholder_doc-base_db/internal/request"
+	"github.com/elastic/go-elasticsearch/v8/esapi"
 )
 
 // sendGeoIpRequest запрос для обогащения кейса дополнительной информацией о
@@ -60,4 +61,13 @@ func sendSensorInformationRequest(
 	}
 
 	return true, nil
+}
+
+// bodyClose закрывает ответ с предварительной проверкой
+func bodyClose(res *esapi.Response) {
+	if res == nil || res.Body == nil {
+		return
+	}
+
+	res.Body.Close()
 }

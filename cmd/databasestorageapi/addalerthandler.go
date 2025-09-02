@@ -96,7 +96,11 @@ func (dbs *DatabaseStorage) addAlert(ctx context.Context, data any) {
 		indexesOnlyCurrentYear,
 		strings.NewReader(
 			fmt.Sprintf(
-				"{\"query\": {\"bool\": {\"must\": [{\"match\": {\"source\": \"%s\"}}, {\"match\": {\"event.rootId\": \"%s\"}}]}}}",
+				`{"query": 
+				  {"bool": 
+				    {"must": [
+					  {"match": {"source": "%s"}}, 
+					  {"match": {"event.rootId": "%s"}}]}}}`,
 				newDocument.GetSource(),
 				newDocument.GetEvent().GetRootId()),
 		),

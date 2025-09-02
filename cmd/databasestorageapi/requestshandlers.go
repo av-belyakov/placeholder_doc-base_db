@@ -38,7 +38,7 @@ func (dbs *DatabaseStorage) GetExistingIndexes(ctx context.Context, pattern stri
 	if err != nil {
 		return nil, err
 	}
-	defer res.Body.Close()
+	defer bodyClose(res)
 
 	if err = json.NewDecoder(res.Body).Decode(&msg); err != nil {
 		return nil, err
@@ -78,7 +78,7 @@ func (dbs *DatabaseStorage) GetIndexSetting(ctx context.Context, index string) (
 	if err != nil {
 		return
 	}
-	defer res.Body.Close()
+	defer bodyClose(res)
 
 	if res.StatusCode != http.StatusOK {
 		err = fmt.Errorf("the server response when executing an index search query is equal to '%s'", res.Status())
@@ -105,7 +105,7 @@ func (dbs *DatabaseStorage) SetIndexSetting(ctx context.Context, indexes []strin
 	if err != nil {
 		return false, err
 	}
-	defer res.Body.Close()
+	defer bodyClose(res)
 
 	if res.StatusCode == http.StatusCreated || res.StatusCode == http.StatusOK {
 		return true, nil
@@ -131,7 +131,7 @@ func (dbs *DatabaseStorage) DelIndexSetting(ctx context.Context, indexes []strin
 	if err != nil {
 		return err
 	}
-	defer res.Body.Close()
+	defer bodyClose(res)
 
 	return err
 }
@@ -151,7 +151,7 @@ func (dbs *DatabaseStorage) GetDocument(ctx context.Context, indexes []string, q
 	if err != nil {
 		return res, err
 	}
-	defer response.Body.Close()
+	defer bodyClose(response)
 
 	res, err = io.ReadAll(response.Body)
 	if err != nil {
@@ -172,7 +172,7 @@ func (dbs *DatabaseStorage) InsertDocument(ctx context.Context, index string, b 
 	if err != nil {
 		return 0, supportingfunctions.CustomError(err)
 	}
-	defer res.Body.Close()
+	defer bodyClose(res)
 
 	bodyRes, err := io.ReadAll(res.Body)
 	if err != nil {
@@ -200,7 +200,7 @@ func (dbs *DatabaseStorage) UpdateDocument(ctx context.Context, currentIndex str
 		if errDel != nil {
 			err = fmt.Errorf("%v, %v", err, errDel)
 		}
-		res.Body.Close()
+		bodyClose(res)
 
 		countDel++
 	}
@@ -268,7 +268,7 @@ func (dbs *DatabaseStorage) SetMaxTotalFieldsLimit(ctx context.Context, indexes 
 	if _, err := dbs.SetIndexSetting(ctxTimeout, indexForTotalFieldsLimit, query); err != nil {
 		errList = errors.Join(errList, err)
 
-		return err
+		return errList
 	}
 
 	return errList
@@ -288,7 +288,7 @@ func (dbs *DatabaseStorage) SearchUnderlineIdAlert(ctx context.Context, indexNam
 	if err != nil {
 		return "", err
 	}
-	defer res.Body.Close()
+	defer bodyClose(res)
 
 	if res.StatusCode != http.StatusOK {
 		return "", fmt.Errorf("%s", res.Status())
@@ -320,7 +320,7 @@ func (dbs *DatabaseStorage) SearchUnderlineIdCase(ctx context.Context, indexName
 	if err != nil {
 		return "", err
 	}
-	defer res.Body.Close()
+	defer bodyClose(res)
 
 	bodyRes, err := io.ReadAll(res.Body)
 	if err != nil {
@@ -356,7 +356,7 @@ func (dbs *DatabaseStorage) SearchGeoIPInformationCase(ctx context.Context, inde
 	if err != nil {
 		return "", geoIpInformation, err
 	}
-	defer res.Body.Close()
+	defer bodyClose(res)
 
 	bodyRes, err := io.ReadAll(res.Body)
 	if err != nil {
