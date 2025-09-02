@@ -267,9 +267,7 @@ func CaseGenerator(chInput <-chan interfaces.CustomJsonDecoder) (string, *Verifi
 				ip = strings.ReplaceAll(v, "[.]", ".")
 			}
 
-			additionalInformation.AddGetIpAddressInformation(IpAddressInformation{
-				Ip: strings.ReplaceAll(v, "[.]", "."),
-			})
+			additionalInformation.AddGetIpAddressInformation(IpAddressInformation{Ip: ip})
 		}
 	}
 	verifiedCase.SetAdditionalInformation(additionalInformation)

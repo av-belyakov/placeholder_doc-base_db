@@ -277,35 +277,3 @@ func (i *IpAddressInformation) ToStringBeautiful(num int) string {
 
 	return str.String()
 }
-
-//********* listSensorId ************
-
-// Get возвращает список идентификаторов сенсоров
-func (e *listSensorId) Get() []string {
-	return e.sensors
-}
-
-// AddElem добавляет только уникальные элементы
-func (e *listSensorId) AddElem(sensorId string) {
-	if slices.Contains(e.sensors, sensorId) {
-		return
-	}
-
-	e.sensors = append(e.sensors, sensorId)
-}
-
-//********* listIpAddresses ************
-
-// Get возвращает список ip
-func (e *listIpAddresses) Get() []string {
-	return e.ip
-}
-
-// AddElem добавляет только уникальные элементы
-func (e *listIpAddresses) AddElem(ip string) {
-	if slices.Contains(e.ip, ip) {
-		return
-	}
-
-	e.ip = append(e.ip, ip)
-}

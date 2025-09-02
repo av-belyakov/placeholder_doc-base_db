@@ -77,13 +77,17 @@ func (dbs *DatabaseStorage) addCase(ctx context.Context, data any) {
 	currentIndex := fmt.Sprintf("%s_%d_%d", indexName, t.Year(), int(t.Month()))
 
 	caseId := fmt.Sprint(newDocument.GetEvent().GetObject().CaseId)
-	reqSetTag := fmt.Appendf(nil, `{
-						  "service": "placeholder_doc-base_db",
-						  "command": "add_case_tag",
-						  "root_id": "%s",
-						  "case_id": "%s",
-						  "value": "Webhook: send=\"ElasticsearchDB"
-						}`,
+	reqSetTag := fmt.Appendf(
+		nil,
+		`{
+		  "service": "placeholder_doc-base_db",
+		  "command": "add_case_tag",
+		  "for_regional_object": "%s",
+		  "root_id": "%s",
+		  "case_id": "%s",
+		  "value": "Webhook: send=\"ElasticsearchDB\""
+		}`,
+		newDocument.GetSource(),
 		newDocument.GetEvent().GetRootId(),
 		caseId)
 
@@ -141,11 +145,20 @@ func (dbs *DatabaseStorage) addCase(ctx context.Context, data any) {
 		indexesOnlyCurrentYear,
 		strings.NewReader(
 			fmt.Sprintf(
-				"{\"query\": {\"bool\": {\"must\": [{\"match\": {\"source\": \"%s\"}}, {\"match\": {\"event.rootId\": \"%s\"}}]}}}",
+				`{"query": 
+				    {"bool": {
+					  "must": [
+					    {"match": {"source": "%s"}}, 
+						{"match": {"event.rootId": "%s"}}]}}}`,
 				newDocument.GetSource(),
 				newDocument.GetEvent().GetRootId())),
 	)
 	response := CaseDBResponse{}
+	if err != nil {
+		dbs.logger.Send("error", supportingfunctions.CustomError(err).Error())
+
+		return
+	}
 	if err = json.Unmarshal(res, &response); err != nil {
 		dbs.logger.Send("error", supportingfunctions.CustomError(err).Error())
 

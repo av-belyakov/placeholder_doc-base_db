@@ -93,21 +93,3 @@ func WithStorage(v map[string]string) DatabaseStorageOptions {
 		return nil
 	}
 }
-
-//****************** вспомогательные методы *************************
-
-// Get возвращает список идентификаторов сенсоров
-func (e *listSensorId) get() []string {
-	return e.sensors
-}
-
-// AddElem добавляет только уникальные элементы
-func (e *listSensorId) addElem(sensorId string) {
-	for _, v := range e.sensors {
-		if v == sensorId {
-			return
-		}
-	}
-
-	e.sensors = append(e.sensors, sensorId)
-}
