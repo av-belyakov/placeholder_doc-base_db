@@ -1,5 +1,8 @@
 # Placeholder_doc_base_db
 
+[![Go Version](https://img.shields.io/badge/Go-1.24.4+-00ADD8?style=flat&logo=go)](https://golang.org/)
+[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=flat&logo=docker)](https://www.docker.com/)
+
 Сервис 'placeholder_doc_base_db' принимает любые, структурированные в формате JSON, данные, разбирает их и укладывает в документо-ориентированную базу данных.
 
 ## Конфигурационные настройки
