@@ -122,7 +122,3 @@ type IpAddressesInformation struct {
 	Country     string `json:"country"`     //страна
 	CountryCode string `json:"countryCode"` //код страны
 }
-
-type listSensorId struct {
-	sensors []string
-}
