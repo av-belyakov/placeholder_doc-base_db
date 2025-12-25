@@ -1,3 +1,4 @@
 app
+.vscode/
 .env
 logs/
